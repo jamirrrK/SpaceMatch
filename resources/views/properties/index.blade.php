@@ -13,6 +13,9 @@
                     'min_price' => 'From PHP '.number_format((float)$value),
                     'max_price' => 'Up to PHP '.number_format((float)$value),
                     'capacity' => $value.'+ people',
+                    'bedrooms' => $value.'+ bedrooms',
+                    'bathrooms' => $value.'+ bathrooms',
+                    'available_from' => 'Available by '.\Illuminate\Support\Carbon::parse($value)->format('M j, Y'),
                     'amenities' => count((array)$value).' amenities',
                     default => $value,
                 };

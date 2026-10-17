@@ -16,7 +16,7 @@
     @stack('styles')
 </head>
 <body class="spacematch-app">
-    @php($management = auth()->check() && !auth()->user()->requiresContactVerification() && (request()->is('owner/*', 'admin/*', 'renter/*') || request()->routeIs('profile', 'bookings.index', 'payments.index', 'maintenance.index', 'reviews.index')))
+    @php($management = auth()->check() && !auth()->user()->requiresContactVerification() && (request()->is('owner/*', 'admin/*', 'renter/*') || request()->routeIs('profile', 'bookings.index', 'payments.index', 'maintenance.index', 'reviews.index', 'notifications.index')))
     <a class="skip-link" href="#main-content">Skip to content</a>
     <nav class="navbar navbar-expand-xl nav-shell sticky-top {{ $management ? 'workspace-topbar' : '' }}" aria-label="Main navigation">
         <div class="container-fluid site-width px-3 px-lg-4">
@@ -78,8 +78,15 @@
                     <nav aria-label="Management navigation" class="d-grid gap-1">
                         @if(auth()->user()->hasRole('owner'))
                             <a class="sidebar-link {{ request()->routeIs('owner.dashboard') ? 'active' : '' }}" href="{{ route('owner.dashboard') }}"><x-icon name="grid" /><span>Overview</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('owner.requests.*') ? 'active' : '' }}" href="{{ route('owner.requests.index') }}"><x-icon name="calendar" /><span>Rental requests</span></a>
                             <a class="sidebar-link {{ request()->routeIs('owner.properties.*') ? 'active' : '' }}" href="{{ route('owner.properties.index') }}"><x-icon name="building" /><span>My properties</span></a>
                             <a class="sidebar-link {{ request()->routeIs('owner.spaces.*') ? 'active' : '' }}" href="{{ route('owner.spaces.index') }}"><x-icon name="home" /><span>Rental spaces</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('bookings.index') ? 'active' : '' }}" href="{{ route('bookings.index') }}"><x-icon name="calendar" /><span>Bookings</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('owner.tenants.*') ? 'active' : '' }}" href="{{ route('owner.tenants.index') }}"><x-icon name="user" /><span>Tenants</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('payments.index') ? 'active' : '' }}" href="{{ route('payments.index') }}"><x-icon name="wallet" /><span>Rental payments</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('maintenance.index') ? 'active' : '' }}" href="{{ route('maintenance.index') }}"><x-icon name="tool" /><span>Maintenance</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('reviews.index') ? 'active' : '' }}" href="{{ route('reviews.index') }}"><x-icon name="star" /><span>Property reviews</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('owner.reports.*') ? 'active' : '' }}" href="{{ route('owner.reports.index') }}"><x-icon name="grid" /><span>Reports and analytics</span></a>
                             <a class="sidebar-link" href="{{ route('owner.properties.create') }}"><x-icon name="building" /><span>Add a property</span></a>
                         @elseif(auth()->user()->hasRole('admin'))
                             <a class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><x-icon name="grid" /><span>Platform overview</span></a>
@@ -87,11 +94,19 @@
                         @else
                             <a class="sidebar-link {{ request()->routeIs('renter.dashboard') ? 'active' : '' }}" href="{{ route('renter.dashboard') }}"><x-icon name="grid" /><span>Overview</span></a>
                             <a class="sidebar-link {{ request()->routeIs('properties.*', 'spaces.*') ? 'active' : '' }}" href="{{ route('properties.index') }}"><x-icon name="search" /><span>Browse properties</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('renter.saved-properties.*') ? 'active' : '' }}" href="{{ route('renter.saved-properties.index') }}"><x-icon name="star" /><span>Saved properties</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('renter.requests.*') ? 'active' : '' }}" href="{{ route('renter.requests.index') }}"><x-icon name="calendar" /><span>My rental requests</span></a>
                         @endif
                         <div class="sidebar-group-label">Rental activity</div>
-                        <a class="sidebar-link {{ request()->routeIs('bookings.index') ? 'active' : '' }}" href="{{ route('bookings.index') }}"><x-icon name="calendar" /><span>Bookings</span></a>
-                        <a class="sidebar-link {{ request()->routeIs('payments.index') ? 'active' : '' }}" href="{{ route('payments.index') }}"><x-icon name="wallet" /><span>Payments</span></a>
-                        <a class="sidebar-link {{ request()->routeIs('maintenance.index') ? 'active' : '' }}" href="{{ route('maintenance.index') }}"><x-icon name="tool" /><span>Maintenance</span></a>
+                        @unless(auth()->user()->hasRole('owner'))
+                            <a class="sidebar-link {{ request()->routeIs('bookings.index') ? 'active' : '' }}" href="{{ route('bookings.index') }}"><x-icon name="calendar" /><span>Bookings</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('payments.index') ? 'active' : '' }}" href="{{ route('payments.index') }}"><x-icon name="wallet" /><span>Payments</span></a>
+                        @endunless
+                        @php($unreadNotifications = auth()->user()->unreadNotifications()->count())
+                        <a class="sidebar-link {{ request()->routeIs('notifications.index') ? 'active' : '' }}" href="{{ route('notifications.index') }}"><x-icon name="bell" /><span>Notifications</span>@if($unreadNotifications)<span class="badge text-bg-light ms-auto">{{ $unreadNotifications }}</span>@endif</a>
+                        @unless(auth()->user()->hasRole('owner'))
+                            <a class="sidebar-link {{ request()->routeIs('maintenance.index') ? 'active' : '' }}" href="{{ route('maintenance.index') }}"><x-icon name="tool" /><span>Maintenance</span></a>
+                        @endunless
                         @if(auth()->user()->hasRole('renter'))
                             <a class="sidebar-link {{ request()->routeIs('reviews.index') ? 'active' : '' }}" href="{{ route('reviews.index') }}"><x-icon name="star" /><span>Reviews</span></a>
                         @endif

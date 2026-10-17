@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class Booking extends Model
 {
@@ -12,6 +12,7 @@ class Booking extends Model
         return [
             'start_date' => 'date',
             'end_date' => 'date',
+            'ended_early_at' => 'datetime',
         ];
     }
 
@@ -29,6 +30,11 @@ class Booking extends Model
     protected $fillable = [
         'renter_id',
         'space_id',
+        'reference',
+        'occupants',
+        'monthly_rent',
+        'deposit_amount',
+        'advance_months',
         'start_date',
         'end_date',
         'status',
@@ -52,5 +58,25 @@ class Booking extends Model
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function rentalRequest()
+    {
+        return $this->hasOne(RentalRequest::class);
+    }
+
+    public function statusHistory()
+    {
+        return $this->hasMany(BookingStatusHistory::class)->oldest();
+    }
+
+    public function terminator()
+    {
+        return $this->belongsTo(User::class, 'terminated_by');
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 }

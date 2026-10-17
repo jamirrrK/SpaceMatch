@@ -14,7 +14,9 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     public const ROLE_ADMIN = 'admin';
+
     public const ROLE_OWNER = 'owner';
+
     public const ROLE_RENTER = 'renter';
 
     /**
@@ -87,5 +89,15 @@ class User extends Authenticatable
     public function properties()
     {
         return $this->hasMany(Property::class, 'owner_id');
+    }
+
+    public function savedProperties()
+    {
+        return $this->belongsToMany(Property::class, 'saved_properties')->withTimestamps();
+    }
+
+    public function rentalRequests()
+    {
+        return $this->hasMany(RentalRequest::class, 'renter_id');
     }
 }

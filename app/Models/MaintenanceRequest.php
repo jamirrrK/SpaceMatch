@@ -18,4 +18,9 @@ class MaintenanceRequest extends Model
     {
         return $this->belongsTo(Booking::class);
     }
+
+    public function statusHistory()
+    {
+        return $this->hasMany(MaintenanceRequestStatusHistory::class)->oldest();
+    }
 }

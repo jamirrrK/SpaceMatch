@@ -3,8 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\Amenity;
+use App\Models\Booking;
 use App\Models\Property;
 use App\Models\Space;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -131,6 +133,69 @@ class PropertyDiscoveryTest extends TestCase
         $legacy = $this->listing(['property_name' => 'Legacy Published Home', 'status' => 'available']);
         $this->get('/properties')->assertOk()->assertSee($legacy->property->property_name);
         $this->get('/properties/'.$legacy->property_id)->assertOk();
+    }
+
+    public function test_discovery_filters_bedrooms_bathrooms_move_in_date_and_amenities(): void
+    {
+        $wifi = Amenity::query()->where('name', 'Wi-Fi')->firstOrFail();
+        $match = $this->listing(['property_name' => 'Discovery Match'], [
+            'bedrooms' => 3,
+            'bathrooms' => 2,
+            'available_from' => now()->addDays(20)->toDateString(),
+        ]);
+        $match->amenities()->attach($wifi);
+        $tooFewRooms = $this->listing(['property_name' => 'Too Few Rooms'], [
+            'bedrooms' => 1,
+            'bathrooms' => 2,
+            'available_from' => now()->addDays(10)->toDateString(),
+        ]);
+        $tooLate = $this->listing(['property_name' => 'Too Late'], [
+            'bedrooms' => 3,
+            'bathrooms' => 2,
+            'available_from' => now()->addDays(40)->toDateString(),
+        ]);
+
+        $this->get('/properties?'.http_build_query([
+            'bedrooms' => 2,
+            'bathrooms' => 2,
+            'available_from' => now()->addDays(30)->toDateString(),
+            'amenities' => [$wifi->id],
+        ]))->assertOk()->assertSee($match->property->property_name)
+            ->assertDontSee($tooFewRooms->property->property_name)
+            ->assertDontSee($tooLate->property->property_name);
+    }
+
+    public function test_search_can_match_amenity_and_recently_updated_sort_is_supported(): void
+    {
+        $wifi = Amenity::query()->where('name', 'Wi-Fi')->firstOrFail();
+        $first = $this->listing(['property_name' => 'Earlier Update'], ['updated_at' => now()->subDay()]);
+        $first->amenities()->attach($wifi);
+        $second = $this->listing(['property_name' => 'Later Update'], ['updated_at' => now()]);
+
+        $this->get('/properties?q=Wi-Fi')->assertOk()->assertSee($first->property->property_name)
+            ->assertDontSee($second->property->property_name);
+        $this->get('/properties?sort=updated')->assertOk()->assertSeeInOrder([
+            $second->property->property_name,
+            $first->property->property_name,
+        ]);
+    }
+
+    public function test_available_by_filter_excludes_spaces_with_fully_booked_capacity_on_that_date(): void
+    {
+        $moveIn = now()->addDays(20)->toDateString();
+        $space = $this->listing(['property_name' => 'Fully Booked On Date'], ['capacity' => 1]);
+        Booking::query()->create([
+            'renter_id' => User::factory()->create(['role' => User::ROLE_RENTER])->id,
+            'space_id' => $space->id,
+            'start_date' => now()->addDays(10)->toDateString(),
+            'end_date' => now()->addDays(30)->toDateString(),
+            'status' => 'confirmed',
+        ]);
+        $available = $this->listing(['property_name' => 'Actually Available'], ['capacity' => 1]);
+
+        $this->get('/properties?available_from='.$moveIn)->assertOk()
+            ->assertSee($available->property->property_name)
+            ->assertDontSee($space->property->property_name);
     }
 
     private function listing(array $propertyAttributes = [], array $spaceAttributes = []): Space
