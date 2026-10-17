@@ -2,23 +2,23 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\OtpVerification;
+use App\Exceptions\OtpDeliveryFailed;
 use App\Mail\VerificationCodeMail;
+use App\Models\OtpVerification;
+use App\Models\User;
 use App\Services\OtpVerificationService;
 use App\Services\PhilippineMobileNumber;
 use App\Services\SmsOtpSenderInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\DB;
-use RuntimeException;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Http\Client\ConnectionException;
-use Tests\TestCase;
+use Illuminate\Support\Facades\Mail;
+use RuntimeException;
 use Tests\Support\FakeSmsOtpSender;
+use Tests\TestCase;
 
 class OtpVerificationTest extends TestCase
 {
@@ -89,9 +89,9 @@ class OtpVerificationTest extends TestCase
             'services.emailjs.service_id' => 'service_123',
             'services.emailjs.template_id' => 'template_456',
             'services.emailjs.public_key' => 'user_789',
-            'services.emailjs.private_key' => 'private_abc',
         ]);
 
+        config(['services.emailjs.private_key' => 'private_abc']);
         $this->assertTrue(app(OtpVerificationService::class)->emailAvailable());
     }
 
@@ -162,7 +162,7 @@ class OtpVerificationTest extends TestCase
             try {
                 app(OtpVerificationService::class)->issue($user, 'email');
                 $this->fail("EmailJS HTTP {$status} should fail delivery.");
-            } catch (\App\Exceptions\OtpDeliveryFailed $exception) {
+            } catch (OtpDeliveryFailed $exception) {
                 $this->assertSame('We could not send a verification code. Please try again.', $exception->getMessage());
             }
 
@@ -193,6 +193,44 @@ class OtpVerificationTest extends TestCase
         }
     }
 
+    public function test_emailjs_private_key_rejection_is_classified_without_logging_provider_response(): void
+    {
+        config([
+            'otp.email.enabled' => true,
+            'otp.email.driver' => 'emailjs',
+            'services.emailjs.service_id' => 'service_123',
+            'services.emailjs.template_id' => 'template_456',
+            'services.emailjs.public_key' => 'user_789',
+            'services.emailjs.private_key' => 'private_abc',
+        ]);
+
+        Log::spy();
+        Http::fake([
+            'https://api.emailjs.com/api/v1.0/email/send' => Http::response(
+                'The private key is rejected by this account.',
+                403,
+            ),
+        ]);
+        $user = User::factory()->create([
+            'email' => 'emailjs-private-key@example.test',
+            'role' => User::ROLE_RENTER,
+        ]);
+
+        try {
+            app(OtpVerificationService::class)->issue($user, 'email');
+            $this->fail('A rejected EmailJS private key should fail delivery.');
+        } catch (OtpDeliveryFailed $exception) {
+            $this->assertSame('We could not send a verification code. Please try again.', $exception->getMessage());
+        }
+
+        Log::shouldHaveReceived('warning')->withArgs(function ($message, $context) {
+            return $message === 'EmailJS OTP delivery failed'
+                && $context['http_status'] === 403
+                && $context['category'] === 'private_key_rejected'
+                && ! in_array('The private key is rejected by this account.', $context, true);
+        })->once();
+    }
+
     public function test_emailjs_timeout_fails_closed_without_exposing_transport_details(): void
     {
         config([
@@ -214,7 +252,7 @@ class OtpVerificationTest extends TestCase
         try {
             app(OtpVerificationService::class)->issue($user, 'email');
             $this->fail('A timed-out EmailJS request should fail delivery.');
-        } catch (\App\Exceptions\OtpDeliveryFailed $exception) {
+        } catch (OtpDeliveryFailed $exception) {
             $this->assertSame('We could not send a verification code. Please try again.', $exception->getMessage());
         }
 

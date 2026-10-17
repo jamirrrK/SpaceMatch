@@ -7,19 +7,17 @@ use App\Exceptions\OtpDeliveryUnavailable;
 use App\Mail\VerificationCodeMail;
 use App\Models\OtpVerification;
 use App\Models\User;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Http\Client\ConnectionException;
 use Throwable;
 
 class OtpVerificationService
 {
-    public function __construct(private readonly SmsOtpSenderInterface $smsSender)
-    {
-    }
+    public function __construct(private readonly SmsOtpSenderInterface $smsSender) {}
 
     public function emailAvailable(): bool
     {
@@ -262,22 +260,24 @@ class OtpVerificationService
     private function sendEmailJsOtp(string $destination, string $code): void
     {
         $requestedAt = now()->toIso8601String();
+        $payload = [
+            'service_id' => (string) config('services.emailjs.service_id'),
+            'template_id' => (string) config('services.emailjs.template_id'),
+            'user_id' => (string) config('services.emailjs.public_key'),
+            'template_params' => [
+                'otp_code' => $code,
+                'to_email' => $destination,
+            ],
+        ];
+
+        $payload['accessToken'] = (string) config('services.emailjs.private_key');
 
         try {
             $response = Http::acceptJson()
                 ->asJson()
                 ->connectTimeout(5)
                 ->timeout(10)
-                ->post('https://api.emailjs.com/api/v1.0/email/send', [
-                    'service_id' => (string) config('services.emailjs.service_id'),
-                    'template_id' => (string) config('services.emailjs.template_id'),
-                    'user_id' => (string) config('services.emailjs.public_key'),
-                    'accessToken' => (string) config('services.emailjs.private_key'),
-                    'template_params' => [
-                        'otp_code' => $code,
-                        'to_email' => $destination,
-                    ],
-                ]);
+                ->post('https://api.emailjs.com/api/v1.0/email/send', $payload);
         } catch (ConnectionException $exception) {
             $message = strtolower($exception->getMessage());
             $category = str_contains($message, 'timeout')
@@ -297,19 +297,36 @@ class OtpVerificationService
 
         if (! $response->successful()) {
             $status = $response->status();
-            $category = match (true) {
-                $status === 400 => 'bad_request',
-                in_array($status, [401, 403], true) => 'authentication_failed',
-                $status === 429 => 'rate_limited',
-                $status >= 500 => 'provider_error',
-                default => 'http_rejected',
-            };
+            $category = $this->emailJsFailureCategory($status, $response->body());
 
             $this->logEmailJsFailure($status, $category, $requestedAt, $response->header('x-request-id')
                 ?? $response->header('x-correlation-id'));
 
             throw new OtpDeliveryFailed('We could not send a verification code. Please try again.');
         }
+    }
+
+    private function emailJsFailureCategory(int $status, string $providerResponse): string
+    {
+        if (in_array($status, [401, 403], true)) {
+            $response = mb_strtolower($providerResponse);
+
+            return match (true) {
+                preg_match('/private.?key|access.?token|token (?:is )?(?:invalid|rejected|disabled)/', $response) === 1 => 'private_key_rejected',
+                preg_match('/origin|referer|domain|ip address|allow.?list/', $response) === 1 => 'origin_or_ip_restricted',
+                preg_match('/public.?key|user[_ ]id/', $response) === 1 => 'public_key_rejected',
+                preg_match('/account.{0,30}(?:suspend|restrict|disable|not allowed)/', $response) === 1 => 'account_restricted',
+                preg_match('/service[_ ]id|template[_ ]id|service.{0,20}(?:invalid|not found)|template.{0,20}(?:invalid|not found)/', $response) === 1 => 'service_or_template_rejected',
+                default => 'authentication_failed',
+            };
+        }
+
+        return match (true) {
+            $status === 400 => 'bad_request',
+            $status === 429 => 'rate_limited',
+            $status >= 500 => 'provider_error',
+            default => 'http_rejected',
+        };
     }
 
     private function logEmailJsFailure(?int $status, string $category, string $requestedAt, ?string $correlationId = null): void

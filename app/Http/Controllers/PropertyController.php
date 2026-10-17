@@ -20,19 +20,29 @@ class PropertyController extends Controller
             'images', 'amenities',
         ]);
 
-        if (isset($filters['q'])) {
-            $query->whereHas('property', fn (Builder $property) => $property
-                ->where('property_name', 'like', '%'.$filters['q'].'%'));
-        }
+        $searchTerms = array_values(array_filter([
+            $request->input('q'),
+            $request->input('location'),
+        ], fn ($term) => is_string($term) && trim($term) !== ''));
+        $searchTerms = array_map(fn ($term) => trim($term), $searchTerms);
 
-        if (isset($filters['location'])) {
-            $query->whereHas('property', function (Builder $property) use ($filters): void {
-                $location = '%'.$filters['location'].'%';
-                $property->where(fn (Builder $locationQuery) => $locationQuery
-                    ->where('city', 'like', $location)
-                    ->orWhere('barangay', 'like', $location)
-                    ->orWhere('address', 'like', $location)
-                    ->orWhere('province', 'like', $location));
+        if (! empty($searchTerms)) {
+            $query->where(function (Builder $match) use ($searchTerms): void {
+                foreach ($searchTerms as $term) {
+                    $like = '%'.$term.'%';
+                    $match->orWhere(function (Builder $locationMatch) use ($like): void {
+                        $locationMatch->whereHas('property', fn (Builder $property) => $property->where(function (Builder $propertyMatch) use ($like): void {
+                            $propertyMatch->where('property_name', 'like', $like)
+                                ->orWhere('description', 'like', $like)
+                                ->orWhere('city', 'like', $like)
+                                ->orWhere('barangay', 'like', $like)
+                                ->orWhere('address', 'like', $like)
+                                ->orWhere('province', 'like', $like);
+                        }));
+                    });
+                    $match->orWhere('space_name', 'like', $like)
+                        ->orWhere('description', 'like', $like);
+                }
             });
         }
 
