@@ -1,0 +1,43 @@
+{
+    "checked_at": "2026-10-16T21:37:09+00:00",
+    "status": "backup_validated",
+    "migrations_executed": false,
+    "target": {
+        "host": "127.0.0.1",
+        "port": 3306,
+        "database": "spacematch_db"
+    },
+    "pending_migrations": [],
+    "otp_migrations_already_applied": true,
+    "backup": {
+        "path": "C:\\xampp\\htdocs\\spacematch\\storage\\app\/private\/backups\/brevo-20261016_213710_173c06\/spacematch_db.sql",
+        "bytes": 20974,
+        "sha256": "58e481717c5d5008dfcaf65ded107f14aa7d0b3100fdd6637be72ff51a8b9b35",
+        "restored_and_validated": true,
+        "validation_database_retained": "spacematch_brevo_backupcheck_20261016_213710_173c06"
+    },
+    "original_values_unchanged": true,
+    "table_counts": {
+        "amenities": 14,
+        "amenity_space": 0,
+        "audit_logs": 0,
+        "bookings": 0,
+        "cache": 0,
+        "cache_locks": 0,
+        "failed_jobs": 0,
+        "job_batches": 0,
+        "jobs": 0,
+        "maintenance_requests": 0,
+        "migrations": 14,
+        "otp_verifications": 0,
+        "password_reset_tokens": 0,
+        "payments": 0,
+        "properties": 0,
+        "property_images": 0,
+        "reviews": 0,
+        "sessions": 0,
+        "spaces": 0,
+        "user_roles": 0,
+        "users": 0
+    }
+}

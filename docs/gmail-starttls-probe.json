@@ -1,0 +1,10 @@
+{
+  "host": "smtp.gmail.com",
+  "port": 587,
+  "authentication_attempted": false,
+  "message_sent": false,
+  "certificate_verification_disabled": false,
+  "starttls_verified": true,
+  "tls_version": "TLSv1.3",
+  "cipher": "TLS_AES_256_GCM_SHA384"
+}

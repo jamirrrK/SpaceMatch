@@ -1,0 +1,8 @@
+{
+    "host": "smtp-relay.brevo.com",
+    "port": 587,
+    "starttls_verified": true,
+    "credentials_sent": false,
+    "email_sent": false,
+    "certificate_verification_disabled": false
+}

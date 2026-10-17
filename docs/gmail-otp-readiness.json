@@ -1,0 +1,26 @@
+{
+    "checked_at": "2026-10-16T21:00:57+00:00",
+    "checks": {
+        "mailer_smtp": true,
+        "host_gmail": true,
+        "port_587": true,
+        "scheme_smtp_starttls": true,
+        "auto_tls_enabled": true,
+        "tls_required": true,
+        "official_username": true,
+        "official_from_address": true,
+        "official_from_name": true,
+        "password_present": true,
+        "app_password_format_valid": false,
+        "no_mail_url_override": true,
+        "openssl_available": true,
+        "sms_disabled": true
+    },
+    "transport_settings_valid": false,
+    "email_otp_enabled": false,
+    "registration_email_available": false,
+    "smtp_authenticated": false,
+    "minimal_test_smtp_accepted": false,
+    "inbox_receipt_confirmed": false,
+    "blocked_reason": "Private Gmail App Password or required transport settings are not valid."
+}

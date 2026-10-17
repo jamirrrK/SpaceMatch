@@ -1,0 +1,30 @@
+{
+  "executedAt": "2026-10-17T02:00:52.485Z",
+  "results": [
+    {
+      "name": "Mobile filters trap focus, dismiss with Escape and return focus",
+      "status": "passed"
+    },
+    {
+      "name": "Filter drawer supports close button, backdrop and desktop resize cleanup",
+      "status": "passed"
+    },
+    {
+      "name": "Public menu works at 320px and opens tutorial after releasing drawer focus",
+      "status": "passed"
+    },
+    {
+      "name": "Same-page navigation closes menu without leaving scroll locked",
+      "status": "passed"
+    },
+    {
+      "name": "Workspace drawer retains role links and navigates to account settings",
+      "status": "passed"
+    },
+    {
+      "name": "Reduced-motion drawers remain usable",
+      "status": "passed"
+    }
+  ],
+  "errors": []
+}

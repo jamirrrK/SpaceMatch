@@ -1,0 +1,27 @@
+{
+  "environment_unchanged": true,
+  "backend_config_routes_migrations_tests_unchanged": true,
+  "protected_files_checked": 97,
+  "changed_files": [
+    "resources\\views\\home.blade.php",
+    "resources\\views\\admin\\dashboard.blade.php",
+    "resources\\views\\auth\\forgot-password.blade.php",
+    "resources\\views\\auth\\login.blade.php",
+    "resources\\views\\auth\\register.blade.php",
+    "resources\\views\\auth\\reset-password.blade.php",
+    "resources\\views\\components\\auth-story.blade.php",
+    "resources\\views\\components\\space-card.blade.php",
+    "resources\\views\\emails\\verification-code.blade.php",
+    "resources\\views\\layouts\\app.blade.php",
+    "resources\\views\\owner\\dashboard.blade.php",
+    "resources\\views\\properties\\index.blade.php",
+    "resources\\views\\properties\\show.blade.php",
+    "resources\\views\\renter\\dashboard.blade.php",
+    "public\\assets\\css\\spacematch-redesign.css",
+    "public\\assets\\css\\spacematch-tutorial.css",
+    "public\\assets\\images\\space-placeholder.svg",
+    "scripts\\phase3-browser.mjs",
+    "scripts\\redesign-drawers.mjs",
+    "scripts\\redesign-focus-check.mjs"
+  ]
+}

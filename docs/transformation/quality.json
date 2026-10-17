@@ -1,0 +1,37 @@
+{
+  "executedAt": "2026-10-17T01:52:23.633Z",
+  "results": [
+    {
+      "name": "Local Manrope font loads without a remote font service",
+      "status": "passed"
+    },
+    {
+      "name": "Desktop search is one horizontal panel below both hero columns",
+      "status": "passed"
+    },
+    {
+      "name": "Primary button remains readable on keyboard focus and hover",
+      "status": "passed"
+    },
+    {
+      "name": "New hero, dark explainer and mint owner callout meet text contrast",
+      "status": "passed"
+    },
+    {
+      "name": "All categories remain keyboard reachable in the mobile rail",
+      "status": "passed"
+    },
+    {
+      "name": "Registration honestly shows unavailable delivery without exposing codes",
+      "status": "passed"
+    },
+    {
+      "name": "Authentication uses browser autofill hints and labeled password visibility",
+      "status": "passed"
+    },
+    {
+      "name": "Fresh homepage and authentication screenshots contain decoded media",
+      "status": "passed"
+    }
+  ]
+}

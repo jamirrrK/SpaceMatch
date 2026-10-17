@@ -1,0 +1,29 @@
+{
+    "checked_at": "2026-10-16T21:38:36+00:00",
+    "provider": "Brevo",
+    "checks": {
+        "smtp_mailer": true,
+        "brevo_host": true,
+        "port_587": true,
+        "supported_starttls_scheme": true,
+        "automatic_starttls": true,
+        "tls_required": true,
+        "correct_smtp_login": true,
+        "sender_address_valid": true,
+        "sender_name": true,
+        "login_distinct_from_sender": true,
+        "private_smtp_key_present": false,
+        "credential_type_plausible": false,
+        "no_url_override": true,
+        "sender_approval_recorded": true,
+        "approval_matches_current_sender": true
+    },
+    "transport_settings_valid": false,
+    "sender_approval_confirmed": true,
+    "email_otp_enabled": false,
+    "registration_available": false,
+    "sms_disabled": true,
+    "smtp_authenticated": false,
+    "smtp_test_accepted": false,
+    "actual_inbox_receipt_confirmed": false
+}

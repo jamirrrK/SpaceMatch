@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480" fill="none">
+  <title>A space for your next chapter</title>
+  <rect width="640" height="480" fill="#EAF4EE"/>
+  <circle cx="490" cy="108" r="48" fill="#FAF9F6"/>
+  <path d="M0 385C150 312 213 419 373 374S529 349 640 385V480H0Z" fill="#D7E8DD"/>
+  <path d="m155 206 183-92 159 85-183 97z" fill="#FAF9F6"/>
+  <path d="M155 206v167l159 76V296z" fill="#B2D7CC"/>
+  <path d="M314 296v153l183-91V199z" fill="#7EB8AC"/>
+  <path d="m155 206 183-92 159 85" stroke="#172033" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M338 114v137l-24 45" stroke="#D7E8DD" stroke-width="2"/>
+  <path d="m193 249 51 24v61l-51-24z" fill="#FAF9F6"/>
+  <path d="m253 278 30 14v61l-30-14z" fill="#FAF9F6"/>
+  <path d="m350 302 46-23v124l-46 23z" fill="#087580"/>
+  <path d="m417 269 43-22v63l-43 22z" fill="#DDF5EF"/>
+  <path d="m438 258 1 63m-22-35 43-22" stroke="#7EB8AC" stroke-width="3"/>
+  <path d="m154 373 160 76 183-91" stroke="#172033" stroke-width="2"/>
+  <path d="M104 369V272m0 58c-43-4-49-58-17-61m17 43c40-10 47-57 14-65" stroke="#087580" stroke-width="5" stroke-linecap="round"/>
+  <path d="m84 364 37 17-10 19-21-10z" fill="#C4AA89"/>
+  <path d="m350 426-22 12 42 22 28-14" fill="#B9D4C8"/>
+  <text x="34" y="40" fill="#38685E" font-family="Arial,sans-serif" font-size="10" letter-spacing="3">SPACEMATCH / ROOM TO BEGIN</text>
+  <path d="M34 54h52" stroke="#087580" stroke-width="2"/>
+</svg>

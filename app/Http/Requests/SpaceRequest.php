@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class SpaceRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return $this->user()?->hasRole('owner') && (! $this->route('space') || $this->user()->can('update', $this->route('space')));
+    }
+
+    public function rules(): array
+    {
+        $propertyRules = ['required', 'integer', Rule::exists('properties', 'id')->where('owner_id', $this->user()->id)];
+        if ($space = $this->route('space')) {
+            // Reparenting would invalidate image ownership and existing booking context.
+            $propertyRules[] = Rule::in([$space->property_id]);
+        }
+
+        return [
+            'property_id' => $propertyRules,
+            'space_name' => ['required', 'string', 'max:255'],
+            'space_type' => ['required', Rule::in(array_keys(config('property.types')))],
+            'description' => ['nullable', 'string', 'max:10000'],
+            'price' => ['required', 'numeric', 'decimal:0,2', 'min:0.01', 'max:9999999999.99'],
+            'capacity' => ['required', 'integer', 'between:1,10000'],
+            'floor_area' => ['nullable', 'numeric', 'decimal:0,2', 'between:0.01,99999999.99'],
+            'floor_number' => ['nullable', 'integer', 'between:-20,200'],
+            'availability_status' => ['required', Rule::in(['available', 'occupied', 'unavailable'])],
+            'listing_status' => ['sometimes', Rule::in(['draft', 'published'])],
+            'amenity_ids' => ['nullable', 'array', 'max:50'],
+            'amenity_ids.*' => ['integer', 'distinct', Rule::exists('amenities', 'id')],
+        ];
+    }
+}

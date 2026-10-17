@@ -1,0 +1,355 @@
+{
+  "executedAt": "2026-10-16T17:01:25.789Z",
+  "captures": [
+    {
+      "file": "redesign-homepage-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-homepage-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-login-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-login-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-registration-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-registration-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-forgot-password-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-forgot-password-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-reset-password-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-reset-password-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-property-search-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-property-search-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-property-detail-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-property-detail-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-owner-dashboard-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-owner-dashboard-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-owner-properties-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-owner-properties-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-owner-property-detail-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-owner-property-detail-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-owner-property-create-form-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-owner-property-create-form-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-owner-property-form-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-owner-property-form-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-rental-spaces-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-rental-spaces-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-rental-space-create-form-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-rental-space-create-form-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-rental-space-edit-form-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-rental-space-edit-form-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-owner-profile-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-owner-profile-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-admin-dashboard-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-admin-dashboard-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-admin-properties-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-admin-properties-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-admin-property-detail-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-admin-property-detail-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-renter-dashboard-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-renter-dashboard-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-renter-profile-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-renter-profile-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-bookings-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-bookings-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-payments-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-payments-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-maintenance-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-maintenance-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    },
+    {
+      "file": "redesign-reviews-1440.png",
+      "scrollY": 0,
+      "documentWidth": 1440,
+      "clientWidth": 1440,
+      "missing": []
+    },
+    {
+      "file": "redesign-reviews-390.png",
+      "scrollY": 0,
+      "documentWidth": 390,
+      "clientWidth": 390,
+      "missing": []
+    }
+  ]
+}

@@ -1,0 +1,2564 @@
+{
+  "executedAt": "2026-10-17T01:57:35.165Z",
+  "baseURL": "http://127.0.0.1:8024",
+  "database": "C:\\xampp\\htdocs\\spacematch\\storage\\app\\private\\phase3-browser.sqlite",
+  "imageRoot": "C:\\xampp\\htdocs\\spacematch\\storage\\app\\private\\phase3-browser-images",
+  "runId": "1792201963865",
+  "propertyId": 23,
+  "results": [
+    {
+      "name": "Registration does not offer unconfigured email or SMS delivery",
+      "status": "passed"
+    },
+    {
+      "name": "Pending renter verifies through the OTP page and can log in afterward",
+      "status": "passed"
+    },
+    {
+      "name": "Owner login and desktop dashboard",
+      "status": "passed"
+    },
+    {
+      "name": "Owner creates a property through the form",
+      "status": "passed"
+    },
+    {
+      "name": "Owner previews and uploads two valid images",
+      "status": "passed"
+    },
+    {
+      "name": "Owner creates a rental space with amenities",
+      "status": "passed"
+    },
+    {
+      "name": "Owner edits property information and image order/cover",
+      "status": "passed"
+    },
+    {
+      "name": "Owner edits and publishes the rental space, then the property",
+      "status": "passed"
+    },
+    {
+      "name": "Homepage search submits the supported location and property type filters",
+      "status": "passed"
+    },
+    {
+      "name": "Public search combines location, price, amenities, capacity, and sorting",
+      "status": "passed"
+    },
+    {
+      "name": "Public detail gallery, monthly rent, and tablet layout",
+      "status": "passed"
+    },
+    {
+      "name": "Mobile public navigation and property cards",
+      "status": "passed"
+    },
+    {
+      "name": "Mobile owner menu and cross-owner protection",
+      "status": "passed"
+    },
+    {
+      "name": "Administrator overview, owner filters, and property details",
+      "status": "passed"
+    },
+    {
+      "name": "Administrator deactivation writes audit and hides listing/images",
+      "status": "passed"
+    },
+    {
+      "name": "Renter login, browsing, and owner/admin restrictions",
+      "status": "passed"
+    },
+    {
+      "name": "Responsive page matrix at all requested viewport widths",
+      "status": "passed"
+    },
+    {
+      "name": "Console, requests, responses, images, and responsive overflow remain clean",
+      "status": "passed"
+    }
+  ],
+  "diagnostics": {
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "failedResponses": [],
+    "layout": [
+      {
+        "url": "http://127.0.0.1:8024/verify-contact",
+        "filename": "otp-verification-mobile.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/dashboard",
+        "filename": "owner-dashboard-desktop.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/properties/23",
+        "filename": "owner-property-desktop.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/properties?q=Browser+Workflow+1792201963865&location=Cebu&property_type=apartment&min_price=8000&max_price=9000&capacity=3&amenities%5B%5D=1&sort=price_asc",
+        "filename": "public-search-desktop.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/properties/23",
+        "filename": "public-detail-tablet.png",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/properties?q=Browser%20Workflow%201792201963865",
+        "filename": "public-search-mobile.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/dashboard",
+        "filename": "owner-dashboard-mobile.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/admin/properties?q=Browser%20Workflow%201792201963865&owner_id=1&status=active",
+        "filename": "admin-properties-desktop.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/admin/properties/23",
+        "filename": "admin-property-audit-desktop.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/properties?location=Cebu",
+        "filename": "renter-browse-mobile.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Homepage",
+        "url": "http://127.0.0.1:8024/",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Homepage",
+        "url": "http://127.0.0.1:8024/",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/",
+        "filename": "redesign-homepage-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/",
+        "filename": "stage2-home-desktop.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Homepage",
+        "url": "http://127.0.0.1:8024/",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Homepage",
+        "url": "http://127.0.0.1:8024/",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Homepage",
+        "url": "http://127.0.0.1:8024/",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Homepage",
+        "url": "http://127.0.0.1:8024/",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Homepage",
+        "url": "http://127.0.0.1:8024/",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/",
+        "filename": "redesign-homepage-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/",
+        "filename": "stage2-home-mobile.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Homepage",
+        "url": "http://127.0.0.1:8024/",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Homepage",
+        "url": "http://127.0.0.1:8024/",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Homepage",
+        "url": "http://127.0.0.1:8024/",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Login",
+        "url": "http://127.0.0.1:8024/login",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Login",
+        "url": "http://127.0.0.1:8024/login",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/login",
+        "filename": "redesign-login-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/login",
+        "filename": "ultimate-login-desktop.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Login",
+        "url": "http://127.0.0.1:8024/login",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Login",
+        "url": "http://127.0.0.1:8024/login",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Login",
+        "url": "http://127.0.0.1:8024/login",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Login",
+        "url": "http://127.0.0.1:8024/login",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Login",
+        "url": "http://127.0.0.1:8024/login",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/login",
+        "filename": "redesign-login-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Login",
+        "url": "http://127.0.0.1:8024/login",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Login",
+        "url": "http://127.0.0.1:8024/login",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Login",
+        "url": "http://127.0.0.1:8024/login",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Registration",
+        "url": "http://127.0.0.1:8024/register",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Registration",
+        "url": "http://127.0.0.1:8024/register",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/register",
+        "filename": "redesign-registration-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Registration",
+        "url": "http://127.0.0.1:8024/register",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Registration",
+        "url": "http://127.0.0.1:8024/register",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Registration",
+        "url": "http://127.0.0.1:8024/register",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Registration",
+        "url": "http://127.0.0.1:8024/register",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Registration",
+        "url": "http://127.0.0.1:8024/register",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/register",
+        "filename": "redesign-registration-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Registration",
+        "url": "http://127.0.0.1:8024/register",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Registration",
+        "url": "http://127.0.0.1:8024/register",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "url": "http://127.0.0.1:8024/register",
+        "filename": "stage2-registration-mobile.png",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360,
+        "brokenImages": []
+      },
+      {
+        "surface": "Registration",
+        "url": "http://127.0.0.1:8024/register",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Forgot password",
+        "url": "http://127.0.0.1:8024/forgot-password",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Forgot password",
+        "url": "http://127.0.0.1:8024/forgot-password",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/forgot-password",
+        "filename": "redesign-forgot-password-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/forgot-password",
+        "filename": "ultimate-forgot-password-desktop.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Forgot password",
+        "url": "http://127.0.0.1:8024/forgot-password",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Forgot password",
+        "url": "http://127.0.0.1:8024/forgot-password",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Forgot password",
+        "url": "http://127.0.0.1:8024/forgot-password",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Forgot password",
+        "url": "http://127.0.0.1:8024/forgot-password",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Forgot password",
+        "url": "http://127.0.0.1:8024/forgot-password",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/forgot-password",
+        "filename": "redesign-forgot-password-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Forgot password",
+        "url": "http://127.0.0.1:8024/forgot-password",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Forgot password",
+        "url": "http://127.0.0.1:8024/forgot-password",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Forgot password",
+        "url": "http://127.0.0.1:8024/forgot-password",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Reset password",
+        "url": "http://127.0.0.1:8024/reset-password/browser-fixture-token",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Reset password",
+        "url": "http://127.0.0.1:8024/reset-password/browser-fixture-token",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/reset-password/browser-fixture-token",
+        "filename": "redesign-reset-password-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/reset-password/browser-fixture-token",
+        "filename": "ultimate-reset-password-desktop.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Reset password",
+        "url": "http://127.0.0.1:8024/reset-password/browser-fixture-token",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Reset password",
+        "url": "http://127.0.0.1:8024/reset-password/browser-fixture-token",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Reset password",
+        "url": "http://127.0.0.1:8024/reset-password/browser-fixture-token",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Reset password",
+        "url": "http://127.0.0.1:8024/reset-password/browser-fixture-token",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Reset password",
+        "url": "http://127.0.0.1:8024/reset-password/browser-fixture-token",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/reset-password/browser-fixture-token",
+        "filename": "redesign-reset-password-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Reset password",
+        "url": "http://127.0.0.1:8024/reset-password/browser-fixture-token",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Reset password",
+        "url": "http://127.0.0.1:8024/reset-password/browser-fixture-token",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Reset password",
+        "url": "http://127.0.0.1:8024/reset-password/browser-fixture-token",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Property search",
+        "url": "http://127.0.0.1:8024/properties",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Property search",
+        "url": "http://127.0.0.1:8024/properties",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/properties",
+        "filename": "redesign-property-search-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Property search",
+        "url": "http://127.0.0.1:8024/properties",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Property search",
+        "url": "http://127.0.0.1:8024/properties",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Property search",
+        "url": "http://127.0.0.1:8024/properties",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Property search",
+        "url": "http://127.0.0.1:8024/properties",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Property search",
+        "url": "http://127.0.0.1:8024/properties",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/properties",
+        "filename": "redesign-property-search-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Property search",
+        "url": "http://127.0.0.1:8024/properties",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Property search",
+        "url": "http://127.0.0.1:8024/properties",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Property search",
+        "url": "http://127.0.0.1:8024/properties",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Property detail",
+        "url": "http://127.0.0.1:8024/properties/1",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Property detail",
+        "url": "http://127.0.0.1:8024/properties/1",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/properties/1",
+        "filename": "redesign-property-detail-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Property detail",
+        "url": "http://127.0.0.1:8024/properties/1",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Property detail",
+        "url": "http://127.0.0.1:8024/properties/1",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Property detail",
+        "url": "http://127.0.0.1:8024/properties/1",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Property detail",
+        "url": "http://127.0.0.1:8024/properties/1",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Property detail",
+        "url": "http://127.0.0.1:8024/properties/1",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/properties/1",
+        "filename": "redesign-property-detail-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/properties/1",
+        "filename": "stage2-property-detail-mobile.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Property detail",
+        "url": "http://127.0.0.1:8024/properties/1",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Property detail",
+        "url": "http://127.0.0.1:8024/properties/1",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Property detail",
+        "url": "http://127.0.0.1:8024/properties/1",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Owner dashboard",
+        "url": "http://127.0.0.1:8024/owner/dashboard",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Owner dashboard",
+        "url": "http://127.0.0.1:8024/owner/dashboard",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/dashboard",
+        "filename": "redesign-owner-dashboard-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Owner dashboard",
+        "url": "http://127.0.0.1:8024/owner/dashboard",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Owner dashboard",
+        "url": "http://127.0.0.1:8024/owner/dashboard",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Owner dashboard",
+        "url": "http://127.0.0.1:8024/owner/dashboard",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Owner dashboard",
+        "url": "http://127.0.0.1:8024/owner/dashboard",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Owner dashboard",
+        "url": "http://127.0.0.1:8024/owner/dashboard",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/dashboard",
+        "filename": "redesign-owner-dashboard-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/dashboard",
+        "filename": "stage2-owner-dashboard-mobile.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Owner dashboard",
+        "url": "http://127.0.0.1:8024/owner/dashboard",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Owner dashboard",
+        "url": "http://127.0.0.1:8024/owner/dashboard",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Owner dashboard",
+        "url": "http://127.0.0.1:8024/owner/dashboard",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Owner properties",
+        "url": "http://127.0.0.1:8024/owner/properties",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Owner properties",
+        "url": "http://127.0.0.1:8024/owner/properties",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/properties",
+        "filename": "redesign-owner-properties-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Owner properties",
+        "url": "http://127.0.0.1:8024/owner/properties",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Owner properties",
+        "url": "http://127.0.0.1:8024/owner/properties",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Owner properties",
+        "url": "http://127.0.0.1:8024/owner/properties",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Owner properties",
+        "url": "http://127.0.0.1:8024/owner/properties",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Owner properties",
+        "url": "http://127.0.0.1:8024/owner/properties",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/properties",
+        "filename": "redesign-owner-properties-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Owner properties",
+        "url": "http://127.0.0.1:8024/owner/properties",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Owner properties",
+        "url": "http://127.0.0.1:8024/owner/properties",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Owner properties",
+        "url": "http://127.0.0.1:8024/owner/properties",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Owner property detail",
+        "url": "http://127.0.0.1:8024/owner/properties/23",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Owner property detail",
+        "url": "http://127.0.0.1:8024/owner/properties/23",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/properties/23",
+        "filename": "redesign-owner-property-detail-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/properties/23",
+        "filename": "ultimate-owner-property-desktop.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Owner property detail",
+        "url": "http://127.0.0.1:8024/owner/properties/23",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Owner property detail",
+        "url": "http://127.0.0.1:8024/owner/properties/23",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Owner property detail",
+        "url": "http://127.0.0.1:8024/owner/properties/23",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Owner property detail",
+        "url": "http://127.0.0.1:8024/owner/properties/23",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Owner property detail",
+        "url": "http://127.0.0.1:8024/owner/properties/23",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/properties/23",
+        "filename": "redesign-owner-property-detail-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Owner property detail",
+        "url": "http://127.0.0.1:8024/owner/properties/23",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Owner property detail",
+        "url": "http://127.0.0.1:8024/owner/properties/23",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Owner property detail",
+        "url": "http://127.0.0.1:8024/owner/properties/23",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Owner property create form",
+        "url": "http://127.0.0.1:8024/owner/properties/create",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Owner property create form",
+        "url": "http://127.0.0.1:8024/owner/properties/create",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/properties/create",
+        "filename": "redesign-owner-property-create-form-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/properties/create",
+        "filename": "ultimate-owner-property-form-desktop.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Owner property create form",
+        "url": "http://127.0.0.1:8024/owner/properties/create",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Owner property create form",
+        "url": "http://127.0.0.1:8024/owner/properties/create",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Owner property create form",
+        "url": "http://127.0.0.1:8024/owner/properties/create",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Owner property create form",
+        "url": "http://127.0.0.1:8024/owner/properties/create",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Owner property create form",
+        "url": "http://127.0.0.1:8024/owner/properties/create",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/properties/create",
+        "filename": "redesign-owner-property-create-form-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Owner property create form",
+        "url": "http://127.0.0.1:8024/owner/properties/create",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Owner property create form",
+        "url": "http://127.0.0.1:8024/owner/properties/create",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Owner property create form",
+        "url": "http://127.0.0.1:8024/owner/properties/create",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Owner property form",
+        "url": "http://127.0.0.1:8024/owner/properties/23/edit",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Owner property form",
+        "url": "http://127.0.0.1:8024/owner/properties/23/edit",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/properties/23/edit",
+        "filename": "redesign-owner-property-form-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Owner property form",
+        "url": "http://127.0.0.1:8024/owner/properties/23/edit",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Owner property form",
+        "url": "http://127.0.0.1:8024/owner/properties/23/edit",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Owner property form",
+        "url": "http://127.0.0.1:8024/owner/properties/23/edit",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Owner property form",
+        "url": "http://127.0.0.1:8024/owner/properties/23/edit",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Owner property form",
+        "url": "http://127.0.0.1:8024/owner/properties/23/edit",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/properties/23/edit",
+        "filename": "redesign-owner-property-form-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Owner property form",
+        "url": "http://127.0.0.1:8024/owner/properties/23/edit",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Owner property form",
+        "url": "http://127.0.0.1:8024/owner/properties/23/edit",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Owner property form",
+        "url": "http://127.0.0.1:8024/owner/properties/23/edit",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Rental spaces",
+        "url": "http://127.0.0.1:8024/owner/spaces",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Rental spaces",
+        "url": "http://127.0.0.1:8024/owner/spaces",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/spaces",
+        "filename": "redesign-rental-spaces-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Rental spaces",
+        "url": "http://127.0.0.1:8024/owner/spaces",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Rental spaces",
+        "url": "http://127.0.0.1:8024/owner/spaces",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Rental spaces",
+        "url": "http://127.0.0.1:8024/owner/spaces",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Rental spaces",
+        "url": "http://127.0.0.1:8024/owner/spaces",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Rental spaces",
+        "url": "http://127.0.0.1:8024/owner/spaces",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/spaces",
+        "filename": "redesign-rental-spaces-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Rental spaces",
+        "url": "http://127.0.0.1:8024/owner/spaces",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Rental spaces",
+        "url": "http://127.0.0.1:8024/owner/spaces",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Rental spaces",
+        "url": "http://127.0.0.1:8024/owner/spaces",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Rental space create form",
+        "url": "http://127.0.0.1:8024/owner/spaces/create?property_id=23",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Rental space create form",
+        "url": "http://127.0.0.1:8024/owner/spaces/create?property_id=23",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/spaces/create?property_id=23",
+        "filename": "redesign-rental-space-create-form-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Rental space create form",
+        "url": "http://127.0.0.1:8024/owner/spaces/create?property_id=23",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Rental space create form",
+        "url": "http://127.0.0.1:8024/owner/spaces/create?property_id=23",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Rental space create form",
+        "url": "http://127.0.0.1:8024/owner/spaces/create?property_id=23",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Rental space create form",
+        "url": "http://127.0.0.1:8024/owner/spaces/create?property_id=23",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Rental space create form",
+        "url": "http://127.0.0.1:8024/owner/spaces/create?property_id=23",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/spaces/create?property_id=23",
+        "filename": "redesign-rental-space-create-form-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Rental space create form",
+        "url": "http://127.0.0.1:8024/owner/spaces/create?property_id=23",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Rental space create form",
+        "url": "http://127.0.0.1:8024/owner/spaces/create?property_id=23",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Rental space create form",
+        "url": "http://127.0.0.1:8024/owner/spaces/create?property_id=23",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Rental space edit form",
+        "url": "http://127.0.0.1:8024/owner/spaces/22/edit",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Rental space edit form",
+        "url": "http://127.0.0.1:8024/owner/spaces/22/edit",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/spaces/22/edit",
+        "filename": "redesign-rental-space-edit-form-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/spaces/22/edit",
+        "filename": "ultimate-rental-space-form-desktop.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Rental space edit form",
+        "url": "http://127.0.0.1:8024/owner/spaces/22/edit",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Rental space edit form",
+        "url": "http://127.0.0.1:8024/owner/spaces/22/edit",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Rental space edit form",
+        "url": "http://127.0.0.1:8024/owner/spaces/22/edit",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Rental space edit form",
+        "url": "http://127.0.0.1:8024/owner/spaces/22/edit",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Rental space edit form",
+        "url": "http://127.0.0.1:8024/owner/spaces/22/edit",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/owner/spaces/22/edit",
+        "filename": "redesign-rental-space-edit-form-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Rental space edit form",
+        "url": "http://127.0.0.1:8024/owner/spaces/22/edit",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Rental space edit form",
+        "url": "http://127.0.0.1:8024/owner/spaces/22/edit",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Rental space edit form",
+        "url": "http://127.0.0.1:8024/owner/spaces/22/edit",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Owner profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Owner profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/profile",
+        "filename": "redesign-owner-profile-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/profile",
+        "filename": "ultimate-owner-profile-desktop.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Owner profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Owner profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Owner profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Owner profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Owner profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/profile",
+        "filename": "redesign-owner-profile-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Owner profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Owner profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Owner profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Admin dashboard",
+        "url": "http://127.0.0.1:8024/admin/dashboard",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Admin dashboard",
+        "url": "http://127.0.0.1:8024/admin/dashboard",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/admin/dashboard",
+        "filename": "redesign-admin-dashboard-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/admin/dashboard",
+        "filename": "stage2-admin-dashboard-desktop.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Admin dashboard",
+        "url": "http://127.0.0.1:8024/admin/dashboard",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Admin dashboard",
+        "url": "http://127.0.0.1:8024/admin/dashboard",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Admin dashboard",
+        "url": "http://127.0.0.1:8024/admin/dashboard",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Admin dashboard",
+        "url": "http://127.0.0.1:8024/admin/dashboard",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Admin dashboard",
+        "url": "http://127.0.0.1:8024/admin/dashboard",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/admin/dashboard",
+        "filename": "redesign-admin-dashboard-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Admin dashboard",
+        "url": "http://127.0.0.1:8024/admin/dashboard",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Admin dashboard",
+        "url": "http://127.0.0.1:8024/admin/dashboard",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Admin dashboard",
+        "url": "http://127.0.0.1:8024/admin/dashboard",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Admin properties",
+        "url": "http://127.0.0.1:8024/admin/properties",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Admin properties",
+        "url": "http://127.0.0.1:8024/admin/properties",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/admin/properties",
+        "filename": "redesign-admin-properties-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Admin properties",
+        "url": "http://127.0.0.1:8024/admin/properties",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Admin properties",
+        "url": "http://127.0.0.1:8024/admin/properties",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Admin properties",
+        "url": "http://127.0.0.1:8024/admin/properties",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Admin properties",
+        "url": "http://127.0.0.1:8024/admin/properties",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Admin properties",
+        "url": "http://127.0.0.1:8024/admin/properties",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/admin/properties",
+        "filename": "redesign-admin-properties-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Admin properties",
+        "url": "http://127.0.0.1:8024/admin/properties",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Admin properties",
+        "url": "http://127.0.0.1:8024/admin/properties",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Admin properties",
+        "url": "http://127.0.0.1:8024/admin/properties",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Admin property detail",
+        "url": "http://127.0.0.1:8024/admin/properties/23",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Admin property detail",
+        "url": "http://127.0.0.1:8024/admin/properties/23",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/admin/properties/23",
+        "filename": "redesign-admin-property-detail-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/admin/properties/23",
+        "filename": "ultimate-admin-property-detail-desktop.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Admin property detail",
+        "url": "http://127.0.0.1:8024/admin/properties/23",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Admin property detail",
+        "url": "http://127.0.0.1:8024/admin/properties/23",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Admin property detail",
+        "url": "http://127.0.0.1:8024/admin/properties/23",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Admin property detail",
+        "url": "http://127.0.0.1:8024/admin/properties/23",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Admin property detail",
+        "url": "http://127.0.0.1:8024/admin/properties/23",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/admin/properties/23",
+        "filename": "redesign-admin-property-detail-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Admin property detail",
+        "url": "http://127.0.0.1:8024/admin/properties/23",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Admin property detail",
+        "url": "http://127.0.0.1:8024/admin/properties/23",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Admin property detail",
+        "url": "http://127.0.0.1:8024/admin/properties/23",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Renter dashboard",
+        "url": "http://127.0.0.1:8024/renter/dashboard",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Renter dashboard",
+        "url": "http://127.0.0.1:8024/renter/dashboard",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/renter/dashboard",
+        "filename": "redesign-renter-dashboard-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Renter dashboard",
+        "url": "http://127.0.0.1:8024/renter/dashboard",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Renter dashboard",
+        "url": "http://127.0.0.1:8024/renter/dashboard",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Renter dashboard",
+        "url": "http://127.0.0.1:8024/renter/dashboard",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Renter dashboard",
+        "url": "http://127.0.0.1:8024/renter/dashboard",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Renter dashboard",
+        "url": "http://127.0.0.1:8024/renter/dashboard",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/renter/dashboard",
+        "filename": "redesign-renter-dashboard-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/renter/dashboard",
+        "filename": "stage2-renter-dashboard-mobile.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Renter dashboard",
+        "url": "http://127.0.0.1:8024/renter/dashboard",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Renter dashboard",
+        "url": "http://127.0.0.1:8024/renter/dashboard",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Renter dashboard",
+        "url": "http://127.0.0.1:8024/renter/dashboard",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Renter profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Renter profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/profile",
+        "filename": "redesign-renter-profile-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Renter profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Renter profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Renter profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Renter profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Renter profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/profile",
+        "filename": "redesign-renter-profile-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/profile",
+        "filename": "ultimate-renter-profile-mobile.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Renter profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Renter profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Renter profile",
+        "url": "http://127.0.0.1:8024/profile",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Bookings",
+        "url": "http://127.0.0.1:8024/bookings",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Bookings",
+        "url": "http://127.0.0.1:8024/bookings",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/bookings",
+        "filename": "redesign-bookings-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Bookings",
+        "url": "http://127.0.0.1:8024/bookings",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Bookings",
+        "url": "http://127.0.0.1:8024/bookings",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Bookings",
+        "url": "http://127.0.0.1:8024/bookings",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Bookings",
+        "url": "http://127.0.0.1:8024/bookings",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Bookings",
+        "url": "http://127.0.0.1:8024/bookings",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/bookings",
+        "filename": "redesign-bookings-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/bookings",
+        "filename": "ultimate-bookings-mobile.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Bookings",
+        "url": "http://127.0.0.1:8024/bookings",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Bookings",
+        "url": "http://127.0.0.1:8024/bookings",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Bookings",
+        "url": "http://127.0.0.1:8024/bookings",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Payments",
+        "url": "http://127.0.0.1:8024/payments",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Payments",
+        "url": "http://127.0.0.1:8024/payments",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/payments",
+        "filename": "redesign-payments-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Payments",
+        "url": "http://127.0.0.1:8024/payments",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Payments",
+        "url": "http://127.0.0.1:8024/payments",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Payments",
+        "url": "http://127.0.0.1:8024/payments",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Payments",
+        "url": "http://127.0.0.1:8024/payments",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Payments",
+        "url": "http://127.0.0.1:8024/payments",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/payments",
+        "filename": "redesign-payments-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/payments",
+        "filename": "ultimate-payments-mobile.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Payments",
+        "url": "http://127.0.0.1:8024/payments",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Payments",
+        "url": "http://127.0.0.1:8024/payments",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Payments",
+        "url": "http://127.0.0.1:8024/payments",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Maintenance",
+        "url": "http://127.0.0.1:8024/maintenance",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Maintenance",
+        "url": "http://127.0.0.1:8024/maintenance",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/maintenance",
+        "filename": "redesign-maintenance-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Maintenance",
+        "url": "http://127.0.0.1:8024/maintenance",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Maintenance",
+        "url": "http://127.0.0.1:8024/maintenance",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Maintenance",
+        "url": "http://127.0.0.1:8024/maintenance",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Maintenance",
+        "url": "http://127.0.0.1:8024/maintenance",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Maintenance",
+        "url": "http://127.0.0.1:8024/maintenance",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/maintenance",
+        "filename": "redesign-maintenance-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/maintenance",
+        "filename": "ultimate-maintenance-mobile.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Maintenance",
+        "url": "http://127.0.0.1:8024/maintenance",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Maintenance",
+        "url": "http://127.0.0.1:8024/maintenance",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Maintenance",
+        "url": "http://127.0.0.1:8024/maintenance",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      },
+      {
+        "surface": "Reviews",
+        "url": "http://127.0.0.1:8024/reviews",
+        "width": 1920,
+        "clientWidth": 1920,
+        "documentWidth": 1920
+      },
+      {
+        "surface": "Reviews",
+        "url": "http://127.0.0.1:8024/reviews",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440
+      },
+      {
+        "url": "http://127.0.0.1:8024/reviews",
+        "filename": "redesign-reviews-1440.png",
+        "width": 1440,
+        "clientWidth": 1440,
+        "documentWidth": 1440,
+        "brokenImages": []
+      },
+      {
+        "surface": "Reviews",
+        "url": "http://127.0.0.1:8024/reviews",
+        "width": 1280,
+        "clientWidth": 1280,
+        "documentWidth": 1280
+      },
+      {
+        "surface": "Reviews",
+        "url": "http://127.0.0.1:8024/reviews",
+        "width": 1024,
+        "clientWidth": 1024,
+        "documentWidth": 1024
+      },
+      {
+        "surface": "Reviews",
+        "url": "http://127.0.0.1:8024/reviews",
+        "width": 768,
+        "clientWidth": 768,
+        "documentWidth": 768
+      },
+      {
+        "surface": "Reviews",
+        "url": "http://127.0.0.1:8024/reviews",
+        "width": 430,
+        "clientWidth": 430,
+        "documentWidth": 430
+      },
+      {
+        "surface": "Reviews",
+        "url": "http://127.0.0.1:8024/reviews",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390
+      },
+      {
+        "url": "http://127.0.0.1:8024/reviews",
+        "filename": "redesign-reviews-390.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "url": "http://127.0.0.1:8024/reviews",
+        "filename": "ultimate-reviews-mobile.png",
+        "width": 390,
+        "clientWidth": 390,
+        "documentWidth": 390,
+        "brokenImages": []
+      },
+      {
+        "surface": "Reviews",
+        "url": "http://127.0.0.1:8024/reviews",
+        "width": 375,
+        "clientWidth": 375,
+        "documentWidth": 375
+      },
+      {
+        "surface": "Reviews",
+        "url": "http://127.0.0.1:8024/reviews",
+        "width": 360,
+        "clientWidth": 360,
+        "documentWidth": 360
+      },
+      {
+        "surface": "Reviews",
+        "url": "http://127.0.0.1:8024/reviews",
+        "width": 320,
+        "clientWidth": 320,
+        "documentWidth": 320
+      }
+    ]
+  },
+  "screenshots": [
+    "otp-verification-mobile.png",
+    "owner-dashboard-desktop.png",
+    "owner-property-desktop.png",
+    "public-search-desktop.png",
+    "public-detail-tablet.png",
+    "public-search-mobile.png",
+    "owner-dashboard-mobile.png",
+    "admin-properties-desktop.png",
+    "admin-property-audit-desktop.png",
+    "renter-browse-mobile.png",
+    "redesign-homepage-1440.png",
+    "stage2-home-desktop.png",
+    "redesign-homepage-390.png",
+    "stage2-home-mobile.png",
+    "redesign-login-1440.png",
+    "ultimate-login-desktop.png",
+    "redesign-login-390.png",
+    "redesign-registration-1440.png",
+    "redesign-registration-390.png",
+    "stage2-registration-mobile.png",
+    "redesign-forgot-password-1440.png",
+    "ultimate-forgot-password-desktop.png",
+    "redesign-forgot-password-390.png",
+    "redesign-reset-password-1440.png",
+    "ultimate-reset-password-desktop.png",
+    "redesign-reset-password-390.png",
+    "redesign-property-search-1440.png",
+    "redesign-property-search-390.png",
+    "redesign-property-detail-1440.png",
+    "redesign-property-detail-390.png",
+    "stage2-property-detail-mobile.png",
+    "redesign-owner-dashboard-1440.png",
+    "redesign-owner-dashboard-390.png",
+    "stage2-owner-dashboard-mobile.png",
+    "redesign-owner-properties-1440.png",
+    "redesign-owner-properties-390.png",
+    "redesign-owner-property-detail-1440.png",
+    "ultimate-owner-property-desktop.png",
+    "redesign-owner-property-detail-390.png",
+    "redesign-owner-property-create-form-1440.png",
+    "ultimate-owner-property-form-desktop.png",
+    "redesign-owner-property-create-form-390.png",
+    "redesign-owner-property-form-1440.png",
+    "redesign-owner-property-form-390.png",
+    "redesign-rental-spaces-1440.png",
+    "redesign-rental-spaces-390.png",
+    "redesign-rental-space-create-form-1440.png",
+    "redesign-rental-space-create-form-390.png",
+    "redesign-rental-space-edit-form-1440.png",
+    "ultimate-rental-space-form-desktop.png",
+    "redesign-rental-space-edit-form-390.png",
+    "redesign-owner-profile-1440.png",
+    "ultimate-owner-profile-desktop.png",
+    "redesign-owner-profile-390.png",
+    "redesign-admin-dashboard-1440.png",
+    "stage2-admin-dashboard-desktop.png",
+    "redesign-admin-dashboard-390.png",
+    "redesign-admin-properties-1440.png",
+    "redesign-admin-properties-390.png",
+    "redesign-admin-property-detail-1440.png",
+    "ultimate-admin-property-detail-desktop.png",
+    "redesign-admin-property-detail-390.png",
+    "redesign-renter-dashboard-1440.png",
+    "redesign-renter-dashboard-390.png",
+    "stage2-renter-dashboard-mobile.png",
+    "redesign-renter-profile-1440.png",
+    "redesign-renter-profile-390.png",
+    "ultimate-renter-profile-mobile.png",
+    "redesign-bookings-1440.png",
+    "redesign-bookings-390.png",
+    "ultimate-bookings-mobile.png",
+    "redesign-payments-1440.png",
+    "redesign-payments-390.png",
+    "ultimate-payments-mobile.png",
+    "redesign-maintenance-1440.png",
+    "redesign-maintenance-390.png",
+    "ultimate-maintenance-mobile.png",
+    "redesign-reviews-1440.png",
+    "redesign-reviews-390.png",
+    "ultimate-reviews-mobile.png"
+  ],
+  "passed": 18,
+  "failed": 0
+}

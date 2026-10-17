@@ -1,0 +1,1 @@
+<nav class="workspace-breadcrumb" aria-label="Breadcrumb"><a href="{{ route('dashboard') }}">Workspace</a><span aria-hidden="true">/</span><span aria-current="page">{{ trim(str_replace([' | SpaceMatch', 'SpaceMatch | '], '', $__env->yieldContent('title', 'Overview'))) }}</span></nav>

@@ -1,0 +1,30 @@
+{
+  "executedAt": "2026-10-17T02:00:32.387Z",
+  "results": [
+    {
+      "name": "Homepage budget search submits supported filters",
+      "status": "passed"
+    },
+    {
+      "name": "Removing one filter preserves the other filters",
+      "status": "passed"
+    },
+    {
+      "name": "Mobile filters open, submit sorting and close without hiding results",
+      "status": "passed"
+    },
+    {
+      "name": "Authentication split layout stacks without overflow at 320px",
+      "status": "passed"
+    },
+    {
+      "name": "Branded missing page preserves HTTP 404 and working navigation",
+      "status": "passed"
+    },
+    {
+      "name": "Profile and rental records retain role workspace and active navigation",
+      "status": "passed"
+    }
+  ],
+  "errors": []
+}

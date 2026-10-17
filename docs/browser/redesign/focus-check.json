@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "colors": {
+    "background": "rgb(6, 92, 101)",
+    "color": "rgb(255, 255, 255)",
+    "focused": true
+  },
+  "returnFocus": "main-content"
+}

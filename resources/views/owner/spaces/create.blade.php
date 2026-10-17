@@ -1,0 +1,5 @@
+@extends('layouts.app')
+@section('title', 'Add rental space | SpaceMatch')
+@section('content')
+<div class="max-content pb-4"><a class="small-link" href="{{ route('owner.spaces.index') }}">← Rental spaces</a><div class="mt-4 mb-4"><div class="eyebrow mb-2">Make room for a new listing</div><h1 class="page-heading mb-1">Add rental space</h1><p class="small text-muted-soft mb-0">Add the details renters need to find the right fit.</p></div>@if($properties->isEmpty())<x-empty-state title="Start with a property" message="A rental space needs a property to call home. Add your property first, then create its spaces." :href="route('owner.properties.create')" action="Add property" />@else<form class="panel p-4 p-lg-5" action="{{ route('owner.spaces.store') }}" method="POST">@csrf @include('owner.spaces._form')<div class="d-flex justify-content-end gap-2 mt-4"><a class="btn btn-outline-dark" href="{{ route('owner.spaces.index') }}">Cancel</a><button class="btn btn-primary-custom" type="submit">Create space</button></div></form>@endif</div>
+@endsection

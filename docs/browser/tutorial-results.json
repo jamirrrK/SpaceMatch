@@ -1,0 +1,85 @@
+{
+  "executedAt": "2026-10-17T01:59:10.905Z",
+  "baseURL": "http://127.0.0.1:8024",
+  "results": [
+    {
+      "name": "First visit opens the honest text-tour welcome",
+      "status": "passed"
+    },
+    {
+      "name": "Skip closes the welcome and suppresses it across navigation",
+      "status": "passed"
+    },
+    {
+      "name": "Replay opens chapters and navigation controls work",
+      "status": "passed"
+    },
+    {
+      "name": "Following a tour link does not reopen the welcome on the destination",
+      "status": "passed"
+    },
+    {
+      "name": "Mobile dialog fits and Escape closes it accessibly",
+      "status": "passed"
+    },
+    {
+      "name": "Permanent opt-out survives page changes while replay remains available",
+      "status": "passed"
+    },
+    {
+      "name": "Storage failures fall back without blocking navigation",
+      "status": "passed"
+    },
+    {
+      "name": "owner sees only role-appropriate tutorial chapters",
+      "status": "passed"
+    },
+    {
+      "name": "renter sees only role-appropriate tutorial chapters",
+      "status": "passed"
+    },
+    {
+      "name": "admin sees only role-appropriate tutorial chapters",
+      "status": "passed"
+    },
+    {
+      "name": "No browser console, runtime, or failed-request errors",
+      "status": "passed"
+    }
+  ],
+  "diagnostics": {
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "failedResponses": [],
+    "layouts": [
+      {
+        "width": 360,
+        "documentWidth": 360,
+        "dialog": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "footer": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "footerControlsVisible": true
+      }
+    ]
+  },
+  "passed": 11,
+  "failed": 0
+}

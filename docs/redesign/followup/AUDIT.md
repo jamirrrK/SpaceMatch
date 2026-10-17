@@ -1,0 +1,9 @@
+# Redesign continuation audit — 17 October 2026
+
+The repeated master brief was compared with the current completed redesign, its route inventory, templates, shared CSS/JavaScript, browser screenshots and existing tests. The 25 previously documented frontend surfaces remain the scope; missing messaging, checkout, legal-policy and notification routes must not be represented as working features. See the preserved previous redesign report for the complete page and authorization inventory.
+
+Concrete gap: mobile discovery filters and role navigation currently expand inline instead of using the requested drawers. Public mobile navigation likewise pushes content down. Use Bootstrap's existing responsive offcanvas component, preserving the same forms, links, IDs and backend contracts. Add explicit names, close controls, focus trapping/return, Escape/backdrop dismissal and breakpoint cleanup; keep desktop layouts persistent. Refine shared typography/touch targets without another compatibility stylesheet or dependency.
+
+Recovery: source-before-refinement.zip includes current frontend, backend, configuration source, migrations and tests, excluding environment credentials and uploaded/runtime data. source-manifest.json records hashes including a hash-only environment preservation check. Existing reports are copied beside it. No Git repository is available. No migrations or database writes are needed for implementation; browser fixtures use their existing separate SQLite schema and private media folder. Route and migration status snapshots are retained. Baseline test output is captured before edits.
+
+Preserve ownership policies, role/contact middleware, image access, published-listing visibility and all records. Brevo sender approval is user-reported; its key remains deferred, OTP email/SMS disabled, and delivery unconfirmed. This redesign must not change that configuration or imply live registration delivery.
