@@ -44,7 +44,8 @@
                             <li class="nav-item"><a class="nav-link active" href="{{ route('verification.notice') }}">Verify account</a></li>
                             <li class="nav-item"><form method="POST" action="{{ route('logout') }}">@csrf<button class="btn btn-outline-dark btn-sm ms-lg-2" type="submit">Log out</button></form></li>
                         @else
-                            <li class="nav-item"><a class="nav-link {{ request()->routeIs('*.dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">Dashboard</a></li>
+                            @php($dashboardRoute = auth()->user()->hasRole('admin') ? route('admin.dashboard') : route('dashboard'))
+                            <li class="nav-item"><a class="nav-link {{ request()->routeIs('*.dashboard', 'admin.*') ? 'active' : '' }}" href="{{ $dashboardRoute }}">Dashboard</a></li>
                             <li class="nav-item dropdown account-menu">
                                 <button class="btn account-menu-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <span class="account-avatar" aria-hidden="true">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
@@ -90,7 +91,10 @@
                             <a class="sidebar-link" href="{{ route('owner.properties.create') }}"><x-icon name="building" /><span>Add a property</span></a>
                         @elseif(auth()->user()->hasRole('admin'))
                             <a class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><x-icon name="grid" /><span>Platform overview</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}" href="{{ route('admin.users.index') }}"><x-icon name="user" /><span>Users</span></a>
                             <a class="sidebar-link {{ request()->routeIs('admin.properties.*') ? 'active' : '' }}" href="{{ route('admin.properties.index') }}"><x-icon name="building" /><span>All properties</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('admin.bookings.index') ? 'active' : '' }}" href="{{ route('admin.bookings.index') }}"><x-icon name="calendar" /><span>Bookings</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('admin.audit-logs.index') ? 'active' : '' }}" href="{{ route('admin.audit-logs.index') }}"><x-icon name="shield" /><span>Audit logs</span></a>
                         @else
                             <a class="sidebar-link {{ request()->routeIs('renter.dashboard') ? 'active' : '' }}" href="{{ route('renter.dashboard') }}"><x-icon name="grid" /><span>Overview</span></a>
                             <a class="sidebar-link {{ request()->routeIs('properties.*', 'spaces.*') ? 'active' : '' }}" href="{{ route('properties.index') }}"><x-icon name="search" /><span>Browse properties</span></a>
