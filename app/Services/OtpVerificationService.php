@@ -9,7 +9,10 @@ use App\Models\OtpVerification;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\Client\ConnectionException;
 use Throwable;
 
 class OtpVerificationService
@@ -26,6 +29,10 @@ class OtpVerificationService
 
         if (! (bool) config('otp.email.enabled', false)) {
             return false;
+        }
+
+        if (strtolower((string) config('otp.email.driver', 'mail')) === 'emailjs') {
+            return $this->emailJsIsConfigured();
         }
 
         $mailer = (string) config('mail.default');
@@ -102,7 +109,15 @@ class OtpVerificationService
 
         try {
             if ($channel === 'email') {
-                Mail::to($destination)->send(new VerificationCodeMail($code, $purpose));
+                $driver = strtolower((string) config('otp.email.driver', 'mail'));
+                $useTestMailDelivery = app()->environment('testing')
+                    && (bool) config('otp.testing_email_delivery', false);
+
+                if ($driver === 'emailjs' && ! $useTestMailDelivery) {
+                    $this->sendEmailJsOtp($destination, $code);
+                } else {
+                    Mail::to($destination)->send(new VerificationCodeMail($code, $purpose));
+                }
             } else {
                 $this->smsSender->send(
                     $destination,
@@ -234,6 +249,81 @@ class OtpVerificationService
         $normalized = $channel === 'email' ? mb_strtolower(trim($destination)) : $destination;
 
         return hash_hmac('sha256', $channel.'|'.$normalized, (string) config('app.key'));
+    }
+
+    private function emailJsIsConfigured(): bool
+    {
+        return filled(config('services.emailjs.service_id'))
+            && filled(config('services.emailjs.template_id'))
+            && filled(config('services.emailjs.public_key'))
+            && filled(config('services.emailjs.private_key'));
+    }
+
+    private function sendEmailJsOtp(string $destination, string $code): void
+    {
+        $requestedAt = now()->toIso8601String();
+
+        try {
+            $response = Http::acceptJson()
+                ->asJson()
+                ->connectTimeout(5)
+                ->timeout(10)
+                ->post('https://api.emailjs.com/api/v1.0/email/send', [
+                    'service_id' => (string) config('services.emailjs.service_id'),
+                    'template_id' => (string) config('services.emailjs.template_id'),
+                    'user_id' => (string) config('services.emailjs.public_key'),
+                    'accessToken' => (string) config('services.emailjs.private_key'),
+                    'template_params' => [
+                        'otp_code' => $code,
+                        'to_email' => $destination,
+                    ],
+                ]);
+        } catch (ConnectionException $exception) {
+            $message = strtolower($exception->getMessage());
+            $category = str_contains($message, 'timeout')
+                || str_contains($message, 'timed out')
+                || str_contains($message, 'error 28')
+                    ? 'timeout'
+                    : 'network_error';
+
+            $this->logEmailJsFailure(null, $category, $requestedAt);
+
+            throw new OtpDeliveryFailed('We could not send a verification code. Please try again.');
+        } catch (Throwable) {
+            $this->logEmailJsFailure(null, 'transport_error', $requestedAt);
+
+            throw new OtpDeliveryFailed('We could not send a verification code. Please try again.');
+        }
+
+        if (! $response->successful()) {
+            $status = $response->status();
+            $category = match (true) {
+                $status === 400 => 'bad_request',
+                in_array($status, [401, 403], true) => 'authentication_failed',
+                $status === 429 => 'rate_limited',
+                $status >= 500 => 'provider_error',
+                default => 'http_rejected',
+            };
+
+            $this->logEmailJsFailure($status, $category, $requestedAt, $response->header('x-request-id')
+                ?? $response->header('x-correlation-id'));
+
+            throw new OtpDeliveryFailed('We could not send a verification code. Please try again.');
+        }
+    }
+
+    private function logEmailJsFailure(?int $status, string $category, string $requestedAt, ?string $correlationId = null): void
+    {
+        Log::warning('EmailJS OTP delivery failed', [
+            'provider' => 'emailjs',
+            'http_status' => $status,
+            'category' => $category,
+            'request_timestamp' => $requestedAt,
+            'correlation_id' => is_string($correlationId)
+                && preg_match('/^[A-Za-z0-9._:-]{1,128}$/D', $correlationId) === 1
+                    ? $correlationId
+                    : null,
+        ]);
     }
 
     private function smtpIsConfigured(string $mailer): bool

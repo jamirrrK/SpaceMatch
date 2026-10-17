@@ -12,6 +12,7 @@ class GmailReadinessTest extends TestCase
         config([
             'app.env' => 'production',
             'otp.email.enabled' => true,
+            'otp.email.driver' => 'mail',
             'mail.default' => 'smtp',
             'mail.from.address' => 'spacematchhaha@gmail.com',
             'mail.mailers.smtp.host' => 'smtp.gmail.com',

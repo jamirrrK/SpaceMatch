@@ -12,6 +12,7 @@ class BrevoReadinessTest extends TestCase
     {
         config([
             'app.env' => 'production', 'otp.email.enabled' => true,
+            'otp.email.driver' => 'mail',
             'otp.email.brevo_sender_verified' => true,
             'otp.email.brevo_verified_sender' => 'spacematchhaha@gmail.com',
             'mail.default' => 'smtp', 'mail.from.address' => 'spacematchhaha@gmail.com',

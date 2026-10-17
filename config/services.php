@@ -28,6 +28,13 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'emailjs' => [
+        'service_id' => env('EMAILJS_SERVICE_ID'),
+        'template_id' => env('EMAILJS_TEMPLATE_ID'),
+        'public_key' => env('EMAILJS_PUBLIC_KEY'),
+        'private_key' => env('EMAILJS_PRIVATE_KEY'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

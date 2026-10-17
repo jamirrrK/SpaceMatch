@@ -13,7 +13,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Http\Client\ConnectionException;
 use Tests\TestCase;
 use Tests\Support\FakeSmsOtpSender;
 
@@ -21,6 +24,11 @@ class OtpVerificationTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Http::preventStrayRequests();
+    }
 
     public function test_mail_delivery_failure_does_not_verify_or_unlock_new_account(): void
     {
@@ -49,6 +57,7 @@ class OtpVerificationTest extends TestCase
         config([
             'app.env' => 'production',
             'otp.email.enabled' => false,
+            'otp.email.driver' => 'mail',
             'mail.default' => 'smtp',
             'mail.mailers.smtp.host' => 'mailpit',
             'mail.from.address' => 'no-reply@spacematch.test',
@@ -62,6 +71,164 @@ class OtpVerificationTest extends TestCase
         config(['mail.default' => 'smtp']);
         $this->assertTrue($verification->emailAvailable());
     }
+
+    public function test_emailjs_driver_is_available_only_when_credentials_are_configured(): void
+    {
+        config([
+            'otp.email.enabled' => true,
+            'otp.email.driver' => 'emailjs',
+            'services.emailjs.service_id' => null,
+            'services.emailjs.template_id' => null,
+            'services.emailjs.public_key' => null,
+            'services.emailjs.private_key' => null,
+        ]);
+
+        $this->assertFalse(app(OtpVerificationService::class)->emailAvailable());
+
+        config([
+            'services.emailjs.service_id' => 'service_123',
+            'services.emailjs.template_id' => 'template_456',
+            'services.emailjs.public_key' => 'user_789',
+            'services.emailjs.private_key' => 'private_abc',
+        ]);
+
+        $this->assertTrue(app(OtpVerificationService::class)->emailAvailable());
+    }
+
+    public function test_emailjs_otp_is_sent_server_side_with_template_params(): void
+    {
+        config([
+            'otp.testing_email_delivery' => false,
+            'otp.email.enabled' => true,
+            'otp.email.driver' => 'emailjs',
+            'services.emailjs.service_id' => 'service_123',
+            'services.emailjs.template_id' => 'template_456',
+            'services.emailjs.public_key' => 'user_789',
+            'services.emailjs.private_key' => 'private_abc',
+        ]);
+
+        Http::fake([
+            'https://api.emailjs.com/api/v1.0/email/send' => Http::response(['success' => true], 200),
+        ]);
+
+        $user = User::factory()->create([
+            'email' => 'emailjs@example.test',
+            'role' => User::ROLE_RENTER,
+        ]);
+
+        app(OtpVerificationService::class)->issue($user, 'email');
+
+        Http::assertSent(function ($request) {
+            $payload = $request->data();
+
+            return $request->hasHeader('Content-Type', 'application/json')
+                && $request->url() === 'https://api.emailjs.com/api/v1.0/email/send'
+                && ($payload['service_id'] ?? null) === 'service_123'
+                && ($payload['template_id'] ?? null) === 'template_456'
+                && ($payload['user_id'] ?? null) === 'user_789'
+                && ($payload['accessToken'] ?? null) === 'private_abc'
+                && isset($payload['template_params']['otp_code'])
+                && ! isset($payload['template_params']['code'])
+                && ($payload['template_params']['to_email'] ?? null) === 'emailjs@example.test';
+        });
+    }
+
+    public function test_emailjs_provider_statuses_fail_closed_and_log_only_safe_diagnostics(): void
+    {
+        config([
+            'otp.email.enabled' => true,
+            'otp.email.driver' => 'emailjs',
+            'services.emailjs.service_id' => 'service_123',
+            'services.emailjs.template_id' => 'template_456',
+            'services.emailjs.public_key' => 'user_789',
+            'services.emailjs.private_key' => 'private_abc',
+        ]);
+
+        Log::spy();
+        Http::fakeSequence()
+            ->push('Bad Request', 400, ['X-Request-Id' => 'emailjs-req-123'])
+            ->push('Unauthorized', 401)
+            ->push('Forbidden', 403)
+            ->push('Too Many Requests', 429)
+            ->push('Provider error', 500)
+            ->push('Provider unavailable', 503);
+
+        foreach ([400, 401, 403, 429, 500, 503] as $index => $status) {
+            $user = User::factory()->create([
+                'email' => "emailjs-error-{$index}@example.test",
+                'role' => User::ROLE_RENTER,
+            ]);
+
+            try {
+                app(OtpVerificationService::class)->issue($user, 'email');
+                $this->fail("EmailJS HTTP {$status} should fail delivery.");
+            } catch (\App\Exceptions\OtpDeliveryFailed $exception) {
+                $this->assertSame('We could not send a verification code. Please try again.', $exception->getMessage());
+            }
+
+            $this->assertNotNull(OtpVerification::query()->where('user_id', $user->id)->value('consumed_at'));
+        }
+
+        Http::assertSentCount(6);
+
+        foreach ([
+            400 => 'bad_request',
+            401 => 'authentication_failed',
+            403 => 'authentication_failed',
+            429 => 'rate_limited',
+            500 => 'provider_error',
+            503 => 'provider_error',
+        ] as $status => $category) {
+            Log::shouldHaveReceived('warning')->withArgs(function ($message, $context) use ($status, $category) {
+                return $message === 'EmailJS OTP delivery failed'
+                    && $context['provider'] === 'emailjs'
+                    && $context['http_status'] === $status
+                    && $context['category'] === $category
+                    && isset($context['request_timestamp'])
+                    && array_keys($context) === [
+                        'provider', 'http_status', 'category', 'request_timestamp', 'correlation_id',
+                    ]
+                    && $context['correlation_id'] === ($status === 400 ? 'emailjs-req-123' : null);
+            })->once();
+        }
+    }
+
+    public function test_emailjs_timeout_fails_closed_without_exposing_transport_details(): void
+    {
+        config([
+            'otp.email.enabled' => true,
+            'otp.email.driver' => 'emailjs',
+            'services.emailjs.service_id' => 'service_123',
+            'services.emailjs.template_id' => 'template_456',
+            'services.emailjs.public_key' => 'user_789',
+            'services.emailjs.private_key' => 'private_abc',
+        ]);
+
+        Log::spy();
+        Http::fake(fn () => throw new ConnectionException('simulated timeout'));
+        $user = User::factory()->create([
+            'email' => 'emailjs-timeout@example.test',
+            'role' => User::ROLE_RENTER,
+        ]);
+
+        try {
+            app(OtpVerificationService::class)->issue($user, 'email');
+            $this->fail('A timed-out EmailJS request should fail delivery.');
+        } catch (\App\Exceptions\OtpDeliveryFailed $exception) {
+            $this->assertSame('We could not send a verification code. Please try again.', $exception->getMessage());
+        }
+
+        $this->assertNotNull(OtpVerification::query()->where('user_id', $user->id)->value('consumed_at'));
+        Log::shouldHaveReceived('warning')->withArgs(function ($message, $context) {
+            return $message === 'EmailJS OTP delivery failed'
+                && $context['provider'] === 'emailjs'
+                && $context['http_status'] === null
+                && $context['category'] === 'timeout'
+                && $context['correlation_id'] === null
+                && isset($context['request_timestamp']);
+        })->once();
+    }
+
     public function test_new_registration_stays_pending_until_email_otp_is_verified(): void
     {
         config(['otp.testing_email_delivery' => true]);
@@ -332,7 +499,12 @@ class OtpVerificationTest extends TestCase
 
     public function test_registration_stays_disabled_when_only_log_mail_and_no_sms_are_configured(): void
     {
-        config(['otp.testing_email_delivery' => false, 'otp.sms.enabled' => false]);
+        config([
+            'otp.testing_email_delivery' => false,
+            'otp.email.enabled' => false,
+            'otp.email.driver' => 'mail',
+            'otp.sms.enabled' => false,
+        ]);
         Mail::fake();
 
         $this->get('/register')->assertOk()

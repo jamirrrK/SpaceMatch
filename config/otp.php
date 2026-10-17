@@ -10,6 +10,7 @@ return [
     'testing_email_delivery' => false,
     'email' => [
         'enabled' => (bool) env('OTP_EMAIL_ENABLED', false),
+        'driver' => env('OTP_EMAIL_DRIVER', 'mail'),
         'brevo_sender_verified' => (bool) env('BREVO_SENDER_VERIFIED', false),
         'brevo_verified_sender' => env('BREVO_VERIFIED_SENDER'),
     ],
