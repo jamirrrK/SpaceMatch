@@ -52,9 +52,12 @@ Route::middleware(['auth', 'contact.verified'])->group(function () {
 
 Route::middleware(['auth', 'role:admin', 'contact.verified'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users.index');
     Route::get('/admin/properties', [\App\Http\Controllers\Admin\PropertyController::class, 'index'])->name('admin.properties.index');
     Route::get('/admin/properties/{property}', [\App\Http\Controllers\Admin\PropertyController::class, 'show'])->name('admin.properties.show');
     Route::patch('/admin/properties/{property}/status', [\App\Http\Controllers\Admin\PropertyController::class, 'updateStatus'])->name('admin.properties.status');
+    Route::get('/admin/bookings', [\App\Http\Controllers\Admin\BookingController::class, 'index'])->name('admin.bookings.index');
+    Route::get('/admin/audit-logs', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('admin.audit-logs.index');
 });
 
 Route::middleware(['auth', 'role:owner', 'contact.verified'])->group(function () {
