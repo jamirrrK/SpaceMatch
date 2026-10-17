@@ -19,6 +19,7 @@ class DashboardController extends Controller
             'pending_requests' => Booking::where('renter_id', $renterId)->where('status', 'pending')->count(),
             'completed_rentals' => Booking::where('renter_id', $renterId)->where('status', 'completed')->count(),
             'outstanding_balances' => Payment::whereHas('booking', fn ($query) => $query->where('renter_id', $renterId))->where('payment_status', 'pending')->sum('amount'),
+            'saved_spaces' => Auth::user()->savedSpaces()->count(),
         ];
 
         return view('renter.dashboard', [

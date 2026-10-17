@@ -44,7 +44,7 @@
                                     <div class="small fw-semibold">{{ $log->user?->name ?? 'System' }}</div>
                                     <div class="table-sub">{{ $log->user?->email ?? '—' }}</div>
                                 </td>
-                                <td class="table-sub">{{ Str::limit($log->description ?? 'No details recorded.', 120) }}</td>
+                                                        <td class="table-sub">{{ $log->readable_description }}</td>
                                 <td class="table-sub">{{ $log->created_at?->format('M d, Y H:i') ?? '—' }}</td>
                             </tr>
                         @endforeach

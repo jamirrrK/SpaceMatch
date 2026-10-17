@@ -91,6 +91,8 @@
                         @else
                             <a class="sidebar-link {{ request()->routeIs('renter.dashboard') ? 'active' : '' }}" href="{{ route('renter.dashboard') }}"><x-icon name="grid" /><span>Overview</span></a>
                             <a class="sidebar-link {{ request()->routeIs('properties.*', 'spaces.*') ? 'active' : '' }}" href="{{ route('properties.index') }}"><x-icon name="search" /><span>Browse properties</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('renter.saved-spaces.*') ? 'active' : '' }}" href="{{ route('renter.saved-spaces.index') }}"><x-icon name="star" /><span>Saved spaces</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('renter.preferences.*') ? 'active' : '' }}" href="{{ route('renter.preferences.edit') }}"><x-icon name="user" /><span>Housing preferences</span></a>
                         @endif
                         <div class="sidebar-group-label">Rental activity</div>
                         <a class="sidebar-link {{ request()->routeIs('bookings.index') ? 'active' : '' }}" href="{{ route('bookings.index') }}"><x-icon name="calendar" /><span>Bookings</span></a>

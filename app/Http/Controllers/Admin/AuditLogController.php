@@ -14,7 +14,7 @@ class AuditLogController extends Controller
         $query = AuditLog::query()->with('user');
         $filters = [
             'q' => trim((string) $request->input('q', '')),
-            'action' => $request->input('action'),
+            'action' => trim((string) $request->input('action', '')),
         ];
 
         if ($filters['q'] !== '') {
@@ -26,8 +26,8 @@ class AuditLogController extends Controller
             });
         }
 
-        if (! empty($filters['action'])) {
-            $query->where('action', $filters['action']);
+        if ($filters['action'] !== '') {
+            $query->where('action', 'like', $filters['action']);
         }
 
         $auditLogs = $query->latest()->paginate(20)->withQueryString();

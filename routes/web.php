@@ -13,6 +13,7 @@ use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\Renter\DashboardController as RenterDashboardController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SpaceController;
+use App\Http\Controllers\SpaceComparisonController;
 use App\Http\Controllers\VerificationController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,9 @@ Route::get('/properties', [PropertyController::class, 'index'])->name('propertie
 Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
 Route::get('/spaces', [SpaceController::class, 'index'])->name('spaces.index');
 Route::get('/spaces/{space}', [SpaceController::class, 'show'])->name('spaces.show');
+Route::get('/compare', [SpaceComparisonController::class, 'index'])->name('spaces.compare.index');
+Route::post('/compare/{space}', [SpaceComparisonController::class, 'store'])->name('spaces.compare.store');
+Route::delete('/compare/{space}', [SpaceComparisonController::class, 'destroy'])->name('spaces.compare.destroy');
 Route::get('/property-images/{image}', [\App\Http\Controllers\PropertyImageController::class, 'show'])->name('property-images.show');
 
 Route::middleware(['guest'])->group(function () {
@@ -75,6 +79,11 @@ Route::middleware(['auth', 'role:owner', 'contact.verified'])->group(function ()
 
 Route::middleware(['auth', 'role:renter', 'contact.verified'])->group(function () {
     Route::get('/renter/dashboard', [RenterDashboardController::class, 'index'])->name('renter.dashboard');
+    Route::get('/renter/preferences', [\App\Http\Controllers\Renter\PreferenceController::class, 'edit'])->name('renter.preferences.edit');
+    Route::put('/renter/preferences', [\App\Http\Controllers\Renter\PreferenceController::class, 'update'])->name('renter.preferences.update');
+    Route::get('/renter/saved-spaces', [\App\Http\Controllers\Renter\SavedSpaceController::class, 'index'])->name('renter.saved-spaces.index');
+    Route::post('/renter/saved-spaces/{space}', [\App\Http\Controllers\Renter\SavedSpaceController::class, 'store'])->name('renter.saved-spaces.store');
+    Route::delete('/renter/saved-spaces/{space}', [\App\Http\Controllers\Renter\SavedSpaceController::class, 'destroy'])->name('renter.saved-spaces.destroy');
 });
 
 Route::middleware(['auth', 'contact.verified'])->group(function () {

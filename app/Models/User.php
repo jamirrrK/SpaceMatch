@@ -88,4 +88,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Property::class, 'owner_id');
     }
+
+    public function savedSpaces()
+    {
+        return $this->belongsToMany(Space::class, 'saved_spaces')->withTimestamps();
+    }
+
+    public function renterPreference()
+    {
+        return $this->hasOne(RenterPreference::class);
+    }
 }
