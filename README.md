@@ -1,59 +1,87 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SpaceMatch
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+SpaceMatch is a Laravel 12 rental marketplace for renters and property owners.
 
-## About Laravel
+## Local development setup
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Requirements: PHP 8.2 or newer with the PDO SQLite extension, Composer, and Node.js/npm if you need to rebuild frontend assets.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+1. Clone the repository and install PHP dependencies:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+   ```powershell
+   composer install
+   ```
 
-## Learning Laravel
+2. Create your private local environment file and SQLite database:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+   ```powershell
+   Copy-Item .env.example .env
+   New-Item -ItemType File database\database.sqlite -Force
+   ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+   Do not commit `.env` or `database\database.sqlite`.
 
-## Laravel Sponsors
+3. Generate your local application key, apply migrations, and optionally load synthetic development records:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+   ```powershell
+   php artisan key:generate
+   php artisan migrate --seed
+   ```
 
-### Premium Partners
+   The development seeder runs only in the local environment. It creates synthetic renter, owner, property, space, booking, and pending-payment records. It is safe to rerun and does not create an administrator account. Do not use `migrate:fresh` on a database containing data you want to keep.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+4. Start the application:
 
-## Contributing
+   ```powershell
+   php artisan serve
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+   Visit <http://127.0.0.1:8000>.
 
-## Code of Conduct
+## Team database workflow
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Each developer should use their own local database. The migration files in `database/migrations` are the source of truth for the schema; commit and push new migrations with the code changes that require them. After pulling, each developer runs:
 
-## Security Vulnerabilities
+```powershell
+composer install
+php artisan migrate
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+To create the same synthetic sample records locally, run `php artisan db:seed`. No real users, passwords, OTPs, or local database contents are shared through GitHub.
 
-## License
+Migrations synchronize database structure, not live records. Seeders are for safe, repeatable development fixtures, not for copying account or rental data between developers. If a coworker needs actual records, create and privately share a reviewed, sanitized export instead; never put production data or database credentials in Git.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Optional: use a local MySQL server
+
+The default setup uses SQLite and does not require a MySQL server. To use your own local MySQL or XAMPP installation:
+
+1. Create an empty database named `spacematch_db` in MySQL/phpMyAdmin.
+2. Ensure the PHP `pdo_mysql` extension is enabled.
+3. Set these values in your private `.env`, using the credentials configured on your machine:
+
+   ```dotenv
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=spacematch_db
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+
+4. Apply the project schema and optional synthetic data:
+
+   ```powershell
+   php artisan config:clear
+   php artisan migrate --seed
+   php artisan migrate:status
+   ```
+
+This still creates an independent database for each developer. Sharing live records requires a separately provisioned shared database server and is not provided by GitHub migrations.
+
+## Tests
+
+Run the application test suite with:
+
+```powershell
+php artisan test
+```
