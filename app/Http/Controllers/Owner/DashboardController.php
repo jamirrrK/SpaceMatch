@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Inquiry;
 use App\Models\Payment;
 use App\Models\Property;
 use App\Models\Space;
@@ -30,6 +31,7 @@ class DashboardController extends Controller
             'pending_requests' => (clone $bookings)->where('status', 'pending')->count(),
             'active_bookings' => (clone $bookings)->whereIn('status', ['confirmed', 'active'])->count(),
             'rental_income' => Payment::whereHas('booking.space.property', fn (Builder $query) => $query->where('owner_id', $ownerId))->sum('amount'),
+            'open_inquiries' => Inquiry::where('owner_id', $ownerId)->where('status', 'open')->count(),
         ];
 
         return view('owner.dashboard', [

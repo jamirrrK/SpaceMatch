@@ -79,6 +79,8 @@
                     <nav aria-label="Management navigation" class="d-grid gap-1">
                         @if(auth()->user()->hasRole('owner'))
                             <a class="sidebar-link {{ request()->routeIs('owner.dashboard') ? 'active' : '' }}" href="{{ route('owner.dashboard') }}"><x-icon name="grid" /><span>Overview</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('owner.inquiries.*') ? 'active' : '' }}" href="{{ route('owner.inquiries.index') }}"><x-icon name="mail" /><span>Inquiries</span>@if($unreadInquiryCount > 0)<span class="badge text-bg-primary ms-auto">{{ $unreadInquiryCount }}</span>@endif</a>
+                            <a class="sidebar-link {{ request()->routeIs('owner.viewings.*') ? 'active' : '' }}" href="{{ route('owner.viewings.index') }}"><x-icon name="calendar" /><span>Viewing requests</span>@if($unreadViewingCount > 0)<span class="badge text-bg-primary ms-auto">{{ $unreadViewingCount }}</span>@endif</a>
                             <a class="sidebar-link {{ request()->routeIs('owner.properties.*') ? 'active' : '' }}" href="{{ route('owner.properties.index') }}"><x-icon name="building" /><span>My properties</span></a>
                             <a class="sidebar-link {{ request()->routeIs('owner.spaces.*') ? 'active' : '' }}" href="{{ route('owner.spaces.index') }}"><x-icon name="home" /><span>Rental spaces</span></a>
                             <a class="sidebar-link" href="{{ route('owner.properties.create') }}"><x-icon name="building" /><span>Add a property</span></a>
@@ -90,6 +92,8 @@
                             <a class="sidebar-link {{ request()->routeIs('admin.audit-logs.index') ? 'active' : '' }}" href="{{ route('admin.audit-logs.index') }}"><x-icon name="shield" /><span>Audit logs</span></a>
                         @else
                             <a class="sidebar-link {{ request()->routeIs('renter.dashboard') ? 'active' : '' }}" href="{{ route('renter.dashboard') }}"><x-icon name="grid" /><span>Overview</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('renter.inquiries.*') ? 'active' : '' }}" href="{{ route('renter.inquiries.index') }}"><x-icon name="mail" /><span>Inquiries</span>@if($unreadInquiryCount > 0)<span class="badge text-bg-primary ms-auto">{{ $unreadInquiryCount }}</span>@endif</a>
+                            <a class="sidebar-link {{ request()->routeIs('renter.viewings.*') ? 'active' : '' }}" href="{{ route('renter.viewings.index') }}"><x-icon name="calendar" /><span>Viewings</span>@if($unreadViewingCount > 0)<span class="badge text-bg-primary ms-auto">{{ $unreadViewingCount }}</span>@endif</a>
                             <a class="sidebar-link {{ request()->routeIs('properties.*', 'spaces.*') ? 'active' : '' }}" href="{{ route('properties.index') }}"><x-icon name="search" /><span>Browse properties</span></a>
                             <a class="sidebar-link {{ request()->routeIs('renter.saved-spaces.*') ? 'active' : '' }}" href="{{ route('renter.saved-spaces.index') }}"><x-icon name="star" /><span>Saved spaces</span></a>
                             <a class="sidebar-link {{ request()->routeIs('renter.preferences.*') ? 'active' : '' }}" href="{{ route('renter.preferences.edit') }}"><x-icon name="user" /><span>Housing preferences</span></a>

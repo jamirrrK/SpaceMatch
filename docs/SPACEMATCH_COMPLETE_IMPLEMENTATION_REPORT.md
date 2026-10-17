@@ -3,6 +3,8 @@
 **Report date:** 2026-10-16
 **Status:** Existing foundation audited and stabilized; requested end-to-end platform is not yet complete.
 
+**Follow-up update (2026-10-18):** Renter preferences, saved spaces, space comparison, participant-scoped inquiries, and viewing requests with owner decisions and in-app database notifications have since been implemented. The 2026-10-16 browser results below predate those features.
+
 ## 1. Project Audit
 
 The detailed verified inventory is in [SPACEMATCH_PROJECT_AUDIT.md](SPACEMATCH_PROJECT_AUDIT.md). The application is Laravel 12 with Blade, Bootstrap assets, custom CSS/JavaScript, and a Vite build. The baseline matched the previously reported 49 passing tests and 304 assertions. All 12 existing migrations are applied and 47 routes are registered.
@@ -36,7 +38,7 @@ This stage also repaired booking-linked read-only listings: bookings, payments, 
 
 ## 5. Database Changes
 
-No migrations or tables were added. Existing development data and `.env` were not modified. The browser test suite used its dedicated SQLite database and image directory. The current schema has bookings, payments, maintenance requests, reviews, audit logs, property images, and amenities, but does not have favorites, inquiries, viewing appointments, reservation-specific records, conversations, messages, or application notifications.
+The 2026-10-16 audit stage added no migrations. Follow-up migrations add renter preferences, saved spaces, inquiry activities, and Laravel database notifications. Existing development data and `.env` were not modified. The schema still uses existing bookings, payments, maintenance requests, reviews, audit logs, property images, and amenities; no viewing appointment or reservation-decision tables have been added.
 
 ## 6. Controllers, Models, and Routes
 
@@ -66,11 +68,11 @@ The existing isolated Playwright script tested owner sign-in/property creation/i
 
 ## 10. Known Limitations and Incomplete Features
 
-- Favorites and saved-property management are not implemented.
-- Property inquiries and owner responses are not implemented.
-- Viewing appointment requests/approval and scheduling-conflict prevention are not implemented.
+- Renter housing preferences, saved spaces, and a maximum-three-space comparison view are implemented. Preferences are saved for reference and do not automatically alter search filters.
+- Property inquiries, participant-only replies, close status history, and in-app database notifications are implemented. Notifications do not send email or SMS.
+- Viewing requests now support renter-proposed one-hour times, owner accept/decline/reschedule, renter confirmation of a proposed replacement time, cancellation, participant-only views, status history, in-app notifications, and transaction-serialized conflict checks. Owners do not yet configure availability calendars; students propose a time and the owner decides.
 - Reservation requests, approval, availability locking, and conflict-safe transactions are not implemented. Existing `bookings` is not a complete reservation workflow.
-- Secure conversations, messages, unread state, and notifications are not implemented.
+- Inquiry conversations have participant-scoped message history and unread indicators. General-purpose messaging outside inquiries is not implemented.
 - Admin user management/account activation and dedicated activity-log browsing are not implemented.
 - Booking/payment/maintenance/review pages are read-only; no real payment processing was added.
 - The homepage lacks requested how-it-works, benefits, FAQ, and fuller about sections.
@@ -79,9 +81,14 @@ The existing isolated Playwright script tested owner sign-in/property creation/i
 
 ## 11. Recommended Next Steps
 
-1. Normalize frontend design tokens/fonts and check the remaining viewport widths.
-2. Implement favorites and inquiries with isolated migrations, policies, validation, and tests.
-3. Implement viewing requests and reservation transitions with concurrency-safe conflict prevention.
-4. Add participant-authorized messaging and database notifications.
-5. Add administrator user management and activity-log browsing.
-6. Extend role-based browser workflows and rerun full regression/security checks after each stage.
+1. Implement rental request decisions and conflict-safe booking acceptance.
+2. Add active-rental maintenance and eligible review workflows, retaining honest manual/offline payment status.
+3. Add administrator user management, richer moderation, and actionable activity browsing.
+4. Extend role-based browser workflows and check the remaining responsive target widths.
+
+## 12. Follow-up Verification (2026-10-18)
+
+- Added focused coverage for renter preference validation/ownership, saved-space isolation, comparison limits, inquiry status transitions, participant authorization, and notification delivery/read state.
+- Latest full Laravel suite: 101 tests and 744 assertions passed.
+- `php artisan migrate --force`, `php artisan migrate:status`, and `php artisan view:cache` passed.
+- `npm run build` could not be run in the current shell because `npm` is unavailable.

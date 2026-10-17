@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Renter;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Inquiry;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +21,7 @@ class DashboardController extends Controller
             'completed_rentals' => Booking::where('renter_id', $renterId)->where('status', 'completed')->count(),
             'outstanding_balances' => Payment::whereHas('booking', fn ($query) => $query->where('renter_id', $renterId))->where('payment_status', 'pending')->sum('amount'),
             'saved_spaces' => Auth::user()->savedSpaces()->count(),
+            'open_inquiries' => Inquiry::where('renter_id', $renterId)->where('status', 'open')->count(),
         ];
 
         return view('renter.dashboard', [
