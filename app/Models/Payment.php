@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Payment extends Model
 {
+    protected function casts(): array
+    {
+        return ['amount' => 'decimal:2', 'payment_date' => 'datetime'];
+    }
+
     protected $fillable = [
         'booking_id',
         'amount',

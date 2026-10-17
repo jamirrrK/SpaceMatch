@@ -22,9 +22,15 @@
                             <td>{{ $booking->renter->name }}</td>
                             <td>{{ $booking->start_date->format('M j, Y') }} - {{ $booking->end_date->format('M j, Y') }}</td>
                             <td><x-status-badge :status="$booking->status" /></td>
+                            @if(auth()->user()->hasRole('renter'))
+                                <td>
+                                    @foreach($booking->informationRequests ?? [] as $item)<div class="small mb-2"><strong>Owner asks:</strong> {{ $item->question }}@if($item->response)<br><strong>Your reply:</strong> {{ $item->response }}@endif</div>@if(!$item->responded_at && $booking->status === 'awaiting_renter_information')<form method="POST" action="{{ route('booking-information.respond', $item) }}" class="d-flex gap-2">@csrf<textarea class="form-control form-control-sm" name="response" rows="2" required maxlength="3000" placeholder="Reply to the owner"></textarea><button class="btn btn-outline-dark btn-sm" type="submit">Send</button></form>@endif @endforeach
+                                    @if($booking->decision_reason)<span class="small text-muted-soft">{{ $booking->decision_reason }}</span>@endif
+                                </td>
+                            @endif
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="record-empty"><x-empty-state title="No rental activity yet" message="Start exploring available spaces across the Philippines." /></td></tr>
+                        <tr><td colspan="{{ auth()->user()->hasRole('renter') ? 5 : 4 }}" class="record-empty"><x-empty-state title="No rental activity yet" message="Start exploring available spaces across the Philippines." /></td></tr>
                     @endforelse
                 </tbody>
             </table>

@@ -7,9 +7,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MaintenanceRequestController;
 use App\Http\Controllers\Owner\DashboardController as OwnerDashboardController;
+use App\Http\Controllers\Owner\RentalController as OwnerRentalController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\PropertyImageController;
 use App\Http\Controllers\Renter\DashboardController as RenterDashboardController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SpaceController;
@@ -21,7 +23,7 @@ Route::get('/properties', [PropertyController::class, 'index'])->name('propertie
 Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
 Route::get('/spaces', [SpaceController::class, 'index'])->name('spaces.index');
 Route::get('/spaces/{space}', [SpaceController::class, 'show'])->name('spaces.show');
-Route::get('/property-images/{image}', [\App\Http\Controllers\PropertyImageController::class, 'show'])->name('property-images.show');
+Route::get('/property-images/{image}', [PropertyImageController::class, 'show'])->name('property-images.show');
 
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -52,22 +54,29 @@ Route::middleware(['auth', 'contact.verified'])->group(function () {
 
 Route::middleware(['auth', 'role:admin', 'contact.verified'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-    Route::get('/admin/properties', [\App\Http\Controllers\Admin\PropertyController::class, 'index'])->name('admin.properties.index');
-    Route::get('/admin/properties/{property}', [\App\Http\Controllers\Admin\PropertyController::class, 'show'])->name('admin.properties.show');
-    Route::patch('/admin/properties/{property}/status', [\App\Http\Controllers\Admin\PropertyController::class, 'updateStatus'])->name('admin.properties.status');
+    Route::get('/admin/properties', [App\Http\Controllers\Admin\PropertyController::class, 'index'])->name('admin.properties.index');
+    Route::get('/admin/properties/{property}', [App\Http\Controllers\Admin\PropertyController::class, 'show'])->name('admin.properties.show');
+    Route::patch('/admin/properties/{property}/status', [App\Http\Controllers\Admin\PropertyController::class, 'updateStatus'])->name('admin.properties.status');
 });
 
 Route::middleware(['auth', 'role:owner', 'contact.verified'])->group(function () {
     Route::get('/owner/dashboard', [OwnerDashboardController::class, 'index'])->name('owner.dashboard');
-    Route::resource('/owner/properties', \App\Http\Controllers\Owner\PropertyController::class)->except('destroy')->names('owner.properties');
-    Route::patch('/owner/properties/{property}/status', [\App\Http\Controllers\Owner\PropertyController::class, 'status'])->name('owner.properties.status');
-    Route::patch('/owner/properties/{property}/publish', [\App\Http\Controllers\Owner\PropertyController::class, 'publish'])->name('owner.properties.publish');
-    Route::get('/owner/properties/{property}/spaces', [\App\Http\Controllers\Owner\SpaceController::class, 'index'])->name('owner.properties.spaces');
-    Route::resource('/owner/spaces', \App\Http\Controllers\Owner\SpaceController::class)->except(['show', 'destroy'])->names('owner.spaces');
-    Route::patch('/owner/spaces/{space}/publish', [\App\Http\Controllers\Owner\SpaceController::class, 'publish'])->name('owner.spaces.publish');
-    Route::post('/owner/properties/{property}/images', [\App\Http\Controllers\Owner\PropertyImageController::class, 'store'])->name('owner.properties.images.store');
-    Route::patch('/owner/images/{image}', [\App\Http\Controllers\Owner\PropertyImageController::class, 'update'])->name('owner.images.update');
-    Route::delete('/owner/images/{image}', [\App\Http\Controllers\Owner\PropertyImageController::class, 'destroy'])->name('owner.images.destroy');
+    Route::resource('/owner/properties', App\Http\Controllers\Owner\PropertyController::class)->except('destroy')->names('owner.properties');
+    Route::patch('/owner/properties/{property}/status', [App\Http\Controllers\Owner\PropertyController::class, 'status'])->name('owner.properties.status');
+    Route::patch('/owner/properties/{property}/publish', [App\Http\Controllers\Owner\PropertyController::class, 'publish'])->name('owner.properties.publish');
+    Route::get('/owner/properties/{property}/spaces', [App\Http\Controllers\Owner\SpaceController::class, 'index'])->name('owner.properties.spaces');
+    Route::resource('/owner/spaces', App\Http\Controllers\Owner\SpaceController::class)->except(['show', 'destroy'])->names('owner.spaces');
+    Route::patch('/owner/spaces/{space}/publish', [App\Http\Controllers\Owner\SpaceController::class, 'publish'])->name('owner.spaces.publish');
+    Route::post('/owner/properties/{property}/images', [App\Http\Controllers\Owner\PropertyImageController::class, 'store'])->name('owner.properties.images.store');
+    Route::patch('/owner/images/{image}', [App\Http\Controllers\Owner\PropertyImageController::class, 'update'])->name('owner.images.update');
+    Route::delete('/owner/images/{image}', [App\Http\Controllers\Owner\PropertyImageController::class, 'destroy'])->name('owner.images.destroy');
+    Route::get('/owner/rentals', [OwnerRentalController::class, 'index'])->name('owner.rentals.index');
+    Route::post('/owner/bookings/{booking}/decision', [OwnerRentalController::class, 'decide'])->name('owner.bookings.decision');
+    Route::patch('/owner/bookings/{booking}/activate', [OwnerRentalController::class, 'activate'])->name('owner.bookings.activate');
+    Route::patch('/owner/bookings/{booking}/complete', [OwnerRentalController::class, 'complete'])->name('owner.bookings.complete');
+    Route::patch('/owner/payments/{payment}', [OwnerRentalController::class, 'recordPayment'])->name('owner.payments.update');
+    Route::patch('/owner/maintenance/{maintenanceRequest}', [OwnerRentalController::class, 'updateMaintenance'])->name('owner.maintenance.update');
+    Route::get('/owner/reports', [OwnerRentalController::class, 'reports'])->name('owner.reports');
 });
 
 Route::middleware(['auth', 'role:renter', 'contact.verified'])->group(function () {
@@ -75,6 +84,9 @@ Route::middleware(['auth', 'role:renter', 'contact.verified'])->group(function (
 });
 
 Route::middleware(['auth', 'contact.verified'])->group(function () {
+    Route::post('/bookings', [BookingController::class, 'store'])->middleware('role:renter')->name('bookings.store');
+    Route::post('/booking-information/{informationRequest}/respond', [BookingController::class, 'respond'])->middleware('role:renter')->name('booking-information.respond');
+    Route::post('/maintenance', [MaintenanceRequestController::class, 'store'])->middleware('role:renter')->name('maintenance.store');
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::get('/maintenance', [MaintenanceRequestController::class, 'index'])->name('maintenance.index');

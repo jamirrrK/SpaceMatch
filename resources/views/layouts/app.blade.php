@@ -81,6 +81,8 @@
                             <a class="sidebar-link {{ request()->routeIs('owner.properties.*') ? 'active' : '' }}" href="{{ route('owner.properties.index') }}"><x-icon name="building" /><span>My properties</span></a>
                             <a class="sidebar-link {{ request()->routeIs('owner.spaces.*') ? 'active' : '' }}" href="{{ route('owner.spaces.index') }}"><x-icon name="home" /><span>Rental spaces</span></a>
                             <a class="sidebar-link" href="{{ route('owner.properties.create') }}"><x-icon name="building" /><span>Add a property</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('owner.rentals.*') ? 'active' : '' }}" href="{{ route('owner.rentals.index') }}"><x-icon name="calendar" /><span>Requests and rentals</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('owner.reports') ? 'active' : '' }}" href="{{ route('owner.reports') }}"><x-icon name="wallet" /><span>Income and reports</span></a>
                         @elseif(auth()->user()->hasRole('admin'))
                             <a class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><x-icon name="grid" /><span>Platform overview</span></a>
                             <a class="sidebar-link {{ request()->routeIs('admin.properties.*') ? 'active' : '' }}" href="{{ route('admin.properties.index') }}"><x-icon name="building" /><span>All properties</span></a>
