@@ -19,7 +19,7 @@
                 <tbody>
                     @forelse($bookings as $booking)
                         <tr>
-                            <td>{{ $booking->space->space_name }}@if($booking->reference)<div class="small text-muted-soft">{{ $booking->reference }}</div>@endif</td>
+                            <td><a href="{{ route('bookings.show', $booking) }}">{{ $booking->space->space_name }}</a>@if($booking->reference)<div class="small text-muted-soft">{{ $booking->reference }}</div>@endif</td>
                             <td>{{ $booking->renter->name }}</td>
                             <td>{{ $booking->start_date->format('M j, Y') }} - {{ $booking->end_date->format('M j, Y') }}</td>
                             <td><x-status-badge :status="$booking->status" />

@@ -1,0 +1,57 @@
+{
+  "results": [
+    {
+      "name": "owner maintains real student listing metadata",
+      "status": "passed"
+    },
+    {
+      "name": "student registration and real single-use OTP through isolated mail sink",
+      "status": "passed"
+    },
+    {
+      "name": "student preferences drive filters and responsive search",
+      "status": "passed"
+    },
+    {
+      "name": "save and compare database listings",
+      "status": "passed"
+    },
+    {
+      "name": "student inquiry reaches owner and reply stays in same thread",
+      "status": "passed"
+    },
+    {
+      "name": "viewing request and owner scheduling",
+      "status": "passed"
+    },
+    {
+      "name": "rental request additional-information and rejection branches",
+      "status": "passed"
+    },
+    {
+      "name": "accepted terms approval creates booking and unpaid schedule",
+      "status": "passed"
+    },
+    {
+      "name": "move-in coordination and supported active-rental transition",
+      "status": "passed"
+    },
+    {
+      "name": "owner-recorded partial payment updates existing ledger",
+      "status": "passed"
+    },
+    {
+      "name": "journey",
+      "status": "failed",
+      "error": "false == true"
+    }
+  ],
+  "diagnostics": {
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedResponses": [],
+    "blockedExternalRequests": [],
+    "layout": []
+  },
+  "runRoot": "C:\\xampp\\htdocs\\spacematch\\storage\\app\\private\\student-workflow-browser-SasaPA"
+}

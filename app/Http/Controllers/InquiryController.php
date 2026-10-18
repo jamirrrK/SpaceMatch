@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Booking;
 use App\Models\Inquiry;
-use App\Models\InquiryActivity;
 use App\Models\Space;
 use App\Models\User;
 use App\Notifications\InquiryActivityNotification;
@@ -31,12 +31,21 @@ class InquiryController extends Controller
             abort(403);
         }
 
-        $space = Space::publiclyListed()->with('property.owner')->whereKey($space->id)->firstOrFail();
+        $space = Space::with('property.owner')->whereKey($space->id)->firstOrFail();
+        $existingRental = Booking::where('space_id', $space->id)->where('renter_id', $request->user()->id)
+            ->whereIn('status', ['confirmed', 'active'])->exists();
+        abort_unless($existingRental || Space::publiclyListed()->whereKey($space->id)->exists(), 404);
         $data = $request->validate([
             'message' => ['required', 'string', 'min:10', 'max:4000'],
         ]);
 
         $inquiry = DB::transaction(function () use ($request, $space, $data): Inquiry {
+            Space::whereKey($space->id)->lockForUpdate()->firstOrFail();
+            $existing = Inquiry::where('space_id', $space->id)->where('renter_id', $request->user()->id)
+                ->where('owner_id', $space->property->owner_id)->where('status', 'open')->first();
+            if ($existing) {
+                return $existing;
+            }
             $inquiry = Inquiry::create([
                 'space_id' => $space->id,
                 'renter_id' => $request->user()->id,
@@ -85,6 +94,10 @@ class InquiryController extends Controller
                 throw ValidationException::withMessages(['message' => 'This inquiry is closed and can no longer receive replies.']);
             }
 
+            if ($locked->activities()->where('user_id', $user->id)->where('body', $data['message'])
+                ->where('created_at', '>=', now()->subMinute())->exists()) {
+                return;
+            }
             $locked->activities()->create([
                 'user_id' => $user->id,
                 'activity_type' => 'message',

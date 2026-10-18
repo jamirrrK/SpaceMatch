@@ -11,6 +11,7 @@ class Space extends Model
     use HasFactory;
 
     protected $fillable = [
+        'student_friendly', 'nearby_school', 'campus_distance_km', 'furnishing', 'utilities_notes', 'transport_notes',
         'property_id',
         'space_name',
         'space_type',
@@ -26,6 +27,7 @@ class Space extends Model
     protected function casts(): array
     {
         return [
+            'student_friendly' => 'boolean', 'campus_distance_km' => 'decimal:2',
             'price' => 'decimal:2',
             'floor_area' => 'decimal:2',
             'capacity' => 'integer',

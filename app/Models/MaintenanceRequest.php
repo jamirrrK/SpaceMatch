@@ -9,6 +9,7 @@ class MaintenanceRequest extends Model
     protected $table = 'maintenance_requests';
 
     protected $fillable = [
+        'evidence_path',
         'booking_id',
         'description',
         'status',

@@ -5,6 +5,7 @@
 @section('content')
     <div class="container py-5">
         <x-record-heading title="Maintenance requests" description="Keep track of recorded issues and their current status." />
+        @include('maintenance.create')
         <div class="table-responsive info-panel" role="region" tabindex="0" aria-label="Maintenance requests table">
             <table class="table align-middle mb-0">
                 <thead>
@@ -18,7 +19,7 @@
                     @forelse($requests as $request)
                         <tr>
                             <td>{{ $request->booking->space->property->property_name }}<div class="small text-muted-soft">{{ $request->booking->space->space_name }} · {{ $request->booking->reference }}</div><div class="small text-muted-soft">Renter: {{ $request->booking->renter->name }}</div></td>
-                            <td>{{ $request->description }}</td>
+                            <td>{{ $request->description }}@if($request->evidence_path)<div><a href="{{ route('maintenance.evidence', $request) }}">Download private evidence</a></div>@endif</td>
                             <td>
                                 <x-status-badge :status="$request->status" />
                                 @if($request->statusHistory->isNotEmpty())
@@ -26,7 +27,7 @@
                                         <summary>Update history</summary>
                                         <ul class="mt-2 ps-3">
                                             @foreach($request->statusHistory as $history)
-                                                <li>{{ $history->created_at->format('M j, Y') }}: {{ ucfirst(str_replace('_', ' ', $history->from_status)) }} → {{ ucfirst(str_replace('_', ' ', $history->to_status)) }} by {{ $history->actor->name }}
+                                                <li>{{ $history->created_at->format('M j, Y') }}: {{ ucfirst(str_replace('_', ' ', $history->from_status ?? 'reported')) }} → {{ ucfirst(str_replace('_', ' ', $history->to_status)) }} by {{ $history->actor->name }}
                                                     @if($history->notes)<span class="d-block text-muted-soft">{{ $history->notes }}</span>@endif
                                                 </li>
                                             @endforeach

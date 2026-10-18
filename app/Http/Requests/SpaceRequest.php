@@ -21,6 +21,12 @@ class SpaceRequest extends FormRequest
         }
 
         return [
+            'student_friendly' => ['sometimes', 'boolean'],
+            'nearby_school' => ['required_with:campus_distance_km', 'nullable', 'string', 'max:150'],
+            'campus_distance_km' => ['nullable', 'numeric', 'between:0,1000'],
+            'furnishing' => ['nullable', Rule::in(['unfurnished', 'semi_furnished', 'furnished'])],
+            'utilities_notes' => ['nullable', 'string', 'max:2000'],
+            'transport_notes' => ['nullable', 'string', 'max:2000'],
             'property_id' => $propertyRules,
             'space_name' => ['required', 'string', 'max:255'],
             'space_type' => ['required', Rule::in(array_keys(config('property.types')))],

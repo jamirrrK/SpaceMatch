@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Renter dashboard | SpaceMatch')
+@section('title', auth()->user()->is_student ? 'Student dashboard | SpaceMatch' : 'Renter dashboard | SpaceMatch')
 @section('content')
 @php
     $stats = $stats ?? [];
@@ -12,13 +12,14 @@
 <div class="dashboard-content py-4 py-lg-5">
     <header class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <div>
-            <div class="eyebrow mb-2">Your SpaceMatch</div>
+            <div class="eyebrow mb-2">{{ auth()->user()->is_student ? 'Student renter workspace' : 'Your SpaceMatch' }}</div>
             <h1 class="page-heading mb-1">Welcome back, {{ auth()->user()->name }}.</h1>
             <p class="text-muted-soft small mb-0">Contact verification complete. Manage your rental plans from here.</p>
         </div>
         <a class="btn btn-primary-custom" href="{{ route('properties.index') }}">Explore rental spaces</a>
     </header>
 
+    @include('renter.student-overview')
     <form class="panel p-3 p-lg-4 mb-4" method="GET" action="{{ route('properties.index') }}" role="search" aria-label="Quick rental search">
         <div class="row g-2 align-items-end">
             <div class="col-md-5"><label class="form-label" for="dashboard-search">What are you looking for?</label><input class="form-control" id="dashboard-search" type="search" name="q" placeholder="Property, space, or amenity"></div>
@@ -44,6 +45,7 @@
         <a class="btn btn-outline-dark" href="{{ route('renter.viewings.index') }}">Viewings</a>
         <a class="btn btn-outline-dark" href="{{ route('renter.preferences.edit') }}">Housing preferences</a>
         <a class="btn btn-outline-dark" href="{{ route('bookings.index') }}">My bookings</a>
+        <a class="btn btn-outline-dark" href="{{ route('maintenance.index') }}">Maintenance</a>
         <a class="btn btn-outline-dark" href="{{ route('payments.index') }}">Payment records</a>
         <a class="btn btn-outline-dark" href="{{ route('notifications.index') }}">Notifications</a>
     </div>
@@ -85,10 +87,11 @@
         </section>
     @endif
 
+    @include('renter.activity-overview')
     @if($availableSpaces->isNotEmpty())
         <section class="mb-4" aria-labelledby="available-spaces-title">
             <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
-                <h2 class="panel-title mb-0" id="available-spaces-title">Available spaces to explore</h2>
+                <h2 class="panel-title mb-0" id="available-spaces-title">Matches for your housing preferences</h2>
                 <a class="small-link" href="{{ route('properties.index') }}">Browse all</a>
             </div>
             <div class="row g-4">

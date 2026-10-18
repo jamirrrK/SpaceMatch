@@ -17,9 +17,10 @@
                     <div>
                         <div class="eyebrow">{{ $rentalRequest->space?->property?->property_name }}</div>
                         <h2 class="listing-title fs-5 mt-1">{{ $rentalRequest->space?->space_name }}</h2>
-                        <p class="mb-1">{{ $rentalRequest->renter?->name }} · {{ $rentalRequest->contact_phone }}</p>
-                        <p class="small text-muted-soft mb-2">{{ $rentalRequest->move_in_date->format('M j, Y') }} · {{ $rentalRequest->occupants }} {{ \Illuminate\Support\Str::plural('occupant', $rentalRequest->occupants) }} · {{ $rentalRequest->duration_months }} months</p>
-                        <p class="small mb-1">Requested monthly rent: ₱{{ number_format((float) ($rentalRequest->space?->price ?? 0), 2) }}</p>
+                        @if($rentalRequest->renter?->is_student)<p class="small">Student renter ? {{ $rentalRequest->renter->renterPreference?->school_or_campus }} ? {{ $rentalRequest->renter->renterPreference?->campus }}</p>@endif
+                        <p class="mb-1">{{ $rentalRequest->renter?->name }} Â· {{ $rentalRequest->contact_phone }}</p>
+                        <p class="small text-muted-soft mb-2">{{ $rentalRequest->move_in_date->format('M j, Y') }} Â· {{ $rentalRequest->occupants }} {{ \Illuminate\Support\Str::plural('occupant', $rentalRequest->occupants) }} Â· {{ $rentalRequest->duration_months }} months</p>
+                        <p class="small mb-1">Requested monthly rent: â‚±{{ number_format((float) ($rentalRequest->space?->price ?? 0), 2) }}</p>
                         @if($rentalRequest->message)<p class="mb-2"><strong>Renter message:</strong> {{ $rentalRequest->message }}</p>@endif
                         @if($rentalRequest->renter_response)<p class="mb-2"><strong>Renter follow-up:</strong> {{ $rentalRequest->renter_response }}</p>@endif
                         @if($rentalRequest->response_message)<p class="mb-2"><strong>Your last response:</strong> {{ $rentalRequest->response_message }}</p>@endif
@@ -29,8 +30,8 @@
                             <summary>Request decision history</summary>
                             <ol class="mt-2 ps-3">
                                 @foreach($rentalRequest->statusHistory as $history)
-                                    <li>{{ $history->created_at->format('M j, Y g:i A') }} · {{ ucfirst(str_replace('_', ' ', $history->event)) }} ({{ ucfirst($history->actor_role) }})
-                                        @if($history->from_status) · {{ ucfirst(str_replace('_', ' ', $history->from_status)) }} → {{ ucfirst(str_replace('_', ' ', $history->to_status)) }}@endif
+                                    <li>{{ $history->created_at->format('M j, Y g:i A') }} Â· {{ ucfirst(str_replace('_', ' ', $history->event)) }} ({{ ucfirst($history->actor_role) }})
+                                        @if($history->from_status) Â· {{ ucfirst(str_replace('_', ' ', $history->from_status)) }} â†’ {{ ucfirst(str_replace('_', ' ', $history->to_status)) }}@endif
                                         @if($history->notes)<span class="d-block text-muted-soft">{{ $history->notes }}</span>@endif
                                     </li>
                                 @endforeach
@@ -40,7 +41,7 @@
                     <x-status-badge :status="$rentalRequest->status" />
                 </div>
                 @if($rentalRequest->booking)
-                    <p class="small mb-0">Booking {{ $rentalRequest->booking->reference }} · confirmed for {{ $rentalRequest->booking->start_date->format('M j, Y') }} to {{ $rentalRequest->booking->end_date->format('M j, Y') }}.</p>
+                    <p class="small mb-0">Booking {{ $rentalRequest->booking->reference }} Â· confirmed for {{ $rentalRequest->booking->start_date->format('M j, Y') }} to {{ $rentalRequest->booking->end_date->format('M j, Y') }}.</p>
                 @elseif(in_array($rentalRequest->status, [\App\Models\RentalRequest::STATUS_PENDING, \App\Models\RentalRequest::STATUS_MORE_INFORMATION], true))
                     <form class="border-top pt-3 mt-3" method="POST" action="{{ route('owner.requests.update', $rentalRequest) }}">
                         @csrf @method('PATCH')

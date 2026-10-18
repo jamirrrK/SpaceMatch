@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Booking;
 use App\Models\MaintenanceRequest;
 use App\Models\MaintenanceRequestStatusHistory;
 use App\Notifications\RentalWorkflowNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -20,7 +22,70 @@ class MaintenanceRequestController extends Controller
             ->whereHas('booking', fn ($booking) => $booking->visibleTo($request->user()))
             ->latest()->paginate(15);
 
-        return view('maintenance.index', compact('requests'));
+        $activeBookings = $request->user()->role === 'renter'
+            ? Booking::visibleTo($request->user())->where('status', 'active')->with('space.property')->get()
+            : collect();
+
+        return view('maintenance.index', compact('requests', 'activeBookings'));
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'booking_id' => ['required', 'integer'],
+            'description' => ['required', 'string', 'min:10', 'max:2000'],
+            'evidence' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:4096'],
+        ]);
+        $path = null;
+        try {
+            $maintenance = DB::transaction(function () use ($request, $data, &$path): MaintenanceRequest {
+                $booking = Booking::where('renter_id', $request->user()->id)->whereKey($data['booking_id'])
+                    ->lockForUpdate()->firstOrFail();
+                if ($booking->status !== 'active') {
+                    throw ValidationException::withMessages(['booking_id' => 'Maintenance can only be reported for an active rental.']);
+                }
+                $existing = MaintenanceRequest::where('booking_id', $booking->id)
+                    ->where('description', $data['description'])->whereIn('status', ['open', 'in_progress'])->first();
+                if ($existing) {
+                    return $existing;
+                }
+                if ($request->hasFile('evidence')) {
+                    $path = $request->file('evidence')->store('maintenance-evidence', 'local');
+                    if (! $path) {
+                        throw new \RuntimeException('Unable to save private evidence.');
+                    }
+                }
+                $maintenance = MaintenanceRequest::create([
+                    'booking_id' => $booking->id, 'description' => $data['description'],
+                    'status' => 'open', 'evidence_path' => $path,
+                ]);
+                $maintenance->statusHistory()->create([
+                    'actor_id' => $request->user()->id, 'from_status' => 'submitted', 'to_status' => 'open', 'notes' => 'Issue reported by the renter.',
+                ]);
+                $booking->space->property->owner->notify(new RentalWorkflowNotification(
+                    'New maintenance request', 'A renter reported an issue for '.$booking->reference.'.', route('maintenance.index')
+                ));
+
+                return $maintenance;
+            });
+        } catch (\Throwable $exception) {
+            if ($path) {
+                Storage::disk('local')->delete($path);
+            }
+            throw $exception;
+        }
+
+        return redirect()->route('maintenance.index')->with('status', 'Maintenance request recorded.');
+    }
+
+    public function evidence(Request $request, MaintenanceRequest $maintenanceRequest)
+    {
+        abort_unless(Booking::visibleTo($request->user())->whereKey($maintenanceRequest->booking_id)->exists(), 404);
+        abort_unless($maintenanceRequest->evidence_path && Storage::disk('local')->exists($maintenanceRequest->evidence_path), 404);
+
+        return Storage::disk('local')->download($maintenanceRequest->evidence_path, 'maintenance-evidence.'.pathinfo($maintenanceRequest->evidence_path, PATHINFO_EXTENSION), [
+            'X-Content-Type-Options' => 'nosniff', 'Cache-Control' => 'private, no-store',
+        ]);
     }
 
     public function update(Request $request, MaintenanceRequest $maintenanceRequest): RedirectResponse
