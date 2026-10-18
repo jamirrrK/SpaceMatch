@@ -17,6 +17,15 @@ Student information and distances are owner reported. Payment records represent 
 - Main views load four overlapping custom CSS files while the Vite entry is effectively unused. Consolidate delivery in the existing cascade order before making visual refinements. Preserve a resilient error-page fallback.
 - Keep real owner photos and availability-driven featured listings separate from illustrative marketing content.
 - Existing isolated SQLite/browser harness can validate complete workflows without touching the existing development database. Extend it for a persistent local demonstration.
+- Administrator pending-application metrics were incorrectly sourced from bookings. They now count pending rental requests and requests awaiting additional information, with a regression test.
+
+## Stage implementation
+
+All 17 illustrations are integrated across discovery, audience sections, authentication and renter promotion. The responsive component selects optimized JPEG/WebP variants and keeps native HTML controls and owner photos separate. Source hashes confirm the original pack is unchanged. The optimized full-size WebP set is substantially smaller than the source JPEG set; only the selected format/size is requested, with below-fold lazy loading.
+
+The Vite entry now delivers Bootstrap and the existing theme/feature code together. Obsolete public intermediate styles and feature scripts were moved to source modules, the unused Tailwind build plugin was removed, CI builds before Laravel tests, and compiled font references are relative for subdirectory installs. Existing base/theme CSS remain solely for error-page recovery when the build manifest is unavailable. This preserves the established role styling rather than replacing working interfaces.
+
+The loopback demonstration launcher creates synthetic accounts and a separate private SQLite database with safe bootstrap guards. A synthetic image is explicitly labeled as a demonstration. The original image pack and reproducible browser artifacts stay local and are excluded from commits.
 
 ## Boundaries and release gate
 

@@ -328,7 +328,7 @@ try {
         for (const [width, height] of [[375, 812], [768, 1024], [1366, 900], [1920, 1080]]) {
             await student.setViewportSize({ width, height });
             await open(student, '/');
-            await student.locator('footer').scrollIntoViewIfNeeded();
+            await student.evaluate(() => document.querySelectorAll('.marketing-picture img').forEach(image => { image.loading = 'eager'; }));
             await student.waitForFunction(() => [...document.querySelectorAll('.marketing-picture img')].every(image => image.complete && image.naturalWidth > 0));
             assert.equal(await student.locator('.marketing-picture').count(), 16);
             assert.equal(await student.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, `Homepage overflow at ${width}`);
@@ -338,10 +338,11 @@ try {
         }
         const visitor = await pageFor();
         await open(visitor, '/login');
-        await visitor.locator('footer').scrollIntoViewIfNeeded();
+        await visitor.evaluate(() => document.querySelectorAll('.marketing-picture img').forEach(image => { image.loading = 'eager'; }));
         await visitor.waitForFunction(() => [...document.querySelectorAll('.marketing-picture img')].every(image => image.complete && image.naturalWidth > 0));
         assert.equal(await visitor.locator('.marketing-picture img').count(), 1);
     });
+    assert.deepEqual(diagnostics.consoleErrors, []);
     assert.deepEqual(diagnostics.pageErrors, []);
     assert.deepEqual(diagnostics.failedResponses, []);
 } catch (error) {
