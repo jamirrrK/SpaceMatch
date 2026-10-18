@@ -9,6 +9,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MaintenanceRequestController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Owner\DashboardController as OwnerDashboardController;
+use App\Http\Controllers\Owner\ReportController;
+use App\Http\Controllers\Owner\TenantController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentReceiptController;
 use App\Http\Controllers\ProfileController;
@@ -68,9 +70,9 @@ Route::middleware(['auth', 'role:admin', 'contact.verified'])->group(function ()
 
 Route::middleware(['auth', 'role:owner', 'contact.verified'])->group(function () {
     Route::get('/owner/dashboard', [OwnerDashboardController::class, 'index'])->name('owner.dashboard');
-    Route::get('/owner/tenants', [App\Http\Controllers\Owner\TenantController::class, 'index'])->name('owner.tenants.index');
-    Route::get('/owner/reports', [App\Http\Controllers\Owner\ReportController::class, 'index'])->name('owner.reports.index');
-    Route::get('/owner/reports/collections.csv', [App\Http\Controllers\Owner\ReportController::class, 'export'])->name('owner.reports.export');
+    Route::get('/owner/tenants', [TenantController::class, 'index'])->name('owner.tenants.index');
+    Route::get('/owner/reports', [ReportController::class, 'index'])->name('owner.reports.index');
+    Route::get('/owner/reports/collections.csv', [ReportController::class, 'export'])->name('owner.reports.export');
     Route::get('/owner/rental-requests', [App\Http\Controllers\Owner\RentalRequestController::class, 'index'])->name('owner.requests.index');
     Route::patch('/owner/rental-requests/{rentalRequest}', [App\Http\Controllers\Owner\RentalRequestController::class, 'update'])->name('owner.requests.update');
     Route::patch('/owner/bookings/{booking}/status', [App\Http\Controllers\Owner\BookingController::class, 'update'])->name('owner.bookings.update');

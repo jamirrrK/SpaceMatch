@@ -69,6 +69,40 @@
         @endif
     </section>
     <div class="row g-4 mb-4">
+        <div class="col-xl-7">
+            <section class="panel overflow-hidden h-100">
+                <div class="d-flex justify-content-between align-items-center gap-3 p-4"><h2 class="panel-title mb-0">Requests awaiting your response</h2><a class="small-link" href="{{ route('owner.requests.index') }}">Review all ↗</a></div>
+                @forelse($pendingRequests as $rentalRequest)
+                    <div class="px-4 py-3 border-top">
+                        <div class="d-flex flex-wrap justify-content-between gap-2"><strong>{{ $rentalRequest->renter->name }} · {{ $rentalRequest->space->property->property_name }}</strong><x-status-badge :status="$rentalRequest->status" /></div>
+                        <div class="small text-muted-soft">{{ $rentalRequest->space->space_name }} · Move-in {{ $rentalRequest->move_in_date->format('M j, Y') }} · {{ $rentalRequest->occupants }} occupant(s)</div>
+                    </div>
+                @empty<div class="px-4 pb-4 small text-muted-soft">No rental requests need a decision.</div>@endforelse
+            </section>
+        </div>
+        <div class="col-xl-5">
+            <section class="panel overflow-hidden h-100">
+                <div class="d-flex justify-content-between align-items-center gap-3 p-4"><h2 class="panel-title mb-0">Recent notifications</h2><a class="small-link" href="{{ route('notifications.index') }}">Notification history ↗</a></div>
+                @forelse($recentNotifications as $notification)
+                    <div class="px-4 py-3 border-top">
+                        <div class="fw-semibold">{{ $notification->data['title'] ?? 'SpaceMatch update' }}</div>
+                        <div class="small text-muted-soft">{{ $notification->data['message'] ?? '' }}</div>
+                        <time class="small text-muted-soft" datetime="{{ $notification->created_at->toIso8601String() }}">{{ $notification->created_at->diffForHumans() }}</time>
+                    </div>
+                @empty<div class="px-4 pb-4 small text-muted-soft">Your rental notifications will appear here.</div>@endforelse
+            </section>
+        </div>
+    </div>
+    <section class="panel overflow-hidden mb-4">
+        <div class="d-flex justify-content-between align-items-center gap-3 p-4"><h2 class="panel-title mb-0">Recent booking activity</h2><a class="small-link" href="{{ route('bookings.index') }}">Manage bookings ↗</a></div>
+        @forelse($recentBookings as $booking)
+            <div class="px-4 py-3 border-top">
+                <div class="d-flex flex-wrap justify-content-between gap-2"><strong>{{ $booking->reference }} · {{ $booking->renter->name }}</strong><x-status-badge :status="$booking->status" /></div>
+                <div class="small text-muted-soft">{{ $booking->space->property->property_name }} · {{ $booking->space->space_name }} · {{ $booking->created_at->diffForHumans() }}</div>
+            </div>
+        @empty<div class="px-4 pb-4 small text-muted-soft">Booking activity will appear here after a request is approved.</div>@endforelse
+    </section>
+    <div class="row g-4 mb-4">
         <div class="col-xl-6">
             <section class="panel overflow-hidden h-100">
                 <div class="d-flex justify-content-between align-items-center p-4"><h2 class="panel-title mb-0">Upcoming move-ins</h2><a class="small-link" href="{{ route('owner.tenants.index') }}">Tenants ↗</a></div>

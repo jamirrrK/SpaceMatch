@@ -79,7 +79,10 @@ class RentalRequestController extends Controller
                 throw ValidationException::withMessages(['space' => 'You already have an active request for this space.']);
             }
 
-            $rentalRequest = $request->user()->rentalRequests()->create($data + ['space_id' => $space->id]);
+            $rentalRequest = $request->user()->rentalRequests()->create($data + [
+                'space_id' => $space->id,
+                'status' => RentalRequest::STATUS_PENDING,
+            ]);
             RentalRequestHistory::query()->create([
                 'rental_request_id' => $rentalRequest->id,
                 'actor_id' => $request->user()->id,

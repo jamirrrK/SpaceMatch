@@ -18,6 +18,19 @@
                 @if($rentalRequest->message)<p class="mb-2"><strong>Your message:</strong> {{ $rentalRequest->message }}</p>@endif
                 @if($rentalRequest->response_message)<p class="mb-2"><strong>Owner response:</strong> {{ $rentalRequest->response_message }}</p>@endif
                 @if($rentalRequest->renter_response)<p class="mb-2"><strong>Your follow-up:</strong> {{ $rentalRequest->renter_response }}</p>@endif
+                @if($rentalRequest->statusHistory->isNotEmpty())
+                    <details class="small mt-3">
+                        <summary>Request history</summary>
+                        <ol class="mt-2 ps-3">
+                            @foreach($rentalRequest->statusHistory as $history)
+                                <li>{{ $history->created_at->format('M j, Y g:i A') }} · {{ ucfirst(str_replace('_', ' ', $history->event)) }}
+                                    @if($history->from_status) · {{ ucfirst(str_replace('_', ' ', $history->from_status)) }} → {{ ucfirst(str_replace('_', ' ', $history->to_status)) }}@endif
+                                    @if($history->notes)<span class="d-block text-muted-soft">{{ $history->notes }}</span>@endif
+                                </li>
+                            @endforeach
+                        </ol>
+                    </details>
+                @endif
                 @if($rentalRequest->booking)
                     <p class="small mb-2">Booking reference: <strong>{{ $rentalRequest->booking->reference }}</strong> · {{ $rentalRequest->booking->start_date->format('M j, Y') }} – {{ $rentalRequest->booking->end_date->format('M j, Y') }}</p>
                     <a class="small-link" href="{{ route('bookings.index') }}">View your booking</a>

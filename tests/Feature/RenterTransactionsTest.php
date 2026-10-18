@@ -49,6 +49,11 @@ class RenterTransactionsTest extends TestCase
 
         $rentalRequest = RentalRequest::query()->firstOrFail();
         $this->assertSame(RentalRequest::STATUS_PENDING, $rentalRequest->status);
+        $this->assertDatabaseHas('rental_request_histories', [
+            'rental_request_id' => $rentalRequest->id,
+            'event' => 'submitted',
+            'to_status' => RentalRequest::STATUS_PENDING,
+        ]);
 
         $this->actingAs($owner)->patch(route('owner.requests.update', $rentalRequest), [
             'status' => RentalRequest::STATUS_APPROVED,
@@ -57,6 +62,12 @@ class RenterTransactionsTest extends TestCase
         $rentalRequest->refresh();
         $booking = $rentalRequest->booking;
         $this->assertSame(RentalRequest::STATUS_APPROVED, $rentalRequest->status);
+        $this->assertDatabaseHas('rental_request_histories', [
+            'rental_request_id' => $rentalRequest->id,
+            'event' => 'owner_decision',
+            'from_status' => RentalRequest::STATUS_PENDING,
+            'to_status' => RentalRequest::STATUS_APPROVED,
+        ]);
         $this->assertNotNull($booking);
         $this->assertSame('confirmed', $booking->status);
         $this->assertSame(2, $booking->occupants);
@@ -542,6 +553,19 @@ class RenterTransactionsTest extends TestCase
 
         $this->assertSame(RentalRequest::STATUS_PENDING, $rentalRequest->fresh()->status);
         $this->assertSame('There will be one occupant.', $rentalRequest->fresh()->renter_response);
+        $this->assertDatabaseHas('rental_request_histories', [
+            'rental_request_id' => $rentalRequest->id,
+            'event' => 'owner_decision',
+            'from_status' => RentalRequest::STATUS_PENDING,
+            'to_status' => RentalRequest::STATUS_MORE_INFORMATION,
+        ]);
+        $this->assertDatabaseHas('rental_request_histories', [
+            'rental_request_id' => $rentalRequest->id,
+            'event' => 'renter_reply',
+            'from_status' => RentalRequest::STATUS_MORE_INFORMATION,
+            'to_status' => RentalRequest::STATUS_PENDING,
+            'notes' => 'There will be one occupant.',
+        ]);
         $this->assertDatabaseCount('notifications', 2);
     }
 

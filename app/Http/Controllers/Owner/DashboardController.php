@@ -10,8 +10,8 @@ use App\Models\Property;
 use App\Models\RentalRequest;
 use App\Models\Space;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -87,6 +87,11 @@ class DashboardController extends Controller
             'stats' => $stats,
             'properties' => $properties->withCount('spaces')->latest()->take(5)->get(),
             'recentBookings' => $bookings->with(['renter', 'space.property'])->latest()->take(5)->get(),
+            'pendingRequests' => (clone $rentalRequests)->whereIn('status', [
+                RentalRequest::STATUS_PENDING,
+                RentalRequest::STATUS_MORE_INFORMATION,
+            ])->with(['renter:id,name', 'space.property'])
+                ->latest()->limit(5)->get(),
             'upcomingMoveIns' => (clone $bookings)->with(['renter', 'space.property'])
                 ->where('status', 'confirmed')->whereBetween('start_date', [today(), $upcomingEnd])
                 ->orderBy('start_date')->limit(5)->get(),
@@ -99,6 +104,7 @@ class DashboardController extends Controller
                 ->latest('received_at')->limit(5)->get(),
             'collectionMonths' => $collectionMonths->values(),
             'unreadNotifications' => $request->user()->unreadNotifications()->count(),
+            'recentNotifications' => $request->user()->notifications()->latest()->limit(5)->get(),
         ]);
     }
 }

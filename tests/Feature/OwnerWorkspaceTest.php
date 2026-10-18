@@ -7,8 +7,10 @@ use App\Models\MaintenanceRequest;
 use App\Models\Payment;
 use App\Models\PaymentTransaction;
 use App\Models\Property;
+use App\Models\RentalRequest;
 use App\Models\Space;
 use App\Models\User;
+use App\Notifications\RentalWorkflowNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -42,6 +44,8 @@ class OwnerWorkspaceTest extends TestCase
         ]);
         $this->transaction($owner, $paid, 5000);
         $this->transaction($owner, $partial, 2000);
+        $this->pendingRequest($booking->space);
+        $owner->notify(new RentalWorkflowNotification('Fixture notification', 'A disposable dashboard notification.', route('owner.dashboard')));
 
         $otherOwner = User::factory()->create(['role' => User::ROLE_OWNER]);
         $otherBooking = $this->bookingFor($otherOwner, 'active');
@@ -61,7 +65,10 @@ class OwnerWorkspaceTest extends TestCase
                     && (float) $stats['overdue_balance'] === 10000.0
                     && $stats['active_tenants'] === 1;
             })
+            ->assertViewHas('pendingRequests', fn ($requests): bool => $requests->count() === 1)
+            ->assertViewHas('recentNotifications', fn ($notifications): bool => $notifications->count() === 1)
             ->assertSee('₱7,000.00')
+            ->assertSee('Fixture notification')
             ->assertSee('Recent confirmed payments');
     }
 
@@ -211,6 +218,21 @@ class OwnerWorkspaceTest extends TestCase
             'amount' => $amount,
             'received_at' => now(),
             'payment_method' => 'cash',
+        ]);
+    }
+
+    private function pendingRequest(Space $space): RentalRequest
+    {
+        $renter = User::factory()->create(['role' => User::ROLE_RENTER]);
+
+        return RentalRequest::query()->create([
+            'renter_id' => $renter->id,
+            'space_id' => $space->id,
+            'move_in_date' => today()->addDays(60),
+            'occupants' => 1,
+            'duration_months' => 3,
+            'contact_phone' => '09000000000',
+            'status' => RentalRequest::STATUS_PENDING,
         ]);
     }
 }

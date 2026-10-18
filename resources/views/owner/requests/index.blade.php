@@ -3,6 +3,13 @@
 @section('content')
 <div class="container py-4 py-lg-5">
     <div class="my-4"><div class="eyebrow mb-2">Owner workspace</div><h1 class="page-heading mb-1">Rental requests</h1><p class="text-muted-soft mb-0">Review requests for your listings and make an explicit decision.</p></div>
+    <form method="GET" action="{{ route('owner.requests.index') }}" class="panel p-3 mb-4">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-5"><label class="form-label" for="request-property">Property</label><select class="form-select" id="request-property" name="property_id"><option value="">All my properties</option>@foreach($properties as $property)<option value="{{ $property->id }}" @selected((string) ($filters['property_id'] ?? '') === (string) $property->id)>{{ $property->property_name }}</option>@endforeach</select></div>
+            <div class="col-md-5"><label class="form-label" for="request-status">Status</label><select class="form-select" id="request-status" name="status"><option value="">All request statuses</option>@foreach([\App\Models\RentalRequest::STATUS_PENDING, \App\Models\RentalRequest::STATUS_MORE_INFORMATION, \App\Models\RentalRequest::STATUS_APPROVED, \App\Models\RentalRequest::STATUS_REJECTED, \App\Models\RentalRequest::STATUS_CANCELLED] as $status)<option value="{{ $status }}" @selected(($filters['status'] ?? '') === $status)>{{ ucfirst(str_replace('_', ' ', $status)) }}</option>@endforeach</select></div>
+            <div class="col-md-2 d-flex gap-2"><button class="btn btn-primary-custom flex-grow-1" type="submit">Filter</button><a class="btn btn-outline-dark" href="{{ route('owner.requests.index') }}">Clear</a></div>
+        </div>
+    </form>
     <div class="d-grid gap-3">
         @forelse($requests as $rentalRequest)
             <article class="panel p-4">
@@ -17,6 +24,19 @@
                         @if($rentalRequest->renter_response)<p class="mb-2"><strong>Renter follow-up:</strong> {{ $rentalRequest->renter_response }}</p>@endif
                         @if($rentalRequest->response_message)<p class="mb-2"><strong>Your last response:</strong> {{ $rentalRequest->response_message }}</p>@endif
                     </div>
+                    @if($rentalRequest->statusHistory->isNotEmpty())
+                        <details class="small mt-3">
+                            <summary>Request decision history</summary>
+                            <ol class="mt-2 ps-3">
+                                @foreach($rentalRequest->statusHistory as $history)
+                                    <li>{{ $history->created_at->format('M j, Y g:i A') }} · {{ ucfirst(str_replace('_', ' ', $history->event)) }} ({{ ucfirst($history->actor_role) }})
+                                        @if($history->from_status) · {{ ucfirst(str_replace('_', ' ', $history->from_status)) }} → {{ ucfirst(str_replace('_', ' ', $history->to_status)) }}@endif
+                                        @if($history->notes)<span class="d-block text-muted-soft">{{ $history->notes }}</span>@endif
+                                    </li>
+                                @endforeach
+                            </ol>
+                        </details>
+                    @endif
                     <x-status-badge :status="$rentalRequest->status" />
                 </div>
                 @if($rentalRequest->booking)

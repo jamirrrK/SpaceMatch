@@ -9,7 +9,7 @@
     </div>
     <div class="row g-3 mb-4">
         <div class="col-6"><x-stat-card label="Active tenants" :value="number_format($totalActive)" /></div>
-        <div class="col-6"><x-stat-card label="Upcoming move-ins" :value="number_format($totalConfirmed)" /></div>
+        <div class="col-6"><x-stat-card label="Confirmed bookings" :value="number_format($totalConfirmed)" /></div>
     </div>
     <form method="GET" action="{{ route('owner.tenants.index') }}" class="panel p-3 mb-4">
         <div class="row g-2 align-items-end">
