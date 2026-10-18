@@ -214,6 +214,9 @@ class StudentWorkflowTest extends TestCase
         $this->assertSame('confirmed', $booking->status);
         $this->assertTrue($booking->payments()->exists());
         $this->assertSame(0.0, (float) $booking->payments()->sum('paid_amount'));
+        $this->actingAs($student)->get(route('renter.dashboard'))
+            ->assertOk()
+            ->assertSee(route('bookings.show', $booking));
         $this->actingAs($student)->get(route('bookings.show', $booking))->assertOk()->assertSee('Terms accepted')->assertSee('Quiet after 10 PM.');
         $this->actingAs($owner)->get(route('bookings.show', $booking))->assertOk();
         $this->actingAs($this->student())->get(route('bookings.show', $booking))->assertNotFound();

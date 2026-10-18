@@ -55,7 +55,7 @@
             <div class="eyebrow mb-2">Upcoming move-in</div>
             <h2 class="panel-title mb-1" id="upcoming-move-title">{{ $upcomingBooking->space?->property?->property_name ?? 'Property' }} · {{ $upcomingBooking->space?->space_name ?? 'Space' }}</h2>
             <p class="text-muted-soft mb-2">{{ $upcomingBooking->start_date->format('M j, Y') }} – {{ $upcomingBooking->end_date->format('M j, Y') }}</p>
-            <a class="small-link" href="{{ route('bookings.index') }}">View booking details</a>
+            <a class="small-link" href="{{ route('bookings.show', $upcomingBooking) }}">View booking details</a>
         </section>
     @endif
 
@@ -114,7 +114,7 @@
                     <tbody>
                         @foreach($bookings as $booking)
                             <tr>
-                                <td class="fw-semibold">{{ $booking->space?->space_name ?? 'Space unavailable' }}</td>
+                                <td class="fw-semibold"><a href="{{ route('bookings.show', $booking) }}">{{ $booking->space?->space_name ?? 'Space unavailable' }}</a></td>
                                 <td>{{ $booking->space?->property?->property_name ?? 'Property unavailable' }}</td>
                                 <td><x-status-badge :status="$booking->status" /></td>
                                 <td class="small text-muted-soft">{{ $booking->created_at?->format('M j, Y') }}</td>

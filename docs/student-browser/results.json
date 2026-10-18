@@ -41,9 +41,20 @@
       "status": "passed"
     },
     {
-      "name": "journey",
-      "status": "failed",
-      "error": "false == true"
+      "name": "maintenance submission evidence and owner resolution",
+      "status": "passed"
+    },
+    {
+      "name": "date-eligible rental completion and student review",
+      "status": "passed"
+    },
+    {
+      "name": "administrator moderates review with retained audit history",
+      "status": "passed"
+    },
+    {
+      "name": "mobile tablet desktop layout and keyboard navigation",
+      "status": "passed"
     }
   ],
   "diagnostics": {
@@ -51,7 +62,23 @@
     "consoleErrors": [],
     "failedResponses": [],
     "blockedExternalRequests": [],
-    "layout": []
+    "layout": [
+      {
+        "name": "mobile",
+        "width": 390,
+        "overflow": false
+      },
+      {
+        "name": "tablet",
+        "width": 768,
+        "overflow": false
+      },
+      {
+        "name": "desktop",
+        "width": 1440,
+        "overflow": false
+      }
+    ]
   },
-  "runRoot": "C:\\xampp\\htdocs\\spacematch\\storage\\app\\private\\student-workflow-browser-SasaPA"
+  "runRoot": "C:\\xampp\\htdocs\\spacematch\\storage\\app\\private\\student-workflow-browser-BY48gS"
 }
