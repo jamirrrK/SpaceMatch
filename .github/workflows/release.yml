@@ -1,0 +1,97 @@
+name: Validate and package release
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      approved_commit:
+        description: Full 40-character main commit SHA reviewed for this run
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  deployment-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Offline deployment and recovery tests on Linux
+        run: python3 -m unittest discover -s scripts/deploy -p 'test_*.py' -v
+      - name: Validate Bash syntax
+        run: bash -n scripts/deploy/deploy.sh
+  build:
+    needs: deployment-tests
+    if: github.event_name != 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate manually approved identity
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          APPROVED_COMMIT: ${{ inputs.approved_commit }}
+          CHECKED_OUT_COMMIT: ${{ github.sha }}
+        run: |
+          [[ "$APPROVED_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          test "$APPROVED_COMMIT" = "$CHECKED_OUT_COMMIT"
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo_sqlite, fileinfo, dom, xml, curl
+          tools: composer:v2
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+          cache: npm
+      - run: php -l scripts/deploy/runtime-check.php
+      - run: composer validate --strict --no-check-publish
+      - run: composer install --no-interaction --prefer-dist
+      - run: composer check-platform-reqs
+      - name: Isolated Laravel tests
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+          DB_URL: ''
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan test --compact
+      - run: npm ci
+      - run: npm run build
+      - name: Package and verify exact commit
+        run: |
+          python3 scripts/deploy/package.py release
+          python3 scripts/deploy/verify.py release "$GITHUB_SHA"
+          tar -czf release-${GITHUB_SHA}.tar.gz -C release .
+          sha256sum release-${GITHUB_SHA}.tar.gz > release-${GITHUB_SHA}.tar.gz.sha256
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
+        with:
+          name: release-${{ github.sha }}
+          path: release-*.tar.gz*
+          retention-days: 30
+          if-no-files-found: error
+  approval:
+    # Disabled until an administrator has verified protected-environment review settings.
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && vars.PRODUCTION_APPROVAL_ENABLED == 'true'
+    needs: build
+    permissions: {}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment: production
+    concurrency:
+      group: spacematch-production
+      cancel-in-progress: false
+    steps:
+      - run: |
+          echo 'Approved artifact checkpoint only. No credentials, remote transport or activation.'
+          echo 'Activation requires separate operator approval and verified cPanel readiness.'

@@ -26,3 +26,8 @@ Thumbs.db
 /storage/npm-cache/
 
 /public/database.sqlite
+/release/
+/release-*.tar.gz
+/release-*.tar.gz.sha256
+
+/scripts/deploy/__pycache__/

@@ -9,3 +9,7 @@
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
+# Deployment scripts must use Unix line endings on cPanel/Linux.
+scripts/deploy/*.sh text eol=lf
+scripts/deploy/*.py text eol=lf
+.github/workflows/*.yml text eol=lf
