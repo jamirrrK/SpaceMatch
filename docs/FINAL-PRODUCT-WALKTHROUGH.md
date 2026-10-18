@@ -1,6 +1,6 @@
 # Local review walkthrough
 
-Start from the repository root with `npm.cmd run build`, then `node scripts/local-product-preview.mjs`. The launcher chooses port 8014 or the next available port and prints the exact loopback URL. Leave it running; stopping it stops the demo. Each launch creates a new private SQLite fixture database, so previous development data is untouched. Nothing connects to production, EmailJS or an external mail service. The demo is not exposed to the network.
+Start from the repository root with `npm.cmd run build`, then `node scripts/local-product-preview.mjs`. The launcher chooses port 8014 or the next available port and prints the exact loopback URL. Leave it running; stopping it stops the demo. Each launch creates a new private SQLite fixture database, so previous development data is untouched. Nothing connects to production or an external mail service. The demo is not exposed to the network.
 
 ## Synthetic accounts
 

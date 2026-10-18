@@ -17,8 +17,8 @@ class DevelopmentSampleSeeder extends Seeder
 {
     public function run(): void
     {
-        if (! app()->environment(['local', 'testing'])) {
-            throw new RuntimeException('Synthetic SpaceMatch records may only be seeded in local or testing environments.');
+        if (! app()->environment('testing')) {
+            throw new RuntimeException('Synthetic SpaceMatch records may only be seeded in an isolated testing environment.');
         }
 
         DB::transaction(function (): void {
@@ -28,6 +28,7 @@ class DevelopmentSampleSeeder extends Seeder
             $property = Property::firstOrCreate(
                 ['owner_id' => $owner->id, 'property_name' => 'Sample SpaceMatch Residence'],
                 [
+                    'is_synthetic' => true, 'data_source' => 'development_sample_seeder',
                     'description' => 'Synthetic listing used for local development.',
                     'address' => '100 Example Street',
                     'barangay' => 'Poblacion',

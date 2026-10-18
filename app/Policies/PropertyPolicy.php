@@ -9,7 +9,7 @@ class PropertyPolicy
 {
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, ['owner', 'admin'], true);
+        return $user->hasRole(User::ROLE_OWNER) || $user->isAdministrator();
     }
 
     public function view(User $user, Property $property): bool

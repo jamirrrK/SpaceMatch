@@ -21,8 +21,6 @@ try {
         console.log(`RUN ${label}`);
         const response = await page.goto(base + uri, { waitUntil: 'networkidle' });
         assert.equal(response.status(), uri === '/missing-preview-page' ? 404 : 200);
-        const dialog = page.locator('[data-tutorial-dialog]');
-        if (await dialog.count() && await dialog.evaluate(node => node.open)) await page.locator('[data-tutorial-skip]').first().click();
         for (const image of await page.locator('img').all()) {
             if (!(await image.isVisible())) continue;
             await image.scrollIntoViewIfNeeded();

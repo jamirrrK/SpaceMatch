@@ -39,8 +39,6 @@ server.stderr.on('data', b => { serverLog += b; });
 let browser;
 async function check(name, callback) { process.stdout.write(`RUN ${name}\n`); await callback(); results.push({ name, status: 'passed' }); process.stdout.write(`PASS ${name}\n`); }
 async function dismiss(page) {
-    const dialog = page.locator('[data-tutorial-dialog]');
-    if (await dialog.count() && await dialog.evaluate(x => x.open)) await page.locator('[data-tutorial-skip]').first().click();
 }
 async function open(page, uri) {
     const response = await page.goto(base + uri, { waitUntil: 'networkidle' });
@@ -117,6 +115,8 @@ try {
         const form = student.locator('form[action$="/register/student"]');
         for (const [name, value] of Object.entries({ name: 'Browser Student Renter', email: 'student@student-browser.example.test', password: fixtures.password, password_confirmation: fixtures.password, school_or_campus: 'Browser Test University', campus: 'Main', preferred_location: 'Cebu City' })) await form.locator(`[name=${name}]`).fill(value);
         await form.locator('[name=terms]').check();
+        await form.locator('[name=privacy_acknowledgment]').check();
+        await form.locator('[name=adult_confirmation]').check();
         await submit(student, form);
         assert.ok(student.url().endsWith('/verify-contact'));
         const { code } = JSON.parse(await readFile(path.join(runRoot, 'otp.json'), 'utf8'));
@@ -330,7 +330,7 @@ try {
             await open(student, '/');
             await student.evaluate(() => document.querySelectorAll('.marketing-picture img').forEach(image => { image.loading = 'eager'; }));
             await student.waitForFunction(() => [...document.querySelectorAll('.marketing-picture img')].every(image => image.complete && image.naturalWidth > 0));
-            assert.equal(await student.locator('.marketing-picture').count(), 16);
+            assert.equal(await student.locator('.marketing-picture').evaluateAll(pictures => pictures.filter(picture => !picture.closest('[data-carousel-fallback]')).length), 16);
             assert.equal(await student.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, `Homepage overflow at ${width}`);
             assert.ok((await student.locator('.illustrated-category').first().getAttribute('href')).includes('space_types'));
             await student.evaluate(() => scrollTo(0, 0));

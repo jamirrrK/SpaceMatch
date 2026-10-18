@@ -93,7 +93,7 @@
             <div class="table-wrap" role="region" tabindex="0" aria-label="Your properties table">
                 <table class="table mb-0"><thead><tr><th scope="col">Property</th><th scope="col">Spaces</th><th scope="col">Property status</th><th scope="col">Listing</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead><tbody>
                 @foreach($properties as $property)
-                    <tr><td><a class="table-name" href="{{ route('owner.properties.show', $property) }}">{{ $property->property_name }}</a><div class="table-sub">{{ $property->city }}, {{ $property->province }}</div></td><td>{{ $property->spaces_count }}</td><td><x-status-badge :status="$property->status" /></td><td><x-status-badge :status="$property->listing_status" /></td><td><a class="small-link" href="{{ route('owner.properties.show', $property) }}">Manage</a></td></tr>
+                    <tr><td><a class="table-name" href="{{ route('owner.properties.show', $property) }}">{{ $property->property_name }}<x-rating :average="$property->rating_average" :count="(int)$property->rating_count" /></a><div class="table-sub">{{ $property->city }}, {{ $property->province }}</div></td><td>{{ $property->spaces_count }}</td><td><x-status-badge :status="$property->status" /></td><td><x-status-badge :status="$property->listing_status" /></td><td><a class="small-link" href="{{ route('owner.properties.show', $property) }}">Manage</a></td></tr>
                 @endforeach
                 </tbody></table>
             </div>

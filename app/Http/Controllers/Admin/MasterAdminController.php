@@ -47,7 +47,8 @@ class MasterAdminController extends Controller
                 throw ValidationException::withMessages(['role' => 'You cannot remove your own master administrator access.']);
             }
 
-            if ($data['role'] === User::ROLE_MASTER_ADMIN && $target->requiresContactVerification()) {
+            if ($data['role'] === User::ROLE_MASTER_ADMIN
+                && ($target->requiresContactVerification() || $target->email_verified_at === null)) {
                 throw ValidationException::withMessages(['role' => 'Verify the administrator account contact information before granting master access.']);
             }
 

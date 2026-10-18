@@ -1,0 +1,31 @@
+# Rental Marketplace Functional Benchmark
+
+**Audit date:** 2026-10-19
+
+This comparison adapts the requested marketplace capabilities to monthly Philippine rentals. Airbnb's short-stay rules, pricing, and booking model are not treated as requirements for SpaceMatch. The official Airbnb help pages consulted were:
+
+- [Search for listings by neighborhood, landmark, or address](https://www.airbnb.com/help/article/252) — accessed 2026-10-19.
+- [After you make your booking choice](https://www.airbnb.com/help/article/85) — accessed 2026-10-19.
+- [How listing and host ratings are calculated](https://www.airbnb.com/help/article/13) — accessed 2026-10-19.
+
+These public pages support only the specific capabilities cited in the benchmark below. No private Airbnb behavior, proprietary algorithm, or design was copied.
+
+| Feature | Airbnb benchmark reference | SpaceMatch current state | Evidence | Gap | Priority | Recommended implementation |
+|---|---|---|---|---|---|---|
+| Search and location | Search by city, neighborhood, landmark, or address; map-linked discovery | Philippine location selectors, text filters, and proximity/map search are implemented | `PhilippineLocations`, `ListingSearch`, `LocationController`, discovery tests | Live MySQL lacks new location fields; distance filter returns no results until migration | P0 | Verify backup and apply reviewed additive migrations after approval; then verify data coverage and query plans |
+| Filters and pricing | Refine search and present comparable listing details | Location, type, price, capacity, amenities, student filters, and sorting are implemented | `ListingSearch`, `ListingFilterRequest`, `PropertyDiscoveryTest`, `StudentWorkflowTest` | Ratings are not a search filter; live schema drift blocks some new filters | P2 | Add rating filter only if product requirements justify it; resolve schema first |
+| Map exploration | Map results show areas and listings; map can complement search | Leaflet, clustering, property pins, price, rating summary, and Philippines bounds are implemented | `MapController`, `maps.js`, map feature test, local browser smoke check | Live schema currently produces zero pins; viewport-based requests are not implemented | P0/P2 | Apply reviewed schema change; consider viewport-bounded data for scale |
+| Listing detail and photos | Listing details, authentic photographs, and host communication | Property/space details and protected image delivery are implemented | `PropertyController`, `PropertyImageService`, `PropertyImageTest`, inquiry tests | Live owner create/update can require columns absent from MySQL | P0 | Resolve schema drift before accepting production listings |
+| Account onboarding | Account creation and identity/safety checks | Separate renter, owner, and student routes; OTP and password reset are implemented | Auth and OTP tests | Live provider delivery is not verified; SMS is disabled | P1 | Verify a production mail provider and sender, then test delivery and failure handling; configure SMS only if supported |
+| Owner communication | Guest can message a host; host responds | Private renter/owner inquiry threads, polling updates, read state, and notifications | `InquiryController`, `InquiryWorkflowTest` | No verified push/realtime service; support escalation is incomplete | P2 | Document polling behavior and add support operations before launch |
+| Requests and reservations | Host responds to requests; accepted reservations have a coherent lifecycle | Viewing appointments and rental applications feed booking lifecycle; concurrency and duplicate checks are tested | `RenterTransactionsTest`, `ViewingAppointmentWorkflowTest` | Long-term rental cancellation/dispute policy requires operational review | P1 | Confirm policy and support handling for cancellations and disputes |
+| Payments | Reservation charge and payment state are tied to the platform's supported payment process | Manual proof submission and owner/admin verification; receipts for confirmed amounts | Payment tests and `PaymentSubmissionController` | No payment gateway; missing live `payment_submissions` table; no verified refund/dispute flow | P0 | Complete schema/backup review, document manual-payment limitations, and separately approve any gateway work |
+| Ratings and reviews | Listing ratings derive from real review scores and are displayed with reviews | Completed-booking eligibility, duplicate prevention, report/moderation, average and count are implemented | Review tests; API map summary regression test | Live moderation/report schema is pending; no real user data was inspected | P0 | Apply schema only after backup/approval; verify moderation operations |
+| Safety and moderation | Identity and listing safety, moderation, and complaints | OTP, role middleware, listing deactivation, review reporting/moderation, and audit trails exist | Auth, moderation, and admin tests | No full fraud/dispute operations or independent owner verification were established | P1 | Define owner verification, incident response, complaint, and dispute procedures |
+| Saved listings | Renter can retain candidates | Saved property and saved space flows are implemented | Saved spaces/comparison and transaction tests | No blocker identified in isolated tests | P3 | Keep existing scope; monitor after real usage |
+| Accessibility and mobile | Search, map, forms, and controls are operable on multiple devices | Semantic carousel controls, reduced-motion support, and responsive CSS exist | Template/CSS review and limited local browser check | No WCAG 2.2 AA audit or tablet/small-mobile interaction run | P2 | Conduct keyboard and screen-reader review at all target breakpoints |
+| Support | User support for issues and disputes | No complete support-case workflow verified | Route/controller inventory | Operational support and escalation are missing/unverified | P1 | Establish support contact and case-handling procedures before public launch |
+
+## Adaptation notes
+
+SpaceMatch is a monthly rental marketplace. Its manual payment evidence workflow, owner decisions, move-in terms, and rental lifecycle are not equivalent to Airbnb's short-term booking and charge flow. Benchmark differences must be decided as product policy, not treated as automatic defects.

@@ -15,6 +15,13 @@ class ListingFilterRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'region_code' => ['nullable', 'regex:/^\d{10}$/'],
+            'province_code' => ['nullable', 'regex:/^\d{10}$/'],
+            'city_code' => ['nullable', 'regex:/^\d{10}$/'],
+            'barangay_code' => ['nullable', 'regex:/^\d{10}$/'],
+            'near_lat' => ['nullable', 'numeric', 'between:4,22', 'required_with:near_lng'],
+            'near_lng' => ['nullable', 'numeric', 'between:116,127', 'required_with:near_lat'],
+            'radius_km' => ['nullable', 'numeric', 'between:1,200'],
             'student_friendly' => ['nullable', 'boolean'],
             'campus' => ['nullable', 'string', 'max:150'],
             'transport' => ['nullable', 'string', 'max:150'],
@@ -37,5 +44,10 @@ class ListingFilterRequest extends FormRequest
             'sort' => ['nullable', Rule::in(['newest', 'price_asc', 'price_desc', 'updated', 'relevant'])],
             'page' => ['nullable', 'integer', 'min:1', 'max:1000000'],
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(fn () => app(\App\Services\PhilippineLocations::class)->validateSelection($this->only(['region_code', 'province_code', 'city_code', 'barangay_code'])));
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\SecurityController as AdminSecurityController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
@@ -33,6 +34,10 @@ use App\Http\Controllers\ViewingAppointmentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/locations', [\App\Http\Controllers\LocationController::class, 'index'])->name('locations.index');
+Route::get('/map/listings', [\App\Http\Controllers\MapController::class, 'index'])->middleware('throttle:60,1')->name('map.listings');
+Route::get('/terms', [\App\Http\Controllers\LegalController::class, 'terms'])->name('terms');
+Route::get('/privacy', [\App\Http\Controllers\LegalController::class, 'privacy'])->name('privacy');
 Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
 Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
 Route::get('/spaces', [SpaceController::class, 'index'])->name('spaces.index');
@@ -46,6 +51,10 @@ Route::middleware(['guest'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
 
+    Route::get('/register/renter', [AuthController::class, 'showRegistrationForm'])->name('renter.register');
+    Route::post('/register/renter', [AuthController::class, 'register'])->middleware('throttle:10,1');
+    Route::get('/register/owner', [AuthController::class, 'showRegistrationForm'])->name('owner.register');
+    Route::post('/register/owner', [AuthController::class, 'register'])->middleware('throttle:10,1');
     Route::get('/register/student', [AuthController::class, 'showRegistrationForm'])->name('student.register');
     Route::post('/register/student', [AuthController::class, 'register'])->middleware('throttle:10,1');
     Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
@@ -57,21 +66,23 @@ Route::middleware(['guest'])->group(function () {
     Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.store')->middleware('throttle:5,1');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'admin.password.change'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/verify-contact', [VerificationController::class, 'show'])->name('verification.notice');
     Route::post('/verify-contact', [VerificationController::class, 'verify'])->middleware('throttle:10,1')->name('verification.verify');
     Route::post('/verify-contact/resend', [VerificationController::class, 'resend'])->middleware('throttle:10,1')->name('verification.resend');
 });
 
-Route::middleware(['auth', 'contact.verified'])->group(function () {
+Route::middleware(['auth', 'contact.verified', 'admin.password.change'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 });
 
-Route::middleware(['auth', 'role:admin,master_admin', 'contact.verified'])->group(function () {
+Route::middleware(['auth', 'role:admin,master_admin', 'contact.verified', 'admin.password.change'])->group(function () {
+    Route::get('/admin/security/password', [AdminSecurityController::class, 'edit'])->name('admin.security.password.edit');
+    Route::patch('/admin/security/password', [AdminSecurityController::class, 'updatePassword'])->name('admin.security.password.update');
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
     Route::get('/admin/properties', [App\Http\Controllers\Admin\PropertyController::class, 'index'])->name('admin.properties.index');
@@ -84,7 +95,7 @@ Route::middleware(['auth', 'role:admin,master_admin', 'contact.verified'])->grou
     Route::get('/admin/audit-logs', [AuditLogController::class, 'index'])->name('admin.audit-logs.index');
 });
 
-Route::middleware(['auth', 'role:master_admin', 'contact.verified'])->group(function () {
+Route::middleware(['auth', 'role:master_admin', 'contact.verified', 'admin.password.change'])->group(function () {
     Route::get('/admin/master-administrators', [App\Http\Controllers\Admin\MasterAdminController::class, 'index'])->name('admin.master-admins.index');
     Route::patch('/admin/master-administrators/{user}', [App\Http\Controllers\Admin\MasterAdminController::class, 'updateRole'])->name('admin.master-admins.update');
 });
@@ -167,6 +178,7 @@ Route::middleware(['auth', 'contact.verified'])->group(function () {
     Route::get('/payment-submissions/{submission}/evidence', [PaymentSubmissionController::class, 'evidence'])->name('payments.submissions.evidence');
     Route::get('/maintenance/{maintenanceRequest}/evidence', [MaintenanceRequestController::class, 'evidence'])->name('maintenance.evidence');
     Route::get('/maintenance', [MaintenanceRequestController::class, 'index'])->name('maintenance.index');
+    Route::post('/reviews/{review}/report', [ReviewController::class, 'report'])->middleware('throttle:5,1')->name('reviews.report');
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');

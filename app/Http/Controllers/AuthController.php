@@ -53,6 +53,7 @@ class AuthController extends Controller
     {
         return view('auth.register', [
             'studentMode' => $request->routeIs('student.register'),
+            'registrationMode' => $request->routeIs('owner.register') ? 'owner' : ($request->routeIs('student.register') ? 'student' : 'renter'),
             'verificationChannels' => $verification->availableChannels(),
         ]);
     }
@@ -63,6 +64,8 @@ class AuthController extends Controller
         if ($student) {
             $request->merge(['account_type' => User::ROLE_RENTER]);
         }
+        if ($request->is('register/owner')) $request->merge(['account_type' => User::ROLE_OWNER]);
+        if ($request->is('register/renter')) $request->merge(['account_type' => User::ROLE_RENTER]);
         $rawPhone = $request->input('phone_number');
         $normalizedPhone = PhilippineMobileNumber::normalize(is_string($rawPhone) ? $rawPhone : null);
         if ($request->filled('phone_number') && $normalizedPhone === null) {
@@ -83,6 +86,12 @@ class AuthController extends Controller
             'verification_method' => ['required', Rule::in($verification->availableChannels())],
             'phone_number' => [Rule::requiredIf($request->input('verification_method') === 'sms'), 'nullable', 'regex:/^\+639\d{9}$/', 'unique:users,phone_number'],
             'terms' => ['accepted'],
+            'privacy_acknowledgment' => ['accepted'],
+            'adult_confirmation' => ['accepted'],
+            'owner_type' => [Rule::requiredIf($request->is('register/owner')), 'nullable', Rule::in(['individual', 'organization'])],
+            'organization_name' => ['required_if:owner_type,organization', 'nullable', 'string', 'max:180'],
+            'budget_min' => ['nullable', 'numeric', 'min:0', 'max:9999999999'],
+            'budget_max' => ['nullable', 'numeric', 'min:0', 'max:9999999999', Rule::when($request->filled('budget_min'), 'gte:budget_min')],
         ], [
             'account_type.in' => 'Please choose a valid account type.',
             'verification_method.in' => 'Choose a verification method that is currently available.',
@@ -104,8 +113,16 @@ class AuthController extends Controller
                 'verification_required_at' => now(),
             ]);
 
+            $user->forceFill([
+                'terms_version' => config('marketplace.terms_version'), 'terms_accepted_at' => now(),
+                'privacy_version' => config('marketplace.privacy_version'), 'privacy_acknowledged_at' => now(),
+                'owner_type' => $role === User::ROLE_OWNER ? ($validated['owner_type'] ?? 'individual') : null,
+                'organization_name' => $role === User::ROLE_OWNER && ($validated['owner_type'] ?? '') === 'organization' ? ($validated['organization_name'] ?? null) : null,
+                'preferred_location' => $validated['preferred_location'] ?? null,
+            ])->save();
+
             if ($student) {
-                $user->renterPreference()->create(collect($validated)->only(['school_or_campus', 'campus', 'preferred_location'])->all());
+                $user->renterPreference()->create(collect($validated)->only(['school_or_campus', 'campus', 'preferred_location', 'budget_min', 'budget_max'])->all());
             }
 
             return $user;
@@ -195,7 +212,7 @@ class AuthController extends Controller
         }
 
         return match ($user->role) {
-            'admin' => route('admin.dashboard'),
+            User::ROLE_ADMIN, User::ROLE_MASTER_ADMIN => route('admin.dashboard'),
             'owner' => route('owner.dashboard'),
             'renter' => route('renter.dashboard'),
             default => route('dashboard'),

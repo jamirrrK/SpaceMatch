@@ -15,7 +15,7 @@ class PropertyController extends Controller
 {
     public function index(Request $request)
     {
-        $properties = $request->user()->properties()->withCount('spaces')->with('images')->latest()->paginate(12);
+        $properties = $request->user()->properties()->withReviewSummary()->withCount('spaces')->with('images')->latest()->paginate(12);
 
         return view('owner.properties.index', compact('properties'));
     }
@@ -29,7 +29,7 @@ class PropertyController extends Controller
 
     public function store(PropertyRequest $request)
     {
-        $property = $request->user()->properties()->create($request->validated() + ['status' => 'active', 'listing_status' => 'draft']);
+        $property = $request->user()->properties()->create($this->locationData($request) + ['status' => 'active', 'listing_status' => 'draft']);
 
         return redirect()->route('owner.properties.show', $property)->with('status', 'Property created. Add rental spaces and photos, then publish your listing.');
     }
@@ -52,7 +52,7 @@ class PropertyController extends Controller
 
     public function update(PropertyRequest $request, Property $property)
     {
-        $property->update($request->validated());
+        $property->update($this->locationData($request));
 
         return redirect()->route('owner.properties.show', $property)->with('status', 'Property information updated.');
     }
@@ -86,6 +86,15 @@ class PropertyController extends Controller
         });
 
         return back()->with('status', 'Property publication updated.');
+    }
+
+    private function locationData(PropertyRequest $request): array
+    {
+        $data = $request->safe()->except('location_confirmed');
+        $data['location_visibility'] = $data['location_visibility'] ?? 'approximate';
+        // Every changed pin must be affirmatively confirmed again.
+        $data['location_confirmed_at'] = $request->boolean('location_confirmed') ? now() : null;
+        return $data;
     }
 
     private function assertNotModerated(Property $property): void

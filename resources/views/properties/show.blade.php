@@ -12,7 +12,7 @@
         <div>
             <div class="eyebrow mb-2">{{ config('property.types.'.$property->property_type, 'Rental property') }}</div>
             <h1 class="page-heading mb-2">{{ $property->property_name }}</h1>
-            <p class="text-muted-soft mb-0">{{ collect([$property->address, $property->barangay, $property->city, $property->province, $property->postal_code])->filter()->implode(', ') }}</p>
+            <p class="text-muted-soft mb-0">{{ collect([$property->location_visibility === 'exact' ? $property->address : null, $property->barangay, $property->city, $property->province, $property->postal_code])->filter()->implode(', ') }}</p>
         </div>
         <div class="d-flex align-items-center gap-2">
             <x-status-badge :status="$property->status" />
@@ -188,19 +188,21 @@
         </div>
     </section>
 
+    <x-rental-map :property="$property" />
     <section class="panel p-4 mt-5" aria-labelledby="property-reviews-title">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-            <h2 class="panel-title mb-0" id="property-reviews-title">Renter reviews</h2>
+            <h2 class="panel-title mb-0" id="property-reviews-title">Renter reviews</h2><x-rating :average="$rating['average']" :count="$rating['count']" />
             @if($rating['count'] > 0)<p class="mb-0"><strong>{{ number_format((float) $rating['average'], 1) }}/5</strong> · {{ $rating['count'] }} {{ \Illuminate\Support\Str::plural('review', $rating['count']) }}</p>@endif
         </div>
         @forelse($reviews as $review)
             <article class="border-top py-3">
-                <div class="d-flex justify-content-between gap-2"><strong>{{ $review->booking->renter->name }}</strong><span class="text-warning fw-semibold">{{ $review->rating }}/5</span></div>
+                <div class="d-flex justify-content-between gap-2"><strong>{{ \Illuminate\Support\Str::before($review->booking->renter->name, ' ') }}</strong><span class="text-warning fw-semibold">{{ $review->rating }}/5</span></div>
                 <p class="small text-muted-soft mb-1">{{ $review->booking->space->space_name }} · {{ $review->created_at->format('M j, Y') }}</p>
                 @if($review->comment)<p class="mb-0">{{ $review->comment }}</p>@endif
+                @auth<form class="mt-3" action="{{ route('reviews.report', $review) }}" method="POST">@csrf<label class="form-label small" for="report-{{ $review->id }}">Report a concern</label><input class="form-control" id="report-{{ $review->id }}" name="reason" minlength="5" maxlength="500" required><button class="btn btn-outline-dark btn-sm mt-2" type="submit">Report review</button></form>@endauth
             </article>
         @empty
-            <p class="text-muted-soft mb-0">No completed-rental reviews have been submitted for this property.</p>
+            <p class="text-muted-soft mb-0">No reviews yet. Only eligible completed stays can be reviewed.</p>
         @endforelse
     </section>
 </div>

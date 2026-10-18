@@ -21,17 +21,21 @@
                 </div>
             </div>
             <div class="col-lg-6">
-                @if($heroSpaces->isNotEmpty())
+                @if($heroSpaces->count() >= 2)
                     <div class="home-hero-visual home-hero-carousel" data-home-carousel role="region" aria-roledescription="carousel" aria-label="Featured available rental spaces">
                         @foreach($heroSpaces as $index => $heroSpace)
-                            @php($heroImage = $heroSpace->images->first() ?? $heroSpace->property->images->first())
+                            @php($media = $heroMedia[$heroSpace->id])
                             <a class="home-hero-feature home-carousel-slide {{ $index === 0 ? 'is-active' : '' }}"
                                 href="{{ route('properties.show', $heroSpace->property).'#space-'.$heroSpace->id }}"
                                 data-carousel-slide
                                 aria-hidden="{{ $index === 0 ? 'false' : 'true' }}"
+                                aria-label="{{ ($index + 1).' of '.$heroSpaces->count().': '.$heroSpace->space_name }}"
                                 @if($index !== 0) hidden tabindex="-1" @endif>
-                                <img src="{{ $heroImage->url }}" alt="{{ $heroSpace->space_name }} at {{ $heroSpace->property->property_name }}" @if($index === 0) fetchpriority="high" @else loading="lazy" @endif>
-                                <span class="hero-image-label">Published and available</span>
+                                @if($media['url'])
+                                    <img class="home-carousel-photo" src="{{ $media['url'] }}" alt="{{ $heroSpace->space_name }} at {{ $heroSpace->property->property_name }}" width="{{ $media['file']['width'] }}" height="{{ $media['file']['height'] }}" sizes="(min-width: 992px) 45vw, 90vw" decoding="async" @if($index === 0) fetchpriority="high" @else loading="lazy" @endif data-carousel-photo>
+                                @endif
+                                <span data-carousel-fallback @if($media['url']) hidden @endif><x-marketing-image :name="$media['fallback']" :alt="'Illustration for '.$heroSpace->space_type.'; not a photograph of this rental'" sizes="(min-width: 992px) 45vw, 90vw" :priority="$index === 0 && !$media['url']" /></span>
+                                <span class="hero-image-label" data-carousel-image-label>{{ $media['url'] ? 'Published and available' : 'Illustrative image | Available listing' }}</span>
                                 <span class="home-hero-caption">
                                     <span class="eyebrow">{{ $heroSpace->property->city }}, {{ $heroSpace->property->province }}</span>
                                     <strong>{{ $heroSpace->property->property_name }}</strong>
@@ -45,20 +49,16 @@
                                 <button type="button" class="home-carousel-control" data-carousel-next aria-label="Next featured listing">&#8594;</button>
                                 <button type="button" class="home-carousel-pause" data-carousel-pause aria-pressed="false">Pause slides</button>
                             </div>
+                            <div class="home-carousel-pagination" role="group" aria-label="Choose featured listing">
+                                @foreach($heroSpaces as $index => $heroSpace)
+                                    <button type="button" data-carousel-indicator="{{ $index }}" aria-label="Show featured listing {{ $index + 1 }}: {{ $heroSpace->space_name }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}"><span class="visually-hidden">{{ $index + 1 }}</span></button>
+                                @endforeach
+                            </div>
                             <p class="visually-hidden" aria-live="polite" data-carousel-announcement></p>
                         @endif
                     </div>
                 @else
-                    <div class="home-hero-visual home-hero-illustration">
-                        <x-marketing-image name="homepage_hero_manila" alt="Illustration of a welcoming rental space" sizes="(min-width: 992px) 45vw, 90vw" :priority="true" />
-                        <div class="hero-image-overlays" aria-hidden="true">
-                            <span class="hero-image-badge">Room for what matters</span>
-                        </div>
-                        <span class="home-hero-caption">
-                            <span class="eyebrow">Explore at your pace</span>
-                            <strong>Your next chapter starts with a space that feels right.</strong>
-                        </span>
-                    </div>
+                    <x-promotional-carousel />
                 @endif
             </div>
         </div>
@@ -113,6 +113,8 @@
         <p class="illustration-note">Illustrative city scenes. Results depend on currently published, available spaces.</p>
     </div>
 </section>
+
+<div class="container site-width"><x-rental-map /></div>
 
 <section class="home-section" id="featured-spaces">
     <div class="container site-width">

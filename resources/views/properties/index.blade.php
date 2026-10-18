@@ -26,5 +26,6 @@
             <a class="filter-chip" href="{{ route('properties.index', collect($filters)->except($key === 'school' ? ['school', 'max_distance_km', 'page'] : [$key, 'page'])->all()) }}" aria-label="Remove filter: {{ $label }}">{{ $label }} <span aria-hidden="true">&times;</span></a>
         @endforeach
         </nav>@endif
+        <x-rental-map />
         <div class="row g-4">@forelse($spaces as $space)<div class="col-md-6 col-xl-4"><x-space-card :space="$space" /></div>@empty<div class="col-12"><x-empty-state title="No spaces found" message="Try a different city, a wider budget, or fewer amenities to find your next space." :href="route('properties.index')" action="Clear filters" /></div>@endforelse</div><x-pagination :paginator="$spaces" /></section></div></div>
 @endsection

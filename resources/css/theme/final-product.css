@@ -26,3 +26,40 @@
 @media(max-width:991px) { .illustrated-categories { grid-template-columns:repeat(3,minmax(0,1fr)); } .marketing-grid { grid-template-columns:1fr; } }
 @media(max-width:575px) { .illustrated-categories { grid-template-columns:repeat(2,minmax(0,1fr)); gap:.65rem; } .marketing-panel { padding:1rem; gap:1rem; } .marketing-intro { flex-direction:column; padding:1.25rem; gap:1.25rem; align-items:stretch; } .marketing-intro > .marketing-picture { flex-basis:auto; max-width:320px; } }
 @media(prefers-reduced-motion:reduce) { .illustrated-category { transition:none; } }
+
+.home-hero-carousel { aspect-ratio:4/3; border-radius:28px; background:#dce9e5; touch-action:pan-y; }
+.home-hero-carousel .home-carousel-slide { inset:0; border-radius:0; }
+.home-hero-carousel .home-carousel-slide.is-active { animation:hero-appear .35s ease-out; }
+.home-hero-carousel .home-carousel-slide img,
+.home-hero-carousel .marketing-picture,
+.home-hero-carousel [data-carousel-fallback] { width:100%; height:100%; object-fit:cover; object-position:center; }
+.home-hero-carousel [hidden] { display:none!important; }
+.home-hero-carousel .home-hero-caption { left:0; right:0; bottom:0; padding:64px 24px 68px; border:0; border-radius:0; background:linear-gradient(transparent,rgba(10,27,30,.94)); backdrop-filter:none; color:#fff; pointer-events:none; }
+.home-hero-carousel .home-hero-caption strong,
+.home-hero-carousel .home-hero-caption .eyebrow,
+.home-hero-carousel .home-hero-caption > span:last-child,
+.home-hero-carousel .home-hero-caption b { color:#fff; }
+.home-hero-carousel .hero-image-label { left:16px; right:auto; top:16px; max-width:calc(100% - 150px); }
+.home-hero-carousel .home-carousel-controls { inset-inline:12px; }
+.home-hero-carousel .home-carousel-pause { top:16px; right:4px; min-height:36px; }
+.home-hero-carousel .home-carousel-control { width:44px; height:44px; box-shadow:0 2px 12px #10282a26; }
+.home-carousel-pagination { position:absolute; z-index:3; bottom:18px; left:50%; transform:translateX(-50%); display:flex; gap:4px; }
+.home-carousel-pagination button { width:32px; height:32px; display:grid; place-items:center; padding:0; border:0; background:transparent; border-radius:50%; }
+.home-carousel-pagination button::before { content:''; width:8px; height:8px; border-radius:20px; background:#ffffff80; transition:width .2s; }
+.home-carousel-pagination button[aria-current=true]::before { width:22px; background:#fff; }
+.home-carousel-pagination button:focus-visible { outline:3px solid #fff; outline-offset:1px; }
+@keyframes hero-appear { from { opacity:.5; } to { opacity:1; } }
+@media(max-width:575px) { .home-hero-carousel { aspect-ratio:1/1; border-radius:20px; } .home-hero-carousel .home-hero-caption { padding:64px 18px 60px; } .home-hero-carousel .hero-image-label { font-size:.6rem; padding:7px; max-width:calc(100% - 134px); } }
+@media(prefers-reduced-motion:reduce) { .home-hero-carousel .home-carousel-slide.is-active { animation:none; } .home-carousel-pagination button::before { transition:none; } }
+
+.registration-chooser { width:min(980px,94vw); max-height:90dvh; overflow:auto; padding:2rem; border:1px solid #dce5e5; border-radius:22px; color:#172033; }
+.registration-chooser::backdrop { background:#132d33a6; }
+.registration-options { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; margin-top:1.5rem; }
+.registration-options a { display:flex; flex-direction:column; align-items:flex-start; justify-content:space-between; gap:1rem; min-height:210px; padding:1.5rem; border:1px solid #b8cfcb; border-radius:14px; background:#f2f8f5; text-decoration:none; color:#172033; }
+.registration-options a:hover,.registration-options a:focus-visible { background:#def2ed; outline:3px solid #087580; outline-offset:2px; }
+.registration-options a span { color:#087580; font-weight:700; }
+.registration-options svg { width:28px; height:28px; }
+.legal-document { max-width:850px; line-height:1.85; }
+.rental-map-canvas { height:400px; width:100%; border-radius:14px; }
+.rating-stars { color:#8b5c04; letter-spacing:1px; white-space:nowrap; }
+@media(max-width:767px) { .registration-options { grid-template-columns:1fr; } .registration-options a { min-height:150px; padding:1rem; } .registration-chooser { padding:1.25rem; } .rental-map-canvas { height:320px; } }

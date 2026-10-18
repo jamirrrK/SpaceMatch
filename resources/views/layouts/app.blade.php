@@ -8,6 +8,7 @@
     <title>@yield('title', 'SpaceMatch')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <meta name="description" content="Find your space anywhere in the Philippines. Explore available rentals by location, monthly budget, and rental type with SpaceMatch.">
+    <meta name="neutral-image" content="{{ asset('assets/images/space-placeholder.svg') }}">
     @stack('styles')
 </head>
 <body class="spacematch-app">
@@ -26,7 +27,6 @@
                     <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#rental-categories">Rental categories</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#how-it-works">How it works</a></li>
                     
-                    <li class="nav-item"><button class="nav-link tutorial-nav-link" type="button" data-tutorial-replay>Watch tutorial</button></li>
                     @guest
                         <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">List your property</a></li>
                     @else
@@ -95,6 +95,7 @@
                             <a class="sidebar-link {{ request()->routeIs('admin.payments.submissions.*') ? 'active' : '' }}" href="{{ route('admin.payments.submissions.index') }}"><x-icon name="wallet" /><span>Payment proof review</span></a>
                             <a class="sidebar-link" href="{{ route('reviews.index') }}"><x-icon name="star" /><span>Review moderation</span></a>
                             <a class="sidebar-link {{ request()->routeIs('admin.audit-logs.index') ? 'active' : '' }}" href="{{ route('admin.audit-logs.index') }}"><x-icon name="shield" /><span>Audit logs</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('admin.security.password.*') ? 'active' : '' }}" href="{{ route('admin.security.password.edit') }}"><x-icon name="shield" /><span>Security center</span></a>
                             @if(auth()->user()->hasRole(\App\Models\User::ROLE_MASTER_ADMIN))
                                 <a class="sidebar-link {{ request()->routeIs('admin.master-admins.*') ? 'active' : '' }}" href="{{ route('admin.master-admins.index') }}"><x-icon name="shield" /><span>Administrator access</span></a>
                             @endif
@@ -144,13 +145,13 @@
             <div class="footer-grid">
                 <div><a class="brand text-white text-decoration-none" href="{{ route('home') }}">SpaceMatch<span class="text-primary">.</span></a><p class="small mt-3 mb-0" style="max-width:340px">Find Your Space, Anywhere in the Philippines.<br>Room for your next chapter.</p></div>
                 <div><div class="footer-title">Find your space</div><div class="footer-links"><a href="{{ route('properties.index') }}">Browse rentals</a><a href="{{ route('home') }}#rental-categories">Rental categories</a><a href="{{ route('home') }}#how-it-works">How it works</a></div></div>
-                <div><div class="footer-title">Make yourself at home</div><div class="footer-links"><a href="{{ route('home') }}#about">About SpaceMatch</a><a href="{{ route('home') }}#faq">Frequently asked questions</a><a href="{{ auth()->check() ? route('dashboard') : route('register') }}">{{ auth()->check() ? 'Your workspace' : 'Join SpaceMatch' }}</a></div></div>
+                <div><div class="footer-title">Make yourself at home</div><div class="footer-links"><a href="{{ route('home') }}#about">About SpaceMatch</a><a href="{{ route('home') }}#faq">Frequently asked questions</a><a href="{{ route('terms') }}">Terms</a><a href="{{ route('privacy') }}">Privacy</a><a href="{{ auth()->check() ? route('dashboard') : route('register') }}">{{ auth()->check() ? 'Your workspace' : 'Join SpaceMatch' }}</a></div></div>
             </div>
             <div class="footer-meta"><span>&copy; {{ date('Y') }} SpaceMatch. All rights reserved.</span><span>A rental marketplace for the Philippines.</span></div>
         </div>
     </footer>
     <x-confirm-dialog />
-    <x-tutorial-modal />
     @stack('scripts')
+@guest<x-registration-chooser />@endguest
 </body>
 </html>

@@ -103,6 +103,35 @@ class PropertyImageService
         return $image->image_path;
     }
 
+    public function readableFile(PropertyImage $image): ?array
+    {
+        try {
+            $path = $this->safePath($image);
+        } catch (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
+            return null;
+        }
+        $disk = Storage::disk('property_images');
+        $root = realpath($disk->path(''));
+        $file = realpath($disk->path($path));
+        if (! $root || ! $file || ! str_starts_with($file, $root.DIRECTORY_SEPARATOR)
+            || ! is_file($file) || ! is_readable($file)) {
+            return null;
+        }
+        $segment = $disk->path('');
+        foreach (explode('/', $path) as $part) {
+            $segment = rtrim($segment, '/\\').DIRECTORY_SEPARATOR.$part;
+            if (is_link($segment)) {
+                return null;
+            }
+        }
+        $size = @getimagesize($file);
+        if (! $size || ! in_array($size['mime'], ['image/jpeg', 'image/png', 'image/webp'], true)) {
+            return null;
+        }
+
+        return ['path' => $file, 'mime' => $size['mime'], 'width' => $size[0], 'height' => $size[1]];
+    }
+
     private function ensurePrimary(int $propertyId, ?int $spaceId): void
     {
         $scope = PropertyImage::where('property_id', $propertyId)->where('space_id', $spaceId);

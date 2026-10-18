@@ -40,6 +40,6 @@ No production deployment is currently authorized. Every unchecked item below is 
 
 - [ ] Review durable status. Any automatic recovery exits nonzero and must be investigated, even if old health is restored.
 - [ ] Verify /up, homepage, exact built asset bytes and protected-file preservation; review logs privately.
-- [ ] Test renter/owner login, registration, working EmailJS OTP, authorization, images, dashboards, search, inquiry/viewing/rental flows.
+- [ ] Test renter/owner login, registration, configured Laravel-mail OTP, authorization, images, dashboards, search, inquiry/viewing/rental flows.
 - [ ] Resume writers only after functional checks; record reviewer/operator/results privately and refresh the reviewed baseline for the next release.
 - [ ] If recovery cannot restore health, retain maintenance. If maintenance cannot be confirmed, restrict web access through authorized cPanel/provider controls immediately. Never automatically restore a database or remove incident history to bypass a block.

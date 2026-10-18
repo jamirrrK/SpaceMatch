@@ -15,7 +15,7 @@ class ReviewController extends Controller
 {
     public function index(Request $request): View
     {
-        $reviews = Review::with(['booking.renter', 'booking.space.property'])
+        $reviews = Review::withCount('reports')->with(['booking.renter', 'booking.space.property'])
             ->whereHas('booking', fn ($booking) => $booking->visibleTo($request->user()))
             ->latest()->paginate(15);
 
@@ -37,6 +37,19 @@ class ReviewController extends Controller
         });
 
         return back()->with('status', 'Review moderation recorded.');
+    }
+
+    public function report(Request $request, Review $review)
+    {
+        abort_if($review->hidden_at, 404);
+        abort_unless($review->booking->space->property()->publiclyListed()->exists(), 404);
+        $data = $request->validate(['reason' => ['required', 'string', 'min:5', 'max:500']]);
+        DB::transaction(function () use ($request, $review, $data) {
+            $created = DB::table('review_reports')->insertOrIgnore(['review_id' => $review->id, 'user_id' => $request->user()->id,
+                'reason' => $data['reason'], 'created_at' => now(), 'updated_at' => now()]);
+            if ($created) AuditLog::create(['user_id' => $request->user()->id, 'action' => 'review_reported', 'description' => json_encode(['review_id' => $review->id, 'reason' => $data['reason']], JSON_THROW_ON_ERROR)]);
+        });
+        return back()->with('status', 'Your report is available to administrators for review.');
     }
 
     public function store(Request $request, Booking $booking)

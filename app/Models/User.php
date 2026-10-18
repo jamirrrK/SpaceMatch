@@ -38,6 +38,7 @@ class User extends Authenticatable
         'phone_verified_at',
         'verification_required_at',
         'verification_method',
+        'password_change_required',
     ];
 
     /**
@@ -63,6 +64,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'phone_verified_at' => 'datetime',
             'verification_required_at' => 'datetime',
+            'password_change_required' => 'boolean',
             'password' => 'hashed',
         ];
     }

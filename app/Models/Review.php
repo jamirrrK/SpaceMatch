@@ -12,6 +12,11 @@ class Review extends Model
         'comment',
     ];
 
+    public function reports()
+    {
+        return $this->hasMany(\App\Models\ReviewReport::class);
+    }
+
     public function booking()
     {
         return $this->belongsTo(Booking::class);

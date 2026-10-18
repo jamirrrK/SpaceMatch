@@ -52,10 +52,6 @@ async function open(page, pathname) {
     currentPage = page;
     const response = await page.goto(new URL(pathname, baseURL).href, { waitUntil: 'domcontentloaded' });
     assert.equal(response.status(), 200, `GET ${pathname}`);
-    const tutorial = page.locator('[data-tutorial-dialog]');
-    if (await tutorial.count() && await tutorial.evaluate(dialog => dialog.open)) {
-        await page.locator('[data-tutorial-skip]').first().click();
-    }
 }
 
 async function submit(page, form, confirmation = false) {

@@ -4,6 +4,7 @@
     <div class="offcanvas-header"><h2 class="offcanvas-title panel-title" id="rentalFiltersTitle">Filters &amp; sort</h2><button class="btn-close" type="button" data-bs-dismiss="offcanvas" data-bs-target="#rentalFilters" aria-label="Close filters"></button></div>
     <div class="offcanvas-body"><form method="GET" action="{{ route('properties.index') }}" class="panel filter-panel p-4">
     <div class="d-flex justify-content-between align-items-center mb-4"><h2 class="panel-title mb-0">Find your fit</h2><a href="{{ route('properties.index') }}" class="small-link">Reset</a></div>
+    <x-location-selectors :values="$filters" />
     <div class="mb-3"><label for="q" class="form-label">Property or space name</label><input class="form-control" id="q" type="search" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="150" placeholder="Search spaces"></div>
     <div class="mb-3"><label for="location" class="form-label">City or location</label><input class="form-control" id="location" type="search" name="location" value="{{ $filters['location'] ?? '' }}" maxlength="150" placeholder="Where do you want to live?"></div>
     @include('properties.student-filters')

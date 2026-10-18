@@ -64,7 +64,7 @@ class StudentWorkflowTest extends TestCase
             'name' => 'Student Test', 'email' => 'student@example.test', 'password' => 'Student-Password-2026!',
             'password_confirmation' => 'Student-Password-2026!', 'account_type' => 'admin',
             'school_or_campus' => 'Cebu Test University', 'campus' => 'Main', 'preferred_location' => 'Cebu City',
-            'verification_method' => 'email', 'terms' => 1,
+            'verification_method' => 'email', 'privacy_acknowledgment' => 1, 'adult_confirmation' => 1, 'terms' => 1,
         ])->assertRedirect(route('verification.notice'));
         $student = User::where('email', 'student@example.test')->sole();
         $this->assertTrue($student->is_student);
@@ -91,7 +91,7 @@ class StudentWorkflowTest extends TestCase
     public function test_student_requires_school_and_does_not_unlock_when_delivery_unavailable(): void
     {
         $data = ['name' => 'Student', 'email' => 'new@example.test', 'password' => 'Student-Password-2026!',
-            'password_confirmation' => 'Student-Password-2026!', 'verification_method' => 'email', 'terms' => 1];
+            'password_confirmation' => 'Student-Password-2026!', 'verification_method' => 'email', 'privacy_acknowledgment' => 1, 'adult_confirmation' => 1, 'terms' => 1];
         $this->post('/register/student', $data)->assertSessionHasErrors('school_or_campus');
         config(['otp.testing_email_delivery' => false, 'otp.email.enabled' => false]);
         $this->post('/register/student', $data + ['school_or_campus' => 'School'])->assertSessionHasErrors('verification_method');

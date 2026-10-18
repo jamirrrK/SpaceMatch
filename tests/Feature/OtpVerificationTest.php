@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Exceptions\OtpDeliveryFailed;
 use App\Mail\VerificationCodeMail;
 use App\Models\OtpVerification;
 use App\Models\User;
@@ -10,10 +9,8 @@ use App\Services\OtpVerificationService;
 use App\Services\PhilippineMobileNumber;
 use App\Services\SmsOtpSenderInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use RuntimeException;
@@ -24,15 +21,10 @@ class OtpVerificationTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Http::preventStrayRequests();
-    }
-
     public function test_mail_delivery_failure_does_not_verify_or_unlock_new_account(): void
     {
         config(['otp.testing_email_delivery' => true]);
+        Log::spy();
         Mail::shouldReceive('to')->once()->with('delivery-failure@example.test')->andThrow(new RuntimeException('SMTP unavailable'));
 
         $this->post('/register', [
@@ -42,14 +34,23 @@ class OtpVerificationTest extends TestCase
             'password_confirmation' => 'SpaceMatch-Password-2026',
             'account_type' => User::ROLE_RENTER,
             'verification_method' => 'email',
-            'terms' => '1',
+            'terms' => '1', 'privacy_acknowledgment' => '1', 'adult_confirmation' => '1',
         ])->assertRedirect('/verify-contact')->assertSessionHasErrors('code');
 
         $user = User::query()->where('email', 'delivery-failure@example.test')->sole();
         $this->assertNotNull($user->verification_required_at);
         $this->assertNull($user->email_verified_at);
         $this->actingAs($user)->get('/renter/dashboard')->assertRedirect('/verify-contact');
+        $this->get('/verify-contact')->assertOk()->assertSee('data-otp-resend-at=', false);
         $this->assertNotNull(OtpVerification::query()->where('user_id', $user->id)->value('consumed_at'));
+        Log::shouldHaveReceived('warning')->withArgs(function ($message, $context) {
+            return $message === 'OTP delivery failed'
+                && $context === [
+                    'channel' => 'email',
+                    'purpose' => 'registration',
+                    'failure_type' => 'RuntimeException',
+                ];
+        })->once();
     }
 
     public function test_email_delivery_requires_explicit_enable_and_a_non_log_transport(): void
@@ -57,7 +58,6 @@ class OtpVerificationTest extends TestCase
         config([
             'app.env' => 'production',
             'otp.email.enabled' => false,
-            'otp.email.driver' => 'mail',
             'mail.default' => 'smtp',
             'mail.mailers.smtp.host' => 'mailpit',
             'mail.from.address' => 'no-reply@spacematch.test',
@@ -72,199 +72,128 @@ class OtpVerificationTest extends TestCase
         $this->assertTrue($verification->emailAvailable());
     }
 
-    public function test_emailjs_driver_is_available_only_when_credentials_are_configured(): void
+    public function test_gmail_smtp_availability_accepts_nonstandard_password_format_and_sends_mail(): void
     {
         config([
+            'app.env' => 'production',
+            'otp.testing_email_delivery' => false,
             'otp.email.enabled' => true,
-            'otp.email.driver' => 'emailjs',
-            'services.emailjs.service_id' => null,
-            'services.emailjs.template_id' => null,
-            'services.emailjs.public_key' => null,
-            'services.emailjs.private_key' => null,
+            'mail.default' => 'smtp',
+            'mail.mailers.smtp.transport' => 'smtp',
+            'mail.mailers.smtp.host' => 'smtp.gmail.com',
+            'mail.mailers.smtp.port' => 587,
+            'mail.mailers.smtp.scheme' => null,
+            'mail.mailers.smtp.auto_tls' => true,
+            'mail.mailers.smtp.require_tls' => true,
+            'mail.mailers.smtp.username' => 'sender@example.test',
+            'mail.mailers.smtp.password' => 'abcd efgh ijkl mnop',
+            'mail.mailers.smtp.url' => null,
+            'mail.from.address' => 'sender@example.test',
         ]);
+        Mail::fake();
 
-        $this->assertFalse(app(OtpVerificationService::class)->emailAvailable());
+        $verification = app(OtpVerificationService::class);
+        $this->assertTrue($verification->emailAvailable());
+        $user = User::factory()->create(['email' => 'gmail-smtp@example.test']);
+        $challenge = $verification->issue($user, 'email');
 
+        $this->assertSame(0, $challenge->attempts);
+        Mail::assertSent(VerificationCodeMail::class);
+
+        config(['mail.mailers.smtp.password' => null]);
+        $this->assertFalse($verification->emailAvailable());
         config([
-            'services.emailjs.service_id' => 'service_123',
-            'services.emailjs.template_id' => 'template_456',
-            'services.emailjs.public_key' => 'user_789',
+            'mail.mailers.smtp.password' => 'abcd efgh ijkl mnop',
+            'mail.mailers.smtp.auto_tls' => false,
+            'mail.mailers.smtp.require_tls' => false,
+        ]);
+        $this->assertFalse($verification->emailAvailable());
+    }
+
+    public function test_generic_smtp_allows_servers_without_authentication_and_rejects_partial_credentials(): void
+    {
+        config([
+            'app.env' => 'production',
+            'otp.testing_email_delivery' => false,
+            'otp.email.enabled' => true,
+            'mail.default' => 'smtp',
+            'mail.mailers.smtp.transport' => 'smtp',
+            'mail.mailers.smtp.host' => 'smtp.example.test',
+            'mail.mailers.smtp.port' => 25,
+            'mail.mailers.smtp.username' => null,
+            'mail.mailers.smtp.password' => null,
+            'mail.mailers.smtp.url' => null,
+            'mail.from.address' => 'sender@example.test',
         ]);
 
-        config(['services.emailjs.private_key' => 'private_abc']);
+        $verification = app(OtpVerificationService::class);
+        $this->assertTrue($verification->emailAvailable());
+
+        config(['mail.mailers.smtp.username' => 'sender@example.test']);
+        $this->assertFalse($verification->emailAvailable());
+    }
+
+    public function test_smtp_url_supports_tls_authenticated_gmail_settings(): void
+    {
+        config([
+            'app.env' => 'production',
+            'otp.testing_email_delivery' => false,
+            'otp.email.enabled' => true,
+            'mail.default' => 'smtp',
+            'mail.mailers.smtp.transport' => 'smtp',
+            'mail.mailers.smtp.url' => 'smtp://sender%40example.test:password%20with%20spaces@smtp.gmail.com:587',
+            'mail.mailers.smtp.host' => '127.0.0.1',
+            'mail.mailers.smtp.port' => 2525,
+            'mail.from.address' => 'sender@example.test',
+        ]);
+
         $this->assertTrue(app(OtpVerificationService::class)->emailAvailable());
     }
 
-    public function test_emailjs_otp_is_sent_server_side_with_template_params(): void
+    public function test_unavailable_resend_is_logged_without_contact_or_provider_details(): void
     {
+        $user = $this->registerPending('unavailable-resend@example.test');
+        OtpVerification::query()->where('user_id', $user->id)->update(['sent_at' => now()->subSeconds(61)]);
         config([
             'otp.testing_email_delivery' => false,
-            'otp.email.enabled' => true,
-            'otp.email.driver' => 'emailjs',
-            'services.emailjs.service_id' => 'service_123',
-            'services.emailjs.template_id' => 'template_456',
-            'services.emailjs.public_key' => 'user_789',
-            'services.emailjs.private_key' => 'private_abc',
+            'otp.email.enabled' => false,
         ]);
+        Log::spy();
 
-        Http::fake([
-            'https://api.emailjs.com/api/v1.0/email/send' => Http::response(['success' => true], 200),
-        ]);
+        $this->post('/verify-contact/resend')->assertSessionHasErrors('code');
 
-        $user = User::factory()->create([
-            'email' => 'emailjs@example.test',
-            'role' => User::ROLE_RENTER,
-        ]);
-
-        app(OtpVerificationService::class)->issue($user, 'email');
-
-        Http::assertSent(function ($request) {
-            $payload = $request->data();
-
-            return $request->hasHeader('Content-Type', 'application/json')
-                && $request->url() === 'https://api.emailjs.com/api/v1.0/email/send'
-                && ($payload['service_id'] ?? null) === 'service_123'
-                && ($payload['template_id'] ?? null) === 'template_456'
-                && ($payload['user_id'] ?? null) === 'user_789'
-                && ($payload['accessToken'] ?? null) === 'private_abc'
-                && isset($payload['template_params']['otp_code'])
-                && ! isset($payload['template_params']['code'])
-                && ($payload['template_params']['to_email'] ?? null) === 'emailjs@example.test';
-        });
+        Log::shouldHaveReceived('warning')->withArgs(function ($message, $context) {
+            return $message === 'OTP resend delivery unavailable'
+                && $context === ['channel' => 'email', 'purpose' => 'registration'];
+        })->once();
     }
 
-    public function test_emailjs_provider_statuses_fail_closed_and_log_only_safe_diagnostics(): void
+    public function test_supported_non_smtp_mailers_require_their_provider_credentials(): void
     {
-        config([
-            'otp.email.enabled' => true,
-            'otp.email.driver' => 'emailjs',
-            'services.emailjs.service_id' => 'service_123',
-            'services.emailjs.template_id' => 'template_456',
-            'services.emailjs.public_key' => 'user_789',
-            'services.emailjs.private_key' => 'private_abc',
-        ]);
-
-        Log::spy();
-        Http::fakeSequence()
-            ->push('Bad Request', 400, ['X-Request-Id' => 'emailjs-req-123'])
-            ->push('Unauthorized', 401)
-            ->push('Forbidden', 403)
-            ->push('Too Many Requests', 429)
-            ->push('Provider error', 500)
-            ->push('Provider unavailable', 503);
-
-        foreach ([400, 401, 403, 429, 500, 503] as $index => $status) {
-            $user = User::factory()->create([
-                'email' => "emailjs-error-{$index}@example.test",
-                'role' => User::ROLE_RENTER,
-            ]);
-
-            try {
-                app(OtpVerificationService::class)->issue($user, 'email');
-                $this->fail("EmailJS HTTP {$status} should fail delivery.");
-            } catch (OtpDeliveryFailed $exception) {
-                $this->assertSame('We could not send a verification code. Please try again.', $exception->getMessage());
-            }
-
-            $this->assertNotNull(OtpVerification::query()->where('user_id', $user->id)->value('consumed_at'));
-        }
-
-        Http::assertSentCount(6);
-
+        $verification = app(OtpVerificationService::class);
         foreach ([
-            400 => 'bad_request',
-            401 => 'authentication_failed',
-            403 => 'authentication_failed',
-            429 => 'rate_limited',
-            500 => 'provider_error',
-            503 => 'provider_error',
-        ] as $status => $category) {
-            Log::shouldHaveReceived('warning')->withArgs(function ($message, $context) use ($status, $category) {
-                return $message === 'EmailJS OTP delivery failed'
-                    && $context['provider'] === 'emailjs'
-                    && $context['http_status'] === $status
-                    && $context['category'] === $category
-                    && isset($context['request_timestamp'])
-                    && array_keys($context) === [
-                        'provider', 'http_status', 'category', 'request_timestamp', 'correlation_id',
-                    ]
-                    && $context['correlation_id'] === ($status === 400 ? 'emailjs-req-123' : null);
-            })->once();
+            ['postmark', 'postmark', 'services.postmark.key'],
+            ['resend', 'resend', 'services.resend.key'],
+            ['ses', 'ses', 'services.ses.key'],
+            ['ses-v2', 'ses-v2', 'services.ses.secret'],
+        ] as [$mailer, $transport, $credential]) {
+            config([
+                'app.env' => 'production',
+                'otp.testing_email_delivery' => false,
+                'otp.email.enabled' => true,
+                'mail.default' => $mailer,
+                "mail.mailers.{$mailer}.transport" => $transport,
+                'services.postmark.key' => null,
+                'services.resend.key' => null,
+                'services.ses.key' => null,
+                'services.ses.secret' => null,
+                $credential => 'test-provider-key',
+            ]);
+            $this->assertTrue($verification->emailAvailable(), "{$transport} was unavailable with its credential.");
+
+            config([$credential => null]);
+            $this->assertFalse($verification->emailAvailable(), "{$transport} was available without its credential.");
         }
-    }
-
-    public function test_emailjs_private_key_rejection_is_classified_without_logging_provider_response(): void
-    {
-        config([
-            'otp.email.enabled' => true,
-            'otp.email.driver' => 'emailjs',
-            'services.emailjs.service_id' => 'service_123',
-            'services.emailjs.template_id' => 'template_456',
-            'services.emailjs.public_key' => 'user_789',
-            'services.emailjs.private_key' => 'private_abc',
-        ]);
-
-        Log::spy();
-        Http::fake([
-            'https://api.emailjs.com/api/v1.0/email/send' => Http::response(
-                'The private key is rejected by this account.',
-                403,
-            ),
-        ]);
-        $user = User::factory()->create([
-            'email' => 'emailjs-private-key@example.test',
-            'role' => User::ROLE_RENTER,
-        ]);
-
-        try {
-            app(OtpVerificationService::class)->issue($user, 'email');
-            $this->fail('A rejected EmailJS private key should fail delivery.');
-        } catch (OtpDeliveryFailed $exception) {
-            $this->assertSame('We could not send a verification code. Please try again.', $exception->getMessage());
-        }
-
-        Log::shouldHaveReceived('warning')->withArgs(function ($message, $context) {
-            return $message === 'EmailJS OTP delivery failed'
-                && $context['http_status'] === 403
-                && $context['category'] === 'private_key_rejected'
-                && ! in_array('The private key is rejected by this account.', $context, true);
-        })->once();
-    }
-
-    public function test_emailjs_timeout_fails_closed_without_exposing_transport_details(): void
-    {
-        config([
-            'otp.email.enabled' => true,
-            'otp.email.driver' => 'emailjs',
-            'services.emailjs.service_id' => 'service_123',
-            'services.emailjs.template_id' => 'template_456',
-            'services.emailjs.public_key' => 'user_789',
-            'services.emailjs.private_key' => 'private_abc',
-        ]);
-
-        Log::spy();
-        Http::fake(fn () => throw new ConnectionException('simulated timeout'));
-        $user = User::factory()->create([
-            'email' => 'emailjs-timeout@example.test',
-            'role' => User::ROLE_RENTER,
-        ]);
-
-        try {
-            app(OtpVerificationService::class)->issue($user, 'email');
-            $this->fail('A timed-out EmailJS request should fail delivery.');
-        } catch (OtpDeliveryFailed $exception) {
-            $this->assertSame('We could not send a verification code. Please try again.', $exception->getMessage());
-        }
-
-        $this->assertNotNull(OtpVerification::query()->where('user_id', $user->id)->value('consumed_at'));
-        Log::shouldHaveReceived('warning')->withArgs(function ($message, $context) {
-            return $message === 'EmailJS OTP delivery failed'
-                && $context['provider'] === 'emailjs'
-                && $context['http_status'] === null
-                && $context['category'] === 'timeout'
-                && $context['correlation_id'] === null
-                && isset($context['request_timestamp']);
-        })->once();
     }
 
     public function test_new_registration_stays_pending_until_email_otp_is_verified(): void
@@ -279,7 +208,7 @@ class OtpVerificationTest extends TestCase
             'password_confirmation' => 'SpaceMatch-Password-2026',
             'account_type' => User::ROLE_RENTER,
             'verification_method' => 'email',
-            'terms' => '1',
+            'terms' => '1', 'privacy_acknowledgment' => '1', 'adult_confirmation' => '1',
         ]);
 
         $response->assertRedirect('/verify-contact');
@@ -406,7 +335,7 @@ class OtpVerificationTest extends TestCase
             'password_confirmation' => 'SpaceMatch-Password-2026',
             'account_type' => User::ROLE_RENTER,
             'verification_method' => 'sms',
-            'terms' => '1',
+            'terms' => '1', 'privacy_acknowledgment' => '1', 'adult_confirmation' => '1',
         ])->assertSessionHasErrors('verification_method');
 
         $this->assertDatabaseMissing('users', ['email' => 'sms-renter@example.test']);
@@ -436,7 +365,7 @@ class OtpVerificationTest extends TestCase
             'password_confirmation' => 'SpaceMatch-Password-2026',
             'account_type' => User::ROLE_OWNER,
             'verification_method' => 'sms',
-            'terms' => '1',
+            'terms' => '1', 'privacy_acknowledgment' => '1', 'adult_confirmation' => '1',
         ])->assertRedirect('/verify-contact');
 
         $user = User::query()->where('email', 'sms-owner@example.test')->sole();
@@ -556,7 +485,7 @@ class OtpVerificationTest extends TestCase
             'password_confirmation' => 'SpaceMatch-Password-2026',
             'account_type' => User::ROLE_RENTER,
             'verification_method' => 'email',
-            'terms' => '1',
+            'terms' => '1', 'privacy_acknowledgment' => '1', 'adult_confirmation' => '1',
         ])->assertSessionHasErrors('verification_method');
 
         $this->assertDatabaseMissing('users', ['email' => 'undeliverable@example.test']);
@@ -628,6 +557,28 @@ class OtpVerificationTest extends TestCase
         $this->assertNotNull($code);
     }
 
+    public function test_hourly_otp_resend_limit_is_enforced_per_ip_across_accounts(): void
+    {
+        config([
+            'otp.max_resends_per_hour' => 5,
+            'otp.max_resends_per_ip_per_hour' => 2,
+        ]);
+        $users = [];
+        foreach (['ip-limit-one@example.test', 'ip-limit-two@example.test', 'ip-limit-three@example.test'] as $email) {
+            $users[] = $this->registerPending($email);
+            $this->post('/logout');
+        }
+
+        foreach (array_slice($users, 0, 2) as $user) {
+            OtpVerification::query()->where('user_id', $user->id)->update(['sent_at' => now()->subSeconds(61)]);
+            $this->actingAs($user)->post('/verify-contact/resend')->assertSessionHas('status');
+        }
+
+        $last = $users[2];
+        OtpVerification::query()->where('user_id', $last->id)->update(['sent_at' => now()->subSeconds(61)]);
+        $this->actingAs($last)->post('/verify-contact/resend')->assertSessionHasErrors('code');
+    }
+
     private function registerPending(string $email, string $role = User::ROLE_RENTER): User
     {
         config(['otp.testing_email_delivery' => true]);
@@ -640,7 +591,7 @@ class OtpVerificationTest extends TestCase
             'password_confirmation' => 'SpaceMatch-Password-2026',
             'account_type' => $role,
             'verification_method' => 'email',
-            'terms' => '1',
+            'terms' => '1', 'privacy_acknowledgment' => '1', 'adult_confirmation' => '1',
         ])->assertRedirect('/verify-contact');
 
         return User::query()->where('email', $email)->sole();

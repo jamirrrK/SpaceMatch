@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
             'contact.verified' => \App\Http\Middleware\EnsureContactVerification::class,
+            'admin.password.change' => \App\Http\Middleware\EnsureAdministratorPasswordChanged::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

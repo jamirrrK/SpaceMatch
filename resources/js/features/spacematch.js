@@ -6,14 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         drawer.addEventListener('hidden.bs.offcanvas', () => expanded(false));
         drawer.addEventListener('click', event => {
             if (!drawer.classList.contains('show')) return;
-            const replay = event.target.closest('[data-tutorial-replay]');
-            const link = event.target.closest('a[href]');
-            if (!replay && !link) return;
-            if (replay) {
-                // Open the tutorial after the drawer releases its focus trap.
-                event.stopImmediatePropagation();
-                drawer.addEventListener('hidden.bs.offcanvas', () => replay.click(), {once:true});
-            }
+            if (!event.target.closest('a[href]')) return;
             window.bootstrap?.Offcanvas.getInstance(drawer)?.hide();
         }, true);
     });
@@ -21,6 +14,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const otpInput = document.querySelector('[data-otp-input]');
     otpInput?.addEventListener('input', () => {
         otpInput.value = otpInput.value.replace(/\D/g, '').slice(0, 6);
+    });
+
+    document.querySelectorAll('form').forEach(form => {
+        const button = form.querySelector('[data-otp-submit]');
+        if (!button) return;
+        form.addEventListener('submit', () => {
+            if (button.disabled) return;
+            button.disabled = true;
+            button.textContent = button.formAction.endsWith('/resend') ? 'Sending...' : 'Verifying...';
+        });
     });
 
     const expiryNote = document.querySelector('[data-otp-expires-at]');
@@ -105,16 +108,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.querySelectorAll('[data-home-carousel]').forEach(carousel => {
-        const slides = Array.from(carousel.querySelectorAll('[data-carousel-slide]'));
-        const previous = carousel.querySelector('[data-carousel-previous]');
-        const next = carousel.querySelector('[data-carousel-next]');
+        const slides = [...carousel.querySelectorAll('[data-carousel-slide]')];
+        const indicators = [...carousel.querySelectorAll('[data-carousel-indicator]')];
         const pause = carousel.querySelector('[data-carousel-pause]');
         const announcement = carousel.querySelector('[data-carousel-announcement]');
+        const motion = matchMedia('(prefers-reduced-motion: reduce)');
+        let active = Math.max(0, slides.findIndex(slide => slide.classList.contains('is-active')));
+        let paused = motion.matches, focused = false, start = null, swiped = false;
+        slides.forEach(slide => {
+            const photo = slide.querySelector('[data-carousel-photo]');
+            const recover = () => {
+                photo.hidden = true;
+                slide.querySelector('[data-carousel-fallback]').hidden = false;
+                slide.querySelector('[data-carousel-image-label]').textContent = 'Illustrative image | Available listing';
+            };
+            photo?.addEventListener('error', recover, { once: true });
+            if (photo?.complete && !photo.naturalWidth) recover();
+        });
         if (slides.length < 2) return;
-
-        let active = slides.findIndex(slide => slide.classList.contains('is-active'));
-        let paused = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        let hovered = false;
+        const updatePauseButton = () => {
+            pause.textContent = paused ? 'Resume slides' : 'Pause slides';
+            pause.setAttribute('aria-pressed', String(paused));
+        };
         const render = (index, announce = false) => {
             active = (index + slides.length) % slides.length;
             slides.forEach((slide, position) => {
@@ -123,29 +138,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 slide.tabIndex = selected ? 0 : -1;
                 slide.setAttribute('aria-hidden', String(!selected));
                 slide.classList.toggle('is-active', selected);
+                if (selected) slide.querySelectorAll('img').forEach(image => { image.loading = 'eager'; });
             });
+            indicators.forEach((button, index) => button.setAttribute('aria-current', String(index === active)));
             if (announce && announcement) announcement.textContent = `Featured listing ${active + 1} of ${slides.length}.`;
         };
-        const updatePauseButton = () => {
-            if (!pause) return;
-            pause.textContent = paused ? 'Resume slides' : 'Pause slides';
-            pause.setAttribute('aria-pressed', String(paused));
-        };
-        previous?.addEventListener('click', () => render(active - 1, true));
-        next?.addEventListener('click', () => render(active + 1, true));
-        pause?.addEventListener('click', () => {
-            paused = !paused;
-            updatePauseButton();
+        carousel.querySelector('[data-carousel-previous]')?.addEventListener('click', () => render(active - 1, true));
+        carousel.querySelector('[data-carousel-next]')?.addEventListener('click', () => render(active + 1, true));
+        indicators.forEach((button, index) => button.addEventListener('click', () => render(index, true)));
+        pause?.addEventListener('click', () => { paused = !paused; updatePauseButton(); });
+        carousel.addEventListener('focusin', () => { focused = true; });
+        carousel.addEventListener('focusout', event => { focused = carousel.contains(event.relatedTarget); });
+        carousel.addEventListener('keydown', event => {
+            if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+            event.preventDefault();
+            const onSlide = event.target.matches('[data-carousel-slide]');
+            render(event.key === 'Home' ? 0 : event.key === 'End' ? slides.length - 1 : active + (event.key === 'ArrowLeft' ? -1 : 1), true);
+            if (onSlide) slides[active].focus();
         });
-        carousel.addEventListener('pointerenter', () => { hovered = true; });
-        carousel.addEventListener('pointerleave', () => { hovered = false; });
-        carousel.addEventListener('focusin', () => {
-            paused = true;
-            updatePauseButton();
-        });
+        carousel.addEventListener('touchstart', event => {
+            if (event.touches.length !== 1 || event.target.closest('button')) { start = null; return; }
+            start = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+            swiped = false;
+        }, { passive: true });
+        carousel.addEventListener('touchend', event => {
+            if (!start || !event.changedTouches.length) return;
+            const dx = event.changedTouches[0].clientX - start.x, dy = event.changedTouches[0].clientY - start.y;
+            if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) { render(active + (dx < 0 ? 1 : -1), true); swiped = true; setTimeout(() => { swiped = false; }, 400); }
+            start = null;
+        }, { passive: true });
+        carousel.addEventListener('touchcancel', () => { start = null; });
+        carousel.addEventListener('click', event => { if (swiped) { event.preventDefault(); swiped = false; } }, true);
+        motion.addEventListener('change', () => { paused = motion.matches; updatePauseButton(); });
         updatePauseButton();
+        render(active);
         window.setInterval(() => {
-            if (!paused && !hovered && !document.hidden) render(active + 1);
+            if (!paused && !focused && !document.hidden) render(active + 1);
         }, 6000);
     });
 

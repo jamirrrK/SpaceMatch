@@ -17,7 +17,7 @@ Manual dispatch accepts `approved_commit`, validates lowercase 40-character SHA 
 5. Review a successful main build's source SHA, deployment tests, Laravel tests and artifact digest. No untrusted PR code should receive secrets; do not switch to pull_request_target with contributor code.
 6. Verify cPanel capabilities and restoration rehearsal from the deployment guide. Separately approve the exact SHA, backup and operator activation.
 
-No GitHub secrets are required now. A future separately reviewed SSH transport could require `ZCOM_SSH_PRIVATE_KEY` and independently pinned `ZCOM_KNOWN_HOSTS`, plus host/port/user variables. Do not create or connect them in this phase. Keep .env, APP_KEY, DB passwords and EmailJS credentials out of Actions. SFTP alone cannot execute server safety checks; cPanel Git hooks are not configured. Do not add automatic deployment for develop pushes.
+No GitHub secrets are required now. A future separately reviewed SSH transport could require `ZCOM_SSH_PRIVATE_KEY` and independently pinned `ZCOM_KNOWN_HOSTS`, plus host/port/user variables. Do not create or connect them in this phase. Keep .env, APP_KEY, DB passwords and mail credentials out of Actions. SFTP alone cannot execute server safety checks; cPanel Git hooks are not configured. Do not add automatic deployment for develop pushes.
 
 Native Linux flock and real filesystem symlink tests are included in the offline deployment suite. Windows skips those native cases; CI must demonstrate they pass before enablement. Test PHP/HTTP responses are simulated; a passing Linux unit suite is not an actual cPanel deployment rehearsal.
 
