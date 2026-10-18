@@ -12,12 +12,12 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
-     public function run(): void
-     {
-         if (! app()->environment('local')) {
-             return;
-         }
+    public function run(): void
+    {
+        if (! app()->environment('local')) {
+            return;
+        }
 
-         $this->call(DevelopmentSampleSeeder::class);
-     }
+        $this->call(DevelopmentSampleSeeder::class);
+    }
 }

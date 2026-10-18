@@ -10,7 +10,7 @@ class PaymentController extends Controller
 {
     public function index(Request $request): View
     {
-        $payments = Payment::with('booking.space.property')
+        $payments = Payment::with(['booking.space.property', 'confirmer', 'transactions'])
             ->whereHas('booking', fn ($booking) => $booking->visibleTo($request->user()))
             ->latest()->paginate(15);
 

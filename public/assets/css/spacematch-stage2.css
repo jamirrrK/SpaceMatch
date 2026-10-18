@@ -23,6 +23,7 @@
 }
 
 html {
+    overflow-x: hidden;
     scroll-behavior: smooth;
     scroll-padding-top: 96px;
 }
@@ -32,6 +33,7 @@ body {
     color: var(--sm-text);
     font-family: var(--sm-font-body);
     line-height: 1.55;
+    overflow-x: hidden;
 }
 
 a {
@@ -460,6 +462,7 @@ textarea.form-control {
     max-width: 100%;
     overflow-x: auto;
     overscroll-behavior-inline: contain;
+    contain: paint;
 }
 
 .table-name {

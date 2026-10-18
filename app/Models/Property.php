@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Property extends Model
 {
@@ -35,7 +35,7 @@ class Property extends Model
     {
         return $query->whereIn('status', ['active', 'available'])->whereNull('moderated_at')
             ->where('listing_status', 'published')->whereHas('spaces', fn ($spaces) => $spaces
-                ->where('listing_status', 'published')->where('availability_status', 'available'));
+            ->where('listing_status', 'published')->where('availability_status', 'available'));
     }
 
     public function owner()
@@ -46,5 +46,10 @@ class Property extends Model
     public function spaces()
     {
         return $this->hasMany(Space::class);
+    }
+
+    public function savedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'saved_properties')->withTimestamps();
     }
 }

@@ -24,3 +24,5 @@ Homestead.yaml
 Thumbs.db
 
 /storage/npm-cache/
+
+/public/database.sqlite
