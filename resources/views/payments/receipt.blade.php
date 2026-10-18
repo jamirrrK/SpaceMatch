@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Payment receipt {{ $transaction->receipt_number }}</title>
     <style>
-        body { color: #222; font: 16px/1.5 Arial, sans-serif; margin: 3rem auto; max-width: 680px; padding: 0 1rem; }
+        @page { margin: 28mm 22mm; }
+        body { color: #222; font: 12pt/1.5 "DejaVu Sans", sans-serif; margin: 0; }
         h1 { border-bottom: 2px solid #222; padding-bottom: .75rem; }
         dt { font-weight: 700; margin-top: 1rem; }
         dd { margin-left: 0; }

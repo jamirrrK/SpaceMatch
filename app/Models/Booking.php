@@ -19,7 +19,7 @@ class Booking extends Model
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
         return match ($user->role) {
-            User::ROLE_ADMIN => $query,
+            User::ROLE_ADMIN, User::ROLE_MASTER_ADMIN => $query,
             User::ROLE_OWNER => $query->whereHas('space.property', fn (Builder $property) => $property
                 ->where('owner_id', $user->id)),
             User::ROLE_RENTER => $query->where('renter_id', $user->id),

@@ -2,6 +2,13 @@
 
 No production deployment is currently authorized. Every unchecked item below is a blocking prerequisite, not an assumption.
 
+## Current release-specific blockers
+
+- [ ] Review additive migration `2026_10_18_130000_create_payment_submissions_table.php` against the actual production schema and migration history; this change has not been applied to local MySQL or production.
+- [ ] Establish and verify a Composer dependency bundle containing `barryvdh/laravel-dompdf` 3.1.2 and `dompdf/dompdf` 3.1.6 against the exact production PHP/extensions. Confirm DOM, mbstring, and zlib.
+- [ ] Extend the approved deployment procedure to provision reviewed migrations and Composer dependencies safely; the existing code-only deployment flow explicitly does neither.
+- [ ] Re-run the complete release validation after any deployment-procedure/dependency-bundle changes. Current local results are 152 Laravel tests/1,204 assertions, 54 deployment tests with 2 Windows skips, frontend build passed, 122 routes, and 16 isolated browser scenarios.
+
 ## Hosting and application
 
 - [ ] Confirm Z.com enables shell/Terminal for tejzvrgp; independently verify any future SSH/SFTP permissions and host key without connecting credentials during this phase.

@@ -1,55 +1,45 @@
 # SpaceMatch Workflow Integration
 
-## End-to-end workflow map
+## Verified renter and owner workflow
 
-### 1. Registration and verification
-- Guest visits `/register` and selects renter or owner
-- User verifies email or SMS through OTP
-- `App\Http\Controllers\AuthController` creates the user and dispatches verification
-- `App\Services\OtpVerificationService` issues a challenge with expiry, lockout, and resend handling
-- `App\Http\Controllers\VerificationController` completes verification
+### Registration, verification, and discovery
+1. A renter registers through the student flow and completes the existing single-use OTP verification.
+2. Renter preferences drive discovery filters; renters can save and compare real spaces.
+3. The homepage carousel shows published, available listing images and provides keyboard-operable controls with reduced-motion support.
 
-### 2. Post-login routing
-- `redirectForRole()` routes admin, owner, and renter to the right dashboard
-- Contact verification middleware prevents access to protected pages until verification is complete
+### Inquiry and viewing
+1. A renter creates an inquiry on a listed space.
+2. The owner and renter exchange replies in one participant-authorized conversation. AJAX replies are polled and new messages update unread counts.
+3. A renter requests a viewing; the owner schedules it and the renter sees the resulting activity.
+4. Inquiry polling and reply routes validate participation; messaging requests are throttled.
 
-### 3. Property and space discovery
-- Public property listing and detail routes resolve listing and availability data
-- Renter users can compare spaces and save properties/spaces
-- Search, comparison, and listing pages should be validated against current property data contracts
+### Rental request and booking
+1. The renter accepts the rental terms and submits a request.
+2. The owner can request additional information, reject, or approve the request.
+3. Approval creates the booking and unpaid schedule. The booking stores the accepted terms snapshot.
+4. The renter and owner coordinate move-in in the conversation. Owners can mark a booking active only on or after its move-in date and complete it only on or after its end date.
 
-### 4. Inquiry and viewing flow
-- Renter can create inquiries against a published space
-- Owner can reply, close, and manage inquiry state
-- Renter can request a viewing appointment
-- Owner can accept, decline, or reschedule
-- Notifications and timelines should update consistently
+### Payments and receipts
+1. An owner may record manual receipts against the ledger.
+2. A renter may submit amount, date, method, optional reference, and private evidence for an outstanding payment.
+3. An authorized owner/admin reviews the evidence. Verification transactionally updates the ledger, creates a payment transaction/receipt, and records an audit event; rejection requires a reason.
+4. Private evidence is served only through an authorization-checked route. The application does not process card, wallet, or bank payments.
 
-### 5. Rental request and booking flow
-- Renter creates a rental request against a space
-- Owner reviews and updates request status
-- Booking creation happens once a request is approved
-- Related payments and maintenance flows continue from booking data
+### Maintenance and reviews
+1. A renter submits a maintenance issue with optional evidence.
+2. An owner records action/updates; the renter can see the resolution history.
+3. A renter can review an eligible completed rental. An administrator can moderate a review while retaining audit history.
 
-### 6. Payment and account lifecycle
-- Payment history and receipts are available through protected authenticated pages
-- Owners can confirm payments
-- Payment ledger and outstanding balance calculations are used in dashboards
+### Administration and Master Administrator
+- Regular admin workflows include user and review moderation/audit.
+- Only a Master Administrator can grant or revoke the Master Administrator role through the dedicated workspace. Promotion requires a verified account; self-demotion is blocked. Role changes are audited.
+- The CLI provisioning command promotes an existing administrator account interactively; it does not create a new user.
 
-### 7. Maintenance and review lifecycle
-- Maintenance requests are linked to bookings
-- Owners may update status and respond to issue tracking
-- Reviews remain connected to bookings and public listing visibility
+## Browser validation
+The isolated Playwright workflow passed 16 scenarios using a fresh SQLite database, synthetic OTP sink, and synthetic accounts. It verified renter registration through review moderation, payment proof verification, Master Administrator permissions, carousel interaction, keyboard navigation, and no horizontal overflow at 375, 768, 1366, or 1920 px. No JavaScript errors or failed responses were recorded.
 
-### 8. Notifications and audits
-- Activity events are surfaced through notifications and related audit data
-- The backend already contains notification models and migration patterns for inquiry and viewing activity tracking
-
-## Critical success criteria
-- Every protected route is guarded by the correct middleware
-- Every user action checks ownership or participant eligibility
-- Every status transition is consistent with the application domain rules
-- Public actions remain limited to published listings and valid participants
-
-## Integration risk summary
-The integration branch has strong route coverage and domain logic, but real database schema validation and targeted end-to-end tests remain the most important next step before production deployment.
+## Boundaries and remaining integration checks
+- Tests do not verify real email/SMS delivery, MySQL concurrency, hosting-specific filesystem behavior, or production configuration.
+- The payment-submission schema is an additive migration that has not been applied to the existing local MySQL database or production.
+- Production deployment requires a verified Composer dependency bundle for the exact PHP/extensions and a separately reviewed migration/backup procedure.
+- Production `.env`, database, uploads, and hosting were not accessed or changed.

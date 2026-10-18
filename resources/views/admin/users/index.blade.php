@@ -21,6 +21,7 @@
                     <option value="renter" @selected(($filters['role'] ?? '') === 'renter')>Renter</option>
                     <option value="owner" @selected(($filters['role'] ?? '') === 'owner')>Property owner</option>
                     <option value="admin" @selected(($filters['role'] ?? '') === 'admin')>Administrator</option>
+                    <option value="master_admin" @selected(($filters['role'] ?? '') === 'master_admin')>Master administrator</option>
                 </select>
             </div>
             <div class="col-md-2">

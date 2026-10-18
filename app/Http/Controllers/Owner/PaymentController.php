@@ -36,6 +36,10 @@ class PaymentController extends Controller
                 throw ValidationException::withMessages(['payment' => 'This payment obligation cannot accept additional payments.']);
             }
 
+            if ($ownedPayment->submissions()->where('status', 'pending')->exists()) {
+                throw ValidationException::withMessages(['payment' => "Review or reject the renter's pending payment submission before recording another payment."]);
+            }
+
             $remainingCents = (int) round($ownedPayment->outstanding_balance * 100);
             $receivedCents = (int) round(((float) ($data['amount'] ?? $ownedPayment->outstanding_balance)) * 100);
             if ($receivedCents > $remainingCents) {

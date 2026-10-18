@@ -146,6 +146,45 @@ class InquiryWorkflowTest extends TestCase
         $this->assertDatabaseCount('inquiry_activities', 1);
     }
 
+    public function test_live_updates_are_private_mark_incoming_messages_read_and_prevent_duplicate_replies(): void
+    {
+        [$space, $owner] = $this->publishedSpace();
+        $renter = User::factory()->create(['role' => User::ROLE_RENTER]);
+        $inquiry = Inquiry::query()->create([
+            'space_id' => $space->id,
+            'renter_id' => $renter->id,
+            'owner_id' => $owner->id,
+            'status' => 'open',
+        ]);
+        $activity = $inquiry->activities()->create([
+            'user_id' => $renter->id,
+            'activity_type' => 'message',
+            'body' => '<script>owner supplied text</script>',
+        ]);
+        $owner->notify(new InquiryActivityNotification($inquiry->load('space'), 'New reply to your inquiry'));
+
+        $updatesUrl = route('owner.inquiries.updates', $inquiry);
+        $response = $this->actingAs($owner)->getJson($updatesUrl.'?after_id=0')
+            ->assertOk()
+            ->assertHeader('Cache-Control', 'no-store, private')
+            ->assertJsonPath('activities.0.id', $activity->id)
+            ->assertJsonPath('activities.0.body', '<script>owner supplied text</script>')
+            ->assertJsonPath('activities.0.user_name', $renter->name)
+            ->assertJsonPath('unread_inquiries', 0);
+        $this->assertNotNull($activity->fresh()->read_at);
+        $this->assertSame(0, $owner->fresh()->unreadNotifications()->count());
+
+        $otherOwner = User::factory()->create(['role' => User::ROLE_OWNER]);
+        $this->actingAs($otherOwner)->getJson($updatesUrl)->assertNotFound();
+
+        $reply = ['message' => 'I would like to schedule a viewing this week.'];
+        $this->actingAs($renter)->postJson(route('renter.inquiries.reply', $inquiry), $reply)
+            ->assertCreated()->assertJsonPath('sent', true);
+        $this->postJson(route('renter.inquiries.reply', $inquiry), $reply)
+            ->assertOk()->assertJsonPath('sent', false);
+        $this->assertSame(2, $inquiry->activities()->count());
+    }
+
     private function publishedSpace(string $availability = 'available'): array
     {
         $owner = User::factory()->create(['role' => User::ROLE_OWNER]);

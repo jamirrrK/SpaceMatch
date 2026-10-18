@@ -15,6 +15,8 @@ class User extends Authenticatable
 
     public const ROLE_ADMIN = 'admin';
 
+    public const ROLE_MASTER_ADMIN = 'master_admin';
+
     public const ROLE_OWNER = 'owner';
 
     public const ROLE_RENTER = 'renter';
@@ -71,6 +73,11 @@ class User extends Authenticatable
     public function hasRole(string $role): bool
     {
         return $this->role === $role;
+    }
+
+    public function isAdministrator(): bool
+    {
+        return in_array($this->role, [self::ROLE_ADMIN, self::ROLE_MASTER_ADMIN], true);
     }
 
     /**

@@ -44,7 +44,7 @@
                             <li class="nav-item"><a class="nav-link active" href="{{ route('verification.notice') }}">Verify account</a></li>
                             <li class="nav-item"><form method="POST" action="{{ route('logout') }}">@csrf<button class="btn btn-outline-dark btn-sm ms-lg-2" type="submit">Log out</button></form></li>
                         @else
-                            @php($dashboardRoute = auth()->user()->hasRole('admin') ? route('admin.dashboard') : route('dashboard'))
+                            @php($dashboardRoute = auth()->user()->isAdministrator() ? route('admin.dashboard') : route('dashboard'))
                             <li class="nav-item"><a class="nav-link {{ request()->routeIs('*.dashboard', 'admin.*') ? 'active' : '' }}" href="{{ $dashboardRoute }}">Dashboard</a></li>
                             <li class="nav-item dropdown account-menu">
                                 <button class="btn account-menu-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -75,37 +75,41 @@
                 <div class="offcanvas-lg offcanvas-start workspace-navigation-drawer" tabindex="-1" id="managementNav" aria-labelledby="managementNavTitle">
                     <div class="offcanvas-header"><h2 class="offcanvas-title panel-title" id="managementNavTitle">Your workspace</h2><button class="btn-close" type="button" data-bs-dismiss="offcanvas" data-bs-target="#managementNav" aria-label="Close workspace navigation"></button></div>
                     <div class="offcanvas-body">
-                    <div class="sidebar-caption">{{ auth()->user()->hasRole('admin') ? 'Administration' : (auth()->user()->hasRole('owner') ? 'Owner workspace' : 'Renter workspace') }}</div>
+                    <div class="sidebar-caption">{{ auth()->user()->isAdministrator() ? 'Administration' : (auth()->user()->hasRole('owner') ? 'Owner workspace' : 'Renter workspace') }}</div>
                     <nav aria-label="Management navigation" class="d-grid gap-1">
                         @if(auth()->user()->hasRole('owner'))
                             <a class="sidebar-link {{ request()->routeIs('owner.dashboard') ? 'active' : '' }}" href="{{ route('owner.dashboard') }}"><x-icon name="grid" /><span>Overview</span></a>
                             <a class="sidebar-link {{ request()->routeIs('owner.requests.*') ? 'active' : '' }}" href="{{ route('owner.requests.index') }}"><x-icon name="calendar" /><span>Rental requests</span></a>
-                            <a class="sidebar-link {{ request()->routeIs('owner.inquiries.*') ? 'active' : '' }}" href="{{ route('owner.inquiries.index') }}"><x-icon name="mail" /><span>Inquiries</span>@if($unreadInquiryCount > 0)<span class="badge text-bg-primary ms-auto">{{ $unreadInquiryCount }}</span>@endif</a>
+                            <a class="sidebar-link {{ request()->routeIs('owner.inquiries.*') ? 'active' : '' }}" href="{{ route('owner.inquiries.index') }}"><x-icon name="mail" /><span>Messages</span><span class="badge text-bg-primary ms-auto" data-unread-inquiries {{ $unreadInquiryCount < 1 ? 'hidden' : '' }}>{{ $unreadInquiryCount }}</span></a>
                             <a class="sidebar-link {{ request()->routeIs('owner.viewings.*') ? 'active' : '' }}" href="{{ route('owner.viewings.index') }}"><x-icon name="calendar" /><span>Viewing requests</span>@if($unreadViewingCount > 0)<span class="badge text-bg-primary ms-auto">{{ $unreadViewingCount }}</span>@endif</a>
                             <a class="sidebar-link {{ request()->routeIs('owner.properties.*') ? 'active' : '' }}" href="{{ route('owner.properties.index') }}"><x-icon name="building" /><span>My properties</span></a>
                             <a class="sidebar-link {{ request()->routeIs('owner.spaces.*') ? 'active' : '' }}" href="{{ route('owner.spaces.index') }}"><x-icon name="home" /><span>Rental spaces</span></a>
                             <a class="sidebar-link {{ request()->routeIs('bookings.index') ? 'active' : '' }}" href="{{ route('bookings.index') }}"><x-icon name="calendar" /><span>Bookings</span></a>
                             <a class="sidebar-link {{ request()->routeIs('owner.tenants.*') ? 'active' : '' }}" href="{{ route('owner.tenants.index') }}"><x-icon name="user" /><span>Tenants</span></a>
                             <a class="sidebar-link {{ request()->routeIs('payments.index') ? 'active' : '' }}" href="{{ route('payments.index') }}"><x-icon name="wallet" /><span>Rental payments</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('owner.payments.submissions.*') ? 'active' : '' }}" href="{{ route('owner.payments.submissions.index') }}"><x-icon name="wallet" /><span>Payment proof review</span></a>
                             <a class="sidebar-link {{ request()->routeIs('maintenance.index') ? 'active' : '' }}" href="{{ route('maintenance.index') }}"><x-icon name="tool" /><span>Maintenance</span></a>
                             <a class="sidebar-link {{ request()->routeIs('reviews.index') ? 'active' : '' }}" href="{{ route('reviews.index') }}"><x-icon name="star" /><span>Property reviews</span></a>
                             <a class="sidebar-link {{ request()->routeIs('owner.reports.*') ? 'active' : '' }}" href="{{ route('owner.reports.index') }}"><x-icon name="grid" /><span>Reports and analytics</span></a>
                             <a class="sidebar-link" href="{{ route('owner.properties.create') }}"><x-icon name="building" /><span>Add a property</span></a>
-                        @elseif(auth()->user()->hasRole('admin'))
+                        @elseif(auth()->user()->isAdministrator())
                             <a class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><x-icon name="grid" /><span>Platform overview</span></a>
                             <a class="sidebar-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}" href="{{ route('admin.users.index') }}"><x-icon name="user" /><span>Users</span></a>
                             <a class="sidebar-link {{ request()->routeIs('admin.properties.*') ? 'active' : '' }}" href="{{ route('admin.properties.index') }}"><x-icon name="building" /><span>All properties</span></a>
                             <a class="sidebar-link {{ request()->routeIs('admin.bookings.index') ? 'active' : '' }}" href="{{ route('admin.bookings.index') }}"><x-icon name="calendar" /><span>Bookings</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('admin.payments.submissions.*') ? 'active' : '' }}" href="{{ route('admin.payments.submissions.index') }}"><x-icon name="wallet" /><span>Payment proof review</span></a>
                             <a class="sidebar-link" href="{{ route('reviews.index') }}"><x-icon name="star" /><span>Review moderation</span></a>
                             <a class="sidebar-link {{ request()->routeIs('admin.audit-logs.index') ? 'active' : '' }}" href="{{ route('admin.audit-logs.index') }}"><x-icon name="shield" /><span>Audit logs</span></a>
+                            @if(auth()->user()->hasRole(\App\Models\User::ROLE_MASTER_ADMIN))
+                                <a class="sidebar-link {{ request()->routeIs('admin.master-admins.*') ? 'active' : '' }}" href="{{ route('admin.master-admins.index') }}"><x-icon name="shield" /><span>Administrator access</span></a>
+                            @endif
                         @else
                             <a class="sidebar-link {{ request()->routeIs('renter.dashboard') ? 'active' : '' }}" href="{{ route('renter.dashboard') }}"><x-icon name="grid" /><span>Overview</span></a>
-                            <a class="sidebar-link {{ request()->routeIs('renter.inquiries.*') ? 'active' : '' }}" href="{{ route('renter.inquiries.index') }}"><x-icon name="mail" /><span>Inquiries</span>@if($unreadInquiryCount > 0)<span class="badge text-bg-primary ms-auto">{{ $unreadInquiryCount }}</span>@endif</a>
+                            <a class="sidebar-link {{ request()->routeIs('properties.*', 'spaces.*') ? 'active' : '' }}" href="{{ route('properties.index') }}"><x-icon name="search" /><span>Browse rentals</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('renter.saved-spaces.*', 'renter.saved-properties.*') ? 'active' : '' }}" href="{{ route('renter.saved-spaces.index') }}"><x-icon name="home" /><span>Saved spaces</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('renter.requests.*') ? 'active' : '' }}" href="{{ route('renter.requests.index') }}"><x-icon name="calendar" /><span>Rental requests</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('renter.inquiries.*') ? 'active' : '' }}" href="{{ route('renter.inquiries.index') }}"><x-icon name="mail" /><span>Messages</span><span class="badge text-bg-primary ms-auto" data-unread-inquiries {{ $unreadInquiryCount < 1 ? 'hidden' : '' }}>{{ $unreadInquiryCount }}</span></a>
                             <a class="sidebar-link {{ request()->routeIs('renter.viewings.*') ? 'active' : '' }}" href="{{ route('renter.viewings.index') }}"><x-icon name="calendar" /><span>Viewings</span>@if($unreadViewingCount > 0)<span class="badge text-bg-primary ms-auto">{{ $unreadViewingCount }}</span>@endif</a>
-                            <a class="sidebar-link {{ request()->routeIs('properties.*', 'spaces.*') ? 'active' : '' }}" href="{{ route('properties.index') }}"><x-icon name="search" /><span>Browse properties</span></a>
-                            <a class="sidebar-link {{ request()->routeIs('owner.requests.*') ? 'active' : '' }}" href="{{ route('owner.requests.index') }}"><x-icon name="calendar" /><span>Rental requests</span></a>
-                            <a class="sidebar-link {{ request()->routeIs('owner.inquiries.*') ? 'active' : '' }}" href="{{ route('owner.inquiries.index') }}"><x-icon name="mail" /><span>Inquiries</span>@if($unreadInquiryCount > 0)<span class="badge text-bg-primary ms-auto">{{ $unreadInquiryCount }}</span>@endif</a>
-                            <a class="sidebar-link {{ request()->routeIs('owner.viewings.*') ? 'active' : '' }}" href="{{ route('owner.viewings.index') }}"><x-icon name="calendar" /><span>Viewing requests</span>@if($unreadViewingCount > 0)<span class="badge text-bg-primary ms-auto">{{ $unreadViewingCount }}</span>@endif</a>
                         @endif
                         <div class="sidebar-group-label">Rental activity</div>
                         @unless(auth()->user()->hasRole('owner'))
@@ -113,7 +117,7 @@
                             <a class="sidebar-link {{ request()->routeIs('payments.index') ? 'active' : '' }}" href="{{ route('payments.index') }}"><x-icon name="wallet" /><span>Payments</span></a>
                         @endunless
                         @php($unreadNotifications = auth()->user()->unreadNotifications()->count())
-                        <a class="sidebar-link {{ request()->routeIs('notifications.index') ? 'active' : '' }}" href="{{ route('notifications.index') }}"><x-icon name="bell" /><span>Notifications</span>@if($unreadNotifications)<span class="badge text-bg-light ms-auto">{{ $unreadNotifications }}</span>@endif</a>
+                        <a class="sidebar-link {{ request()->routeIs('notifications.index') ? 'active' : '' }}" href="{{ route('notifications.index') }}"><x-icon name="bell" /><span>Notifications</span><span class="badge text-bg-light ms-auto" data-unread-notifications {{ $unreadNotifications < 1 ? 'hidden' : '' }}>{{ $unreadNotifications }}</span></a>
                         @unless(auth()->user()->hasRole('owner'))
                             <a class="sidebar-link {{ request()->routeIs('maintenance.index') ? 'active' : '' }}" href="{{ route('maintenance.index') }}"><x-icon name="tool" /><span>Maintenance</span></a>
                         @endunless
@@ -154,6 +158,7 @@
     <x-tutorial-modal />
     <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}" defer></script>
     <script src="{{ asset('assets/js/spacematch.js') }}" defer></script>
+    <script src="{{ asset('assets/js/inquiry-messenger.js') }}" defer></script>
     <script src="{{ asset('assets/js/spacematch-tutorial.js') }}" defer></script>
     @stack('scripts')
 </body>

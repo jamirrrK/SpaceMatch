@@ -14,7 +14,7 @@ class PropertyPolicy
 
     public function view(User $user, Property $property): bool
     {
-        return $user->hasRole('admin') || $this->update($user, $property);
+        return $user->isAdministrator() || $this->update($user, $property);
     }
 
     public function create(User $user): bool
@@ -29,6 +29,6 @@ class PropertyPolicy
 
     public function moderate(User $user, Property $property): bool
     {
-        return $user->hasRole('admin');
+        return $user->isAdministrator();
     }
 }

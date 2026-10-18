@@ -3,8 +3,7 @@
 @section('content')
 @php
     $featuredSpaces = $featuredSpaces ?? collect();
-    $heroSpace = $featuredSpaces->first();
-    $heroImage = $heroSpace?->images?->first() ?? $heroSpace?->property?->images?->whereNull('space_id')->first();
+    $heroSpaces = $heroSpaces ?? collect();
 @endphp
 <section class="home-hero">
     <div class="container site-width">
@@ -22,16 +21,33 @@
                 </div>
             </div>
             <div class="col-lg-6">
-                @if($heroSpace)
-                    <a class="home-hero-visual home-hero-feature" href="{{ route('properties.show', $heroSpace->property).'#space-'.$heroSpace->id }}">
-                        <img src="{{ $heroImage?->url ?? asset('assets/images/space-placeholder.svg') }}" alt="{{ $heroSpace->space_name }} at {{ $heroSpace->property->property_name }}" fetchpriority="high">
-                        <span class="hero-image-label">Featured available space</span>
-                        <span class="home-hero-caption">
-                            <span class="eyebrow">{{ $heroSpace->property->city }}, {{ $heroSpace->property->province }}</span>
-                            <strong>{{ $heroSpace->property->property_name }}</strong>
-                            <span>{{ $heroSpace->space_name }} <b>&#8369;{{ number_format($heroSpace->price, 0) }} / month</b></span>
-                        </span>
-                    </a>
+                @if($heroSpaces->isNotEmpty())
+                    <div class="home-hero-visual home-hero-carousel" data-home-carousel role="region" aria-roledescription="carousel" aria-label="Featured available rental spaces">
+                        @foreach($heroSpaces as $index => $heroSpace)
+                            @php($heroImage = $heroSpace->images->first() ?? $heroSpace->property->images->first())
+                            <a class="home-hero-feature home-carousel-slide {{ $index === 0 ? 'is-active' : '' }}"
+                                href="{{ route('properties.show', $heroSpace->property).'#space-'.$heroSpace->id }}"
+                                data-carousel-slide
+                                aria-hidden="{{ $index === 0 ? 'false' : 'true' }}"
+                                @if($index !== 0) hidden tabindex="-1" @endif>
+                                <img src="{{ $heroImage->url }}" alt="{{ $heroSpace->space_name }} at {{ $heroSpace->property->property_name }}" @if($index === 0) fetchpriority="high" @else loading="lazy" @endif>
+                                <span class="hero-image-label">Published and available</span>
+                                <span class="home-hero-caption">
+                                    <span class="eyebrow">{{ $heroSpace->property->city }}, {{ $heroSpace->property->province }}</span>
+                                    <strong>{{ $heroSpace->property->property_name }}</strong>
+                                    <span>{{ $heroSpace->space_name }} <b>&#8369;{{ number_format($heroSpace->price, 0) }} / month</b></span>
+                                </span>
+                            </a>
+                        @endforeach
+                        @if($heroSpaces->count() > 1)
+                            <div class="home-carousel-controls" role="group" aria-label="Featured listing controls">
+                                <button type="button" class="home-carousel-control" data-carousel-previous aria-label="Previous featured listing">&#8592;</button>
+                                <button type="button" class="home-carousel-control" data-carousel-next aria-label="Next featured listing">&#8594;</button>
+                                <button type="button" class="home-carousel-pause" data-carousel-pause aria-pressed="false">Pause slides</button>
+                            </div>
+                            <p class="visually-hidden" aria-live="polite" data-carousel-announcement></p>
+                        @endif
+                    </div>
                 @else
                     <div class="home-hero-visual home-hero-illustration">
                         <img src="{{ asset('assets/images/space-placeholder.svg') }}" alt="Illustration of a welcoming rental space">

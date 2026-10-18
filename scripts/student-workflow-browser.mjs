@@ -13,7 +13,9 @@ const runRoot = await mkdtemp(path.join(privateRoot, 'student-workflow-browser-'
 await writeFile(path.join(runRoot, '.isolated-student-browser'), 'isolated browser fixtures only');
 await writeFile(path.join(runRoot, 'clock.txt'), '2026-10-18 12:00:00');
 const env = { ...process.env, SPACEMATCH_STUDENT_BROWSER_ROOT: runRoot, SPACEMATCH_STUDENT_BROWSER_KEY: `base64:${randomBytes(32).toString('base64')}` };
-const output = path.join(workspace, 'docs/student-browser');
+const output = process.env.SPACEMATCH_STUDENT_BROWSER_OUTPUT
+    ? path.resolve(process.env.SPACEMATCH_STUDENT_BROWSER_OUTPUT)
+    : path.join(workspace, 'docs/student-browser');
 await mkdir(output, { recursive: true });
 const results = [], diagnostics = { pageErrors: [], consoleErrors: [], failedResponses: [], blockedExternalRequests: [], layout: [] };
 const base = 'http://127.0.0.1:8027';
@@ -47,6 +49,16 @@ async function open(page, uri) {
 }
 async function submit(page, form) {
     const button = form.locator('button:not([type="button"])').last();
+    if (await form.getAttribute('data-inquiry-reply-form') !== null) {
+        const message = await form.locator('[name=message]').inputValue();
+        await button.click();
+        await page.locator('[data-inquiry-live-status]').getByText('Message sent.', { exact: true }).waitFor();
+        const sent = page.locator('[data-inquiry-messages] li').filter({ hasText: message }).first();
+        await sent.waitFor({ state: 'visible' });
+        assert.equal(await sent.locator('p').textContent(), message);
+        assert.equal(await form.locator('[name=message]').inputValue(), '');
+        return;
+    }
     if (await form.getAttribute('data-confirm')) {
         await button.click();
         await page.locator('#confirmation-dialog').waitFor({ state: 'visible' });
@@ -86,7 +98,7 @@ try {
         page.on('response', response => { if (response.status() >= 400) diagnostics.failedResponses.push({ url: response.url(), status: response.status() }); });
         return page;
     }
-    const student = await pageFor(), owner = await pageFor(), admin = await pageFor();
+    const student = await pageFor(), owner = await pageFor(), admin = await pageFor(), masterAdmin = await pageFor();
     const property = `/properties/${fixtures.property_id}`, space = fixtures.space_ids[0];
     let inquiryId, bookingId;
     await check('owner maintains real student listing metadata', async () => {
@@ -144,8 +156,9 @@ try {
         await open(owner, `/owner/inquiries/${inquiryId}`);
         const reply = owner.locator(`form[action$="/owner/inquiries/${inquiryId}/replies"]`);
         await reply.locator('[name=message]').fill('Yes, please review the terms and send your preferred dates.');
-        await submit(owner, reply);
-        await open(student, `/renter/inquiries/${inquiryId}`);
+        await reply.locator('button[type=submit]').click();
+        await owner.waitForFunction(() => document.querySelector('[data-inquiry-live-status]')?.textContent === 'Message sent.');
+        await student.locator('[data-activity-id]').filter({ hasText: 'please review the terms' }).waitFor({ timeout: 12000 });
         assert.ok((await student.locator('body').innerText()).includes('please review the terms'));
     });
     await check('viewing request and owner scheduling', async () => {
@@ -206,11 +219,16 @@ try {
         await submit(student, form);
         await writeFile(path.join(runRoot, 'clock.txt'), '2026-10-19 12:00:00');
         await open(owner, '/bookings');
-        await submit(owner, owner.locator(`form[action$="/owner/bookings/${bookingId}/status"]`));
+        assert.ok(owner.url().endsWith('/bookings'), `Owner was redirected to ${owner.url()} instead of the bookings list`);
+        const moveInForm = owner.locator(`form[action$="/owner/bookings/${bookingId}/status"]`);
+        assert.equal(await moveInForm.count(), 1, `Expected one owner move-in action for booking ${bookingId}`);
+        process.stdout.write(`Move-in page ${owner.url()} action=${await moveInForm.getAttribute('action')} confirmation=${await moveInForm.getAttribute('data-confirm')}\n`);
+        await submit(owner, moveInForm);
     });
     await check('owner-recorded partial payment updates existing ledger', async () => {
         await open(owner, '/payments');
         const form = owner.locator('form[action*="/owner/payments/"]').first();
+        const paymentId = (await form.getAttribute('action')).match(/\/owner\/payments\/(\d+)\/confirm$/)[1];
         await form.locator('[name=payment_date]').fill('2026-10-19');
         await form.locator('[name=payment_method]').selectOption('cash');
         await form.locator('[name=amount]').fill('1000');
@@ -218,6 +236,25 @@ try {
         await submit(owner, form);
         await open(student, '/payments');
         assert.ok((await student.locator('body').innerText()).includes('1,000.00'));
+
+        const proof = student.locator(`form[action$="/renter/payments/${paymentId}/submissions"]`);
+        await proof.locator('[name=amount]').fill('500');
+        await proof.locator('[name=payment_date]').fill('2026-10-19');
+        await proof.locator('[name=payment_method]').selectOption('gcash');
+        await proof.locator('[name=reference]').fill('Isolated browser proof reference');
+        await proof.locator('[name=evidence]').setInputFiles({
+            name: 'payment-proof.pdf',
+            mimeType: 'application/pdf',
+            buffer: Buffer.from('%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\n%%EOF'),
+        });
+        await submit(student, proof);
+        assert.ok((await student.locator('body').innerText()).includes('waiting for the property owner to review'));
+
+        await open(owner, '/owner/payment-submissions');
+        await submit(owner, owner.locator('form[action*="/owner/payment-submissions/"]').first());
+        await open(student, '/payments');
+        assert.ok((await student.locator('body').innerText()).includes('Proof Verified'));
+        assert.ok((await student.locator('body').innerText()).includes('500.00'));
     });
     await check('maintenance submission evidence and owner resolution', async () => {
         await open(student, '/maintenance');
@@ -257,14 +294,32 @@ try {
         await open(student, property);
         assert.ok(!(await student.locator('body').innerText()).includes('Browser test review.'));
     });
+    await check('master administrator can grant access only through the restricted workspace', async () => {
+        await login(masterAdmin, fixtures.master_admin_email);
+        await open(masterAdmin, '/admin/master-administrators');
+        assert.ok((await masterAdmin.locator('body').innerText()).includes(fixtures.target_admin_email));
+        const grant = masterAdmin.locator(`form[action$="/admin/master-administrators/${fixtures.target_admin_id}"]`);
+        await submit(masterAdmin, grant);
+        assert.ok((await masterAdmin.locator('body').innerText()).includes('Master administrator'));
+    });
+    await check('published listing carousel responds to controls with reduced-motion preference', async () => {
+        await student.emulateMedia({ reducedMotion: 'reduce' });
+        await open(student, '/');
+        const carousel = student.locator('[data-home-carousel]');
+        const active = carousel.locator('[data-carousel-slide].is-active');
+        const firstHref = await active.getAttribute('href');
+        await carousel.locator('[data-carousel-next]').click();
+        await student.waitForFunction((href) => document.querySelector('[data-home-carousel] [data-carousel-slide].is-active')?.getAttribute('href') !== href, firstHref);
+        assert.notEqual(await carousel.locator('[data-carousel-slide].is-active').getAttribute('href'), firstHref);
+    });
     await check('mobile tablet desktop layout and keyboard navigation', async () => {
-        for (const [name, width, height] of [['mobile', 390, 844], ['tablet', 768, 1024], ['desktop', 1440, 1000]]) {
+        for (const [name, width, height] of [['mobile', 375, 812], ['tablet', 768, 1024], ['desktop', 1366, 900], ['wide', 1920, 1080]]) {
             await student.setViewportSize({ width, height });
-            await open(student, '/renter/dashboard');
+            await open(student, `/renter/inquiries/${inquiryId}`);
             const overflow = await student.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
             diagnostics.layout.push({ name, width, overflow });
             assert.equal(overflow, false, `${name} horizontal document overflow`);
-            await screenshot(student, '08-dashboard-' + name);
+            await screenshot(student, '08-messages-' + name);
         }
         await student.keyboard.press('Tab');
         assert.notEqual(await student.evaluate(() => document.activeElement.tagName), 'BODY');

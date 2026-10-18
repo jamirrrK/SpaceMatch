@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\OtpDeliveryFailed;
 use App\Exceptions\OtpDeliveryUnavailable;
 use App\Models\OtpVerification;
+use App\Models\User;
 use App\Services\OtpVerificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -121,7 +122,7 @@ class VerificationController extends Controller
     private function dashboardFor(string $role): string
     {
         return match ($role) {
-            'admin' => route('admin.dashboard'),
+            User::ROLE_ADMIN, User::ROLE_MASTER_ADMIN => route('admin.dashboard'),
             'owner' => route('owner.dashboard'),
             'renter' => route('renter.dashboard'),
             default => route('dashboard'),

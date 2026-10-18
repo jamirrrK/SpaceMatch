@@ -20,6 +20,7 @@ class DashboardController extends Controller
             'total_users' => User::count(),
             'total_owners' => User::where('role', 'owner')->count(),
             'total_renters' => User::where('role', 'renter')->count(),
+            'master_administrators' => User::where('role', User::ROLE_MASTER_ADMIN)->count(),
             'owners_waiting_verification' => User::where('role', 'owner')->whereNotNull('verification_required_at')->count(),
             'total_properties' => Property::count(),
             'pending_property_reviews' => Property::where('listing_status', 'draft')->count(),
