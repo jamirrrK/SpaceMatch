@@ -2,6 +2,8 @@
 
 return [
     'types' => [
+        'private_room' => 'Private room',
+        'shared_room' => 'Shared room',
         'apartment' => 'Apartment',
         'condominium' => 'Condominium',
         'boarding_house' => 'Boarding House',

@@ -11,6 +11,7 @@ use App\Models\RentalRequestHistory;
 use App\Models\Space;
 use App\Notifications\RentalWorkflowNotification;
 use App\Services\RentalPaymentSchedule;
+use App\Services\RentalTerms;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -36,7 +37,7 @@ class RentalRequestController extends Controller
         $requests = RentalRequest::visibleTo($request->user())
             ->when($filters['property_id'] ?? null, fn ($query, $id) => $query->whereHas('space', fn ($space) => $space->where('property_id', $id)))
             ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
-            ->with(['renter', 'space.property', 'booking', 'statusHistory.actor'])
+            ->with(['renter.renterPreference', 'space.property', 'booking', 'statusHistory.actor'])
             ->latest()
             ->paginate(15)->withQueryString();
         $properties = Property::query()->where('owner_id', $request->user()->id)->orderBy('property_name')->get(['id', 'property_name']);
@@ -69,11 +70,22 @@ class RentalRequestController extends Controller
                 throw ValidationException::withMessages(['status' => 'This request can no longer be changed.']);
             }
 
+            if ($ownedRequest->status === RentalRequest::STATUS_MORE_INFORMATION && $data['status'] !== RentalRequest::STATUS_REJECTED) {
+                throw ValidationException::withMessages(['status' => 'Wait for the renter to provide the requested information before reviewing again. You may still reject the request.']);
+            }
+
             $previousStatus = $ownedRequest->status;
             if ($data['status'] === RentalRequest::STATUS_APPROVED) {
                 $space = Space::query()->whereKey($ownedRequest->space_id)->lockForUpdate()->firstOrFail();
                 if (! Space::publiclyListed()->whereKey($space->id)->exists()) {
                     throw ValidationException::withMessages(['status' => 'This space is no longer published and available.']);
+                }
+
+                if ($ownedRequest->renter->is_student && ! $ownedRequest->terms_accepted_at) {
+                    throw ValidationException::withMessages(['status' => 'The student must submit a request accepting the rental terms first.']);
+                }
+                if ($ownedRequest->terms_accepted_at && ! RentalTerms::matches($ownedRequest->terms_snapshot, $space)) {
+                    throw ValidationException::withMessages(['status' => 'The listing terms changed after acceptance. Ask the renter to cancel and submit a new request.']);
                 }
 
                 $startDate = $ownedRequest->move_in_date->copy();

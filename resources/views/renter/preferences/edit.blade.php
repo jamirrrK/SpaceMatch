@@ -5,11 +5,12 @@
     <div class="mb-4">
         <div class="eyebrow mb-2">Find a closer fit</div>
         <h1 class="page-heading mb-1">Housing preferences</h1>
-        <p class="text-muted-soft mb-0">Save your priorities to refer to while searching. These preferences do not automatically filter listings or guarantee availability.</p>
+        <p class="text-muted-soft mb-0">Save your priorities, then use them to search matching listings. Availability still requires owner confirmation.</p>
     </div>
     <form class="panel p-4" method="POST" action="{{ route('renter.preferences.update') }}">
         @csrf
         @method('PUT')
+        @include('renter.preferences.student-preferences')
         <div class="row g-3">
             <div class="col-md-6">
                 <label class="form-label" for="school_or_campus">School or campus</label>
@@ -51,7 +52,7 @@
         </div>
         <div class="d-flex flex-wrap gap-2 mt-4">
             <button class="btn btn-primary-custom" type="submit">Save preferences</button>
-            <a class="btn btn-outline-dark" href="{{ route('properties.index') }}">Browse rentals</a>
+            <a class="btn btn-outline-dark" href="{{ route('properties.index', \App\Services\StudentDiscovery::filters($preferences, auth()->user()->is_student)) }}">Search with my preferences</a>
         </div>
     </form>
 </div>

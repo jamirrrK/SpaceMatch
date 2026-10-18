@@ -8,6 +8,7 @@ use App\Models\Property;
 use App\Models\Review;
 use App\Models\Space;
 use App\Models\User;
+use App\Services\StudentDiscovery;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 
@@ -25,10 +26,12 @@ class PropertyController extends Controller
             $query->withExists(['savedByUsers as is_saved' => fn (Builder $users) => $users->whereKey($request->user()->id)]);
         }
 
+        StudentDiscovery::apply($query, $filters);
         $searchTerms = array_values(array_filter([
             $request->input('q'),
-            $request->input('location'),
+
         ], fn ($term) => is_string($term) && trim($term) !== ''));
+        StudentDiscovery::apply($query, $filters);
         $searchTerms = array_map(fn ($term) => trim($term), $searchTerms);
 
         if (! empty($searchTerms)) {
@@ -50,6 +53,14 @@ class PropertyController extends Controller
                         ->orWhereHas('amenities', fn (Builder $amenity) => $amenity->where('name', 'like', $like));
                 }
             });
+        }
+
+        if (! empty($filters['location'])) {
+            $query->whereHas('property', fn (Builder $property) => $property->where(function (Builder $location) use ($filters): void {
+                foreach (['city', 'barangay', 'province', 'address'] as $column) {
+                    $location->orWhere($column, 'like', '%'.$filters['location'].'%');
+                }
+            }));
         }
 
         if (! empty($filters['property_type'])) {
@@ -76,12 +87,7 @@ class PropertyController extends Controller
         }
 
         if (isset($filters['available_from'])) {
-            $query->where(fn (Builder $availability) => $availability->whereNull('available_from')
-                ->orWhereDate('available_from', '<=', $filters['available_from']));
-            $query->whereRaw(
-                'COALESCE((SELECT SUM(bookings.occupants) FROM bookings WHERE bookings.space_id = spaces.id AND bookings.status IN (?, ?) AND bookings.start_date <= ? AND bookings.end_date >= ?), 0) < spaces.capacity',
-                ['confirmed', 'active', $filters['available_from'], $filters['available_from']]
-            );
+            StudentDiscovery::availableOn($query, $filters['available_from'], (int) ($filters['capacity'] ?? 1));
         }
 
         // One existence constraint per amenity requires every selected amenity.
@@ -123,7 +129,7 @@ class PropertyController extends Controller
                 ->with(['amenities', 'images'])
                 ->orderBy('price')->orderBy('id'),
         ]);
-        $reviewQuery = Review::query()
+        $reviewQuery = Review::query()->whereNull('hidden_at')
             ->with('booking.renter')
             ->whereHas('booking.space', fn (Builder $space) => $space->where('property_id', $property->id))
             ->whereHas('booking', fn (Builder $booking) => $booking->where('status', 'completed'));

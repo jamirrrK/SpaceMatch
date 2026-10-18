@@ -16,7 +16,7 @@
     @stack('styles')
 </head>
 <body class="spacematch-app">
-    @php($management = auth()->check() && !auth()->user()->requiresContactVerification() && (request()->is('owner/*', 'admin/*', 'renter/*') || request()->routeIs('profile', 'bookings.index', 'payments.index', 'maintenance.index', 'reviews.index', 'notifications.index')))
+    @php($management = auth()->check() && !auth()->user()->requiresContactVerification() && (request()->is('owner/*', 'admin/*', 'renter/*') || request()->routeIs('profile', 'bookings.*', 'payments.index', 'maintenance.index', 'reviews.index', 'notifications.index')))
     <a class="skip-link" href="#main-content">Skip to content</a>
     <nav class="navbar navbar-expand-xl nav-shell sticky-top {{ $management ? 'workspace-topbar' : '' }}" aria-label="Main navigation">
         <div class="container-fluid site-width px-3 px-lg-4">
@@ -96,6 +96,7 @@
                             <a class="sidebar-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}" href="{{ route('admin.users.index') }}"><x-icon name="user" /><span>Users</span></a>
                             <a class="sidebar-link {{ request()->routeIs('admin.properties.*') ? 'active' : '' }}" href="{{ route('admin.properties.index') }}"><x-icon name="building" /><span>All properties</span></a>
                             <a class="sidebar-link {{ request()->routeIs('admin.bookings.index') ? 'active' : '' }}" href="{{ route('admin.bookings.index') }}"><x-icon name="calendar" /><span>Bookings</span></a>
+                            <a class="sidebar-link" href="{{ route('reviews.index') }}"><x-icon name="star" /><span>Review moderation</span></a>
                             <a class="sidebar-link {{ request()->routeIs('admin.audit-logs.index') ? 'active' : '' }}" href="{{ route('admin.audit-logs.index') }}"><x-icon name="shield" /><span>Audit logs</span></a>
                         @else
                             <a class="sidebar-link {{ request()->routeIs('renter.dashboard') ? 'active' : '' }}" href="{{ route('renter.dashboard') }}"><x-icon name="grid" /><span>Overview</span></a>

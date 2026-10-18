@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Booking;
 use App\Models\Review;
 use App\Models\User;
@@ -25,6 +26,17 @@ class ReviewController extends Controller
             : collect();
 
         return view('reviews.index', compact('reviews', 'eligibleBookings'));
+    }
+
+    public function moderate(Request $request, Review $review)
+    {
+        $data = $request->validate(['hidden' => ['required', 'boolean'], 'reason' => ['required', 'string', 'min:5', 'max:500']]);
+        DB::transaction(function () use ($request, $review, $data): void {
+            $review->forceFill(['hidden_at' => $data['hidden'] ? now() : null, 'moderated_by' => $request->user()->id, 'moderation_reason' => $data['reason']])->save();
+            AuditLog::create(['user_id' => $request->user()->id, 'action' => 'review_moderated', 'description' => json_encode(['review_id' => $review->id, 'hidden' => $data['hidden'], 'reason' => $data['reason']], JSON_THROW_ON_ERROR)]);
+        });
+
+        return back()->with('status', 'Review moderation recorded.');
     }
 
     public function store(Request $request, Booking $booking)

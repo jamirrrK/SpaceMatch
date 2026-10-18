@@ -24,7 +24,10 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+    protected $attributes = ['is_student' => false];
+
     protected $fillable = [
+        'is_student',
         'name',
         'email',
         'role',
@@ -54,6 +57,7 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'is_student' => 'boolean',
             'email_verified_at' => 'datetime',
             'phone_verified_at' => 'datetime',
             'verification_required_at' => 'datetime',

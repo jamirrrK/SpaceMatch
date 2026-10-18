@@ -8,6 +8,7 @@
     <div class="listing-body p-3 p-lg-4">
         <div class="d-flex justify-content-between align-items-center gap-2 mb-3"><span class="small text-muted-soft">{{ $types[$space->space_type] ?? ucfirst(str_replace('_', ' ', $space->space_type ?? 'Rental space')) }}</span><x-status-badge :status="$space->availability_status" /></div>
         <h3 class="listing-title mb-1"><a href="{{ $management ? route('owner.spaces.edit', $space) : route('properties.show', $space->property).'#space-'.$space->id }}">{{ $space->space_name }}</a></h3>
+        @include('properties.student-metadata')
         <p class="listing-property-name mb-1">{{ $space->property->property_name }}</p>
         <p class="listing-location mb-2"><x-icon name="pin" />{{ $space->property->city }}, {{ $space->property->province }}</p>
         <div class="listing-meta mb-3"><span>{{ $space->capacity }} {{ $space->capacity == 1 ? 'person' : 'people' }}</span>@if($space->floor_area)<span>{{ number_format($space->floor_area, 1) }} m²</span>@endif @if($space->floor_number !== null)<span>Floor {{ $space->floor_number }}</span>@endif</div>

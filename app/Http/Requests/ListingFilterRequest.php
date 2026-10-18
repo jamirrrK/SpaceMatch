@@ -15,6 +15,14 @@ class ListingFilterRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'student_friendly' => ['nullable', 'boolean'],
+            'campus' => ['nullable', 'string', 'max:150'],
+            'transport' => ['nullable', 'string', 'max:150'],
+            'school' => ['required_with:max_distance_km', 'nullable', 'string', 'max:150'],
+            'max_distance_km' => ['nullable', 'numeric', 'between:0,1000'],
+            'space_types' => ['nullable', 'array', 'max:10'],
+            'space_types.*' => ['string', 'distinct', Rule::in(array_keys(config('property.types')))],
+            'furnishing' => ['nullable', Rule::in(['unfurnished', 'semi_furnished', 'furnished'])],
             'q' => ['nullable', 'string', 'max:150'],
             'location' => ['nullable', 'string', 'max:150'],
             'property_type' => ['nullable', 'string', Rule::in(array_keys(config('property.types')))],

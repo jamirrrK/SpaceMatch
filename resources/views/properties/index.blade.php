@@ -17,10 +17,13 @@
                     'bathrooms' => $value.'+ bathrooms',
                     'available_from' => 'Available by '.\Illuminate\Support\Carbon::parse($value)->format('M j, Y'),
                     'amenities' => count((array)$value).' amenities',
+                    'space_types' => implode(', ', array_map(fn ($type) => config('property.types.'.$type, $type), $value)),
+                    'student_friendly' => 'Welcomes students',
+                    'max_distance_km' => 'Reported distance up to '.$value.' km',
                     default => $value,
                 };
             @endphp
-            <a class="filter-chip" href="{{ route('properties.index', collect($filters)->except([$key, 'page'])->all()) }}" aria-label="Remove filter: {{ $label }}">{{ $label }} <span aria-hidden="true">&times;</span></a>
+            <a class="filter-chip" href="{{ route('properties.index', collect($filters)->except($key === 'school' ? ['school', 'max_distance_km', 'page'] : [$key, 'page'])->all()) }}" aria-label="Remove filter: {{ $label }}">{{ $label }} <span aria-hidden="true">&times;</span></a>
         @endforeach
         </nav>@endif
         <div class="row g-4">@forelse($spaces as $space)<div class="col-md-6 col-xl-4"><x-space-card :space="$space" /></div>@empty<div class="col-12"><x-empty-state title="No spaces found" message="Try a different city, a wider budget, or fewer amenities to find your next space." :href="route('properties.index')" action="Clear filters" /></div>@endforelse</div><x-pagination :paginator="$spaces" /></section></div></div>

@@ -18,6 +18,7 @@ class RentalRequest extends Model
     public const STATUS_MORE_INFORMATION = 'more_information_requested';
 
     protected $fillable = [
+        'terms_snapshot', 'terms_accepted_at',
         'renter_id',
         'space_id',
         'move_in_date',
@@ -34,6 +35,7 @@ class RentalRequest extends Model
     protected function casts(): array
     {
         return [
+            'terms_snapshot' => 'array', 'terms_accepted_at' => 'datetime',
             'move_in_date' => 'date',
             'responded_at' => 'datetime',
         ];

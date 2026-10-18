@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Register | SpaceMatch')
+@section('title', ($studentMode ?? false) ? 'Student registration | SpaceMatch' : 'Register | SpaceMatch')
 
 @section('content')
 @php
@@ -15,11 +15,11 @@
             <div class="card auth-card p-4 p-lg-5">
                 <div class="text-center mb-4">
                     <div class="brand-mark mx-auto mb-3">S</div>
-                    <h1 class="fw-bold mb-1">Create your account</h1>
-                    <p class="text-muted-soft mb-0">Join SpaceMatch as a renter or property owner</p>
+                    <h1 class="fw-bold mb-1">{{ ($studentMode ?? false) ? 'Find your student home' : 'Create your account' }}</h1>
+                    <p class="text-muted-soft mb-0">{{ ($studentMode ?? false) ? 'School, budget, and your next chapter?all in one place.' : 'Join SpaceMatch as a renter or property owner' }}</p>
                 </div>
 
-                <form method="POST" action="{{ route('register') }}">
+                <form method="POST" action="{{ route(($studentMode ?? false) ? 'student.register' : 'register') }}">
                     @csrf
                     <div class="row g-3">
                         <div class="col-12">
@@ -66,6 +66,10 @@
                             <div class="input-group"><input id="password_confirmation" type="password" autocomplete="new-password" name="password_confirmation" class="form-control form-control-lg" required><button class="btn btn-outline-dark" type="button" data-toggle-password="password_confirmation" aria-label="Show password confirmation" aria-pressed="false">Show</button></div>
                         </div>
 
+                        @if($studentMode ?? false)
+                            <input type="hidden" name="account_type" value="renter">
+                            @include('renter.preferences.student-registration-fields')
+                        @else
                         <div class="col-12">
                             <label class="form-label">Account type</label>
                             <div class="row g-3">
@@ -90,6 +94,8 @@
                             </div>
                         </div>
 
+                        <div class="col-12"><a href="{{ route('student.register') }}">Looking for student housing? Register as a student renter.</a></div>
+                        @endif
                         <div class="col-12">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="terms" id="terms" value="1" {{ old('terms') ? 'checked' : '' }}>

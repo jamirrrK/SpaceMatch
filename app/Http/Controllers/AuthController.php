@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Exceptions\OtpDeliveryFailed;
 use App\Exceptions\OtpDeliveryUnavailable;
+use App\Models\User;
 use App\Services\OtpVerificationService;
 use App\Services\PhilippineMobileNumber;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -48,15 +49,20 @@ class AuthController extends Controller
         return redirect()->intended($this->redirectForRole($user));
     }
 
-    public function showRegistrationForm(OtpVerificationService $verification)
+    public function showRegistrationForm(Request $request, OtpVerificationService $verification)
     {
         return view('auth.register', [
+            'studentMode' => $request->routeIs('student.register'),
             'verificationChannels' => $verification->availableChannels(),
         ]);
     }
 
     public function register(Request $request, OtpVerificationService $verification)
     {
+        $student = $request->is('register/student');
+        if ($student) {
+            $request->merge(['account_type' => User::ROLE_RENTER]);
+        }
         $rawPhone = $request->input('phone_number');
         $normalizedPhone = PhilippineMobileNumber::normalize(is_string($rawPhone) ? $rawPhone : null);
         if ($request->filled('phone_number') && $normalizedPhone === null) {
@@ -67,6 +73,9 @@ class AuthController extends Controller
         $request->merge(['phone_number' => $normalizedPhone]);
 
         $validated = $request->validate([
+            'school_or_campus' => [Rule::requiredIf($student), 'nullable', 'string', 'max:150'],
+            'campus' => ['nullable', 'string', 'max:150'],
+            'preferred_location' => ['nullable', 'string', 'max:150'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
@@ -83,15 +92,24 @@ class AuthController extends Controller
 
         $role = $validated['account_type'];
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'role' => $role,
-            'password' => Hash::make($validated['password']),
-            'phone_number' => $validated['phone_number'] ?? null,
-            'verification_method' => $validated['verification_method'],
-            'verification_required_at' => now(),
-        ]);
+        $user = DB::transaction(function () use ($validated, $role, $student): User {
+            $user = User::create([
+                'is_student' => $student,
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'role' => $role,
+                'password' => Hash::make($validated['password']),
+                'phone_number' => $validated['phone_number'] ?? null,
+                'verification_method' => $validated['verification_method'],
+                'verification_required_at' => now(),
+            ]);
+
+            if ($student) {
+                $user->renterPreference()->create(collect($validated)->only(['school_or_campus', 'campus', 'preferred_location'])->all());
+            }
+
+            return $user;
+        });
 
         event(new Registered($user));
 

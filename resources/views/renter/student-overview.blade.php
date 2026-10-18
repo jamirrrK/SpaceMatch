@@ -1,0 +1,6 @@
+@if(auth()->user()->is_student)
+<section class="student-profile panel p-4 mb-4" aria-labelledby="student-profile-title">
+    <div class="d-flex flex-wrap justify-content-between gap-3"><div><div class="eyebrow">Your student home base</div><h2 class="panel-title mt-2" id="student-profile-title">{{ $preferences?->school_or_campus ?: 'Add your school' }}</h2><p class="text-muted-soft mb-1">{{ $preferences?->campus ?: 'Campus not provided' }} · {{ $preferences?->preferred_location ?: 'Choose your preferred city' }}</p><p class="small mb-0">@if($preferences?->budget_max)Monthly budget up to ₱{{ number_format((float) $preferences->budget_max, 2) }}@else Set a budget to narrow your search.@endif</p></div><div class="d-flex flex-wrap align-items-center gap-2"><a class="btn btn-outline-dark" href="{{ route('renter.preferences.edit') }}">Edit housing preferences</a><a class="btn btn-primary-custom" href="{{ route('properties.index', $recommendationFilters) }}">Find student housing</a></div></div>
+    <ol class="student-journey mt-4 mb-0" aria-label="Your rental journey"><li>Set preferences</li><li>Explore & compare</li><li>Talk to the owner</li><li>Request & agree</li><li>Move in & manage</li><li>Complete & review</li></ol>
+</section>
+@endif
