@@ -1,11 +1,6 @@
-@import 'tailwindcss';
-
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
-
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
-}
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import './theme/spacematch.css';
+@import './theme/spacematch-stage2.css';
+@import './theme/spacematch-tutorial.css';
+@import './theme/spacematch-redesign.css';
+@import './theme/final-product.css';

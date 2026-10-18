@@ -8,6 +8,7 @@ use App\Models\Booking;
 use App\Models\MaintenanceRequest;
 use App\Models\Payment;
 use App\Models\Property;
+use App\Models\RentalRequest;
 use App\Models\Space;
 use App\Models\User;
 use Illuminate\View\View;
@@ -27,7 +28,7 @@ class DashboardController extends Controller
             'approved_properties' => Property::where('listing_status', 'published')->count(),
             'total_spaces' => Space::count(),
             'available_spaces' => Space::where('availability_status', 'available')->count(),
-            'pending_booking_requests' => Booking::where('status', 'pending')->count(),
+            'pending_booking_requests' => RentalRequest::whereIn('status', [RentalRequest::STATUS_PENDING, RentalRequest::STATUS_MORE_INFORMATION])->count(),
             'confirmed_bookings' => Booking::where('status', 'confirmed')->count(),
             'active_rentals' => Booking::where('status', 'active')->count(),
             'total_payments' => Payment::count(),
@@ -37,7 +38,7 @@ class DashboardController extends Controller
             'active_properties' => Property::whereIn('status', ['active', 'available'])->count(),
             'inactive_properties' => Property::where('status', 'inactive')->count(),
             'active_bookings' => Booking::whereIn('status', ['pending', 'confirmed', 'active'])->count(),
-            'pending_requests' => Booking::where('status', 'pending')->count(),
+            'pending_requests' => RentalRequest::whereIn('status', [RentalRequest::STATUS_PENDING, RentalRequest::STATUS_MORE_INFORMATION])->count(),
         ];
 
         return view('admin.dashboard', [

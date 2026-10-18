@@ -1,0 +1,256 @@
+{
+  "homepage_hero_manila": {
+    "width": 385,
+    "height": 245,
+    "source_sha256": "625f8fe8b9cc1a9690983f329a590a05b4e5fd2aede1603303ec9d7c60160094",
+    "variants": [
+      {
+        "width": 240,
+        "webp": "assets/images/spacematch/homepage_hero_manila-240.webp",
+        "jpg": "assets/images/spacematch/homepage_hero_manila-240.jpg"
+      },
+      {
+        "width": 385,
+        "webp": "assets/images/spacematch/homepage_hero_manila-385.webp",
+        "jpg": "assets/images/spacematch/homepage_hero_manila-385.jpg"
+      }
+    ]
+  },
+  "featured_bedroom": {
+    "width": 665,
+    "height": 307,
+    "source_sha256": "715bd3d1272cdadf5df71fd13190301ce2013f87dbcd53103987254144b84aed",
+    "variants": [
+      {
+        "width": 240,
+        "webp": "assets/images/spacematch/featured_bedroom-240.webp",
+        "jpg": "assets/images/spacematch/featured_bedroom-240.jpg"
+      },
+      {
+        "width": 400,
+        "webp": "assets/images/spacematch/featured_bedroom-400.webp",
+        "jpg": "assets/images/spacematch/featured_bedroom-400.jpg"
+      },
+      {
+        "width": 640,
+        "webp": "assets/images/spacematch/featured_bedroom-640.webp",
+        "jpg": "assets/images/spacematch/featured_bedroom-640.jpg"
+      },
+      {
+        "width": 665,
+        "webp": "assets/images/spacematch/featured_bedroom-665.webp",
+        "jpg": "assets/images/spacematch/featured_bedroom-665.jpg"
+      }
+    ]
+  },
+  "city_manila": {
+    "width": 104,
+    "height": 91,
+    "source_sha256": "800f87bf45834d20a3b3f8f77ff31c1100da8ab3303fcc32becead34c4034413",
+    "variants": [
+      {
+        "width": 104,
+        "webp": "assets/images/spacematch/city_manila-104.webp",
+        "jpg": "assets/images/spacematch/city_manila-104.jpg"
+      }
+    ]
+  },
+  "city_cebu": {
+    "width": 116,
+    "height": 91,
+    "source_sha256": "e71aeffdccacbd054e2248990543d47762983bd678f0007531d88b5e52c09e21",
+    "variants": [
+      {
+        "width": 116,
+        "webp": "assets/images/spacematch/city_cebu-116.webp",
+        "jpg": "assets/images/spacematch/city_cebu-116.jpg"
+      }
+    ]
+  },
+  "city_davao": {
+    "width": 117,
+    "height": 91,
+    "source_sha256": "27c62cde749a23f817a0d0a58717346177dd6d0c724f12b7f89b4f51e82af34c",
+    "variants": [
+      {
+        "width": 117,
+        "webp": "assets/images/spacematch/city_davao-117.webp",
+        "jpg": "assets/images/spacematch/city_davao-117.jpg"
+      }
+    ]
+  },
+  "city_baguio": {
+    "width": 134,
+    "height": 91,
+    "source_sha256": "83402b21309d8adcc756766a1e1981418057010485d0a6677f6d149ca0017e39",
+    "variants": [
+      {
+        "width": 134,
+        "webp": "assets/images/spacematch/city_baguio-134.webp",
+        "jpg": "assets/images/spacematch/city_baguio-134.jpg"
+      }
+    ]
+  },
+  "city_iloilo": {
+    "width": 128,
+    "height": 91,
+    "source_sha256": "ad56623f370c00a2143b9b5924b44a00ecfec027f747e651f430a0d8d1a40d74",
+    "variants": [
+      {
+        "width": 128,
+        "webp": "assets/images/spacematch/city_iloilo-128.webp",
+        "jpg": "assets/images/spacematch/city_iloilo-128.jpg"
+      }
+    ]
+  },
+  "student_friendly_banner": {
+    "width": 408,
+    "height": 266,
+    "source_sha256": "72cd62a2c21f02d863901117a033026b3720a801355736bc72af7e4701777240",
+    "variants": [
+      {
+        "width": 240,
+        "webp": "assets/images/spacematch/student_friendly_banner-240.webp",
+        "jpg": "assets/images/spacematch/student_friendly_banner-240.jpg"
+      },
+      {
+        "width": 400,
+        "webp": "assets/images/spacematch/student_friendly_banner-400.webp",
+        "jpg": "assets/images/spacematch/student_friendly_banner-400.jpg"
+      },
+      {
+        "width": 408,
+        "webp": "assets/images/spacematch/student_friendly_banner-408.webp",
+        "jpg": "assets/images/spacematch/student_friendly_banner-408.jpg"
+      }
+    ]
+  },
+  "professionals_banner": {
+    "width": 369,
+    "height": 266,
+    "source_sha256": "817fab6d1216ebe4dc9954ea00056ef5eca4a515f5c3f47fe7b587741b0ad007",
+    "variants": [
+      {
+        "width": 240,
+        "webp": "assets/images/spacematch/professionals_banner-240.webp",
+        "jpg": "assets/images/spacematch/professionals_banner-240.jpg"
+      },
+      {
+        "width": 369,
+        "webp": "assets/images/spacematch/professionals_banner-369.webp",
+        "jpg": "assets/images/spacematch/professionals_banner-369.jpg"
+      }
+    ]
+  },
+  "quality_rentals_banner": {
+    "width": 365,
+    "height": 266,
+    "source_sha256": "d06bc1f889539ac6e3c74737ee72c2c63c6648ef3f247dfbd6673c681b6003b7",
+    "variants": [
+      {
+        "width": 240,
+        "webp": "assets/images/spacematch/quality_rentals_banner-240.webp",
+        "jpg": "assets/images/spacematch/quality_rentals_banner-240.jpg"
+      },
+      {
+        "width": 365,
+        "webp": "assets/images/spacematch/quality_rentals_banner-365.webp",
+        "jpg": "assets/images/spacematch/quality_rentals_banner-365.jpg"
+      }
+    ]
+  },
+  "community_banner": {
+    "width": 371,
+    "height": 266,
+    "source_sha256": "ff0edd426adcf3e020cbdf9a49161fba166b988fd430e33c3b00c9b86fa8e7e1",
+    "variants": [
+      {
+        "width": 240,
+        "webp": "assets/images/spacematch/community_banner-240.webp",
+        "jpg": "assets/images/spacematch/community_banner-240.jpg"
+      },
+      {
+        "width": 371,
+        "webp": "assets/images/spacematch/community_banner-371.webp",
+        "jpg": "assets/images/spacematch/community_banner-371.jpg"
+      }
+    ]
+  },
+  "category_bedspace": {
+    "width": 232,
+    "height": 186,
+    "source_sha256": "48b7f4447e7112623682ac59c6936dae3d04af8f0539eb64ab803932effe2116",
+    "variants": [
+      {
+        "width": 232,
+        "webp": "assets/images/spacematch/category_bedspace-232.webp",
+        "jpg": "assets/images/spacematch/category_bedspace-232.jpg"
+      }
+    ]
+  },
+  "category_dormitory": {
+    "width": 235,
+    "height": 186,
+    "source_sha256": "b85d44a714e074209bf8b1ed43f4746cab2c6daf7d4cc40f0f1aa8698ac6d57b",
+    "variants": [
+      {
+        "width": 235,
+        "webp": "assets/images/spacematch/category_dormitory-235.webp",
+        "jpg": "assets/images/spacematch/category_dormitory-235.jpg"
+      }
+    ]
+  },
+  "category_apartment": {
+    "width": 234,
+    "height": 186,
+    "source_sha256": "92717673340bf9eb4db23651fc6a855a4eddfda0bff77afbd10fd50631e064a7",
+    "variants": [
+      {
+        "width": 234,
+        "webp": "assets/images/spacematch/category_apartment-234.webp",
+        "jpg": "assets/images/spacematch/category_apartment-234.jpg"
+      }
+    ]
+  },
+  "category_private_room": {
+    "width": 240,
+    "height": 186,
+    "source_sha256": "26fb754cbf73c0cb918522c22621640b5337b8208f8f5461618cc0d4cfa785c6",
+    "variants": [
+      {
+        "width": 240,
+        "webp": "assets/images/spacematch/category_private_room-240.webp",
+        "jpg": "assets/images/spacematch/category_private_room-240.jpg"
+      }
+    ]
+  },
+  "category_shared_room": {
+    "width": 236,
+    "height": 186,
+    "source_sha256": "1932cd7add42e3ca6b9367019baf1cea214ed0e042da35484b249b92fd986f81",
+    "variants": [
+      {
+        "width": 236,
+        "webp": "assets/images/spacematch/category_shared_room-236.webp",
+        "jpg": "assets/images/spacematch/category_shared_room-236.jpg"
+      }
+    ]
+  },
+  "next_home_promo": {
+    "width": 298,
+    "height": 266,
+    "source_sha256": "b71d6f039758c5e3e041521e6845820a3c67778167723d7f1f021154fee63984",
+    "variants": [
+      {
+        "width": 240,
+        "webp": "assets/images/spacematch/next_home_promo-240.webp",
+        "jpg": "assets/images/spacematch/next_home_promo-240.jpg"
+      },
+      {
+        "width": 298,
+        "webp": "assets/images/spacematch/next_home_promo-298.webp",
+        "jpg": "assets/images/spacematch/next_home_promo-298.jpg"
+      }
+    ]
+  }
+}

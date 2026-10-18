@@ -79,7 +79,7 @@ async function login(page, email) {
 async function screenshot(page, name) { await page.screenshot({ path: path.join(output, name + '.png'), fullPage: true }); }
 try {
     for (let attempt = 0; attempt < 40; attempt++) {
-        try { const response = await fetch(base + '/login', { signal: AbortSignal.timeout(3000) }); if (response.ok) break; } catch {}
+        try { const response = await fetch(base + '/login', { signal: AbortSignal.timeout(30000) }); if (response.ok) break; } catch {}
         await new Promise(resolve => setTimeout(resolve, 250));
         if (attempt === 39) throw new Error('Local test server did not start');
     }
@@ -323,6 +323,24 @@ try {
         }
         await student.keyboard.press('Tab');
         assert.notEqual(await student.evaluate(() => document.activeElement.tagName), 'BODY');
+    });
+    await check('illustrative homepage images and real filters work at every viewport', async () => {
+        for (const [width, height] of [[375, 812], [768, 1024], [1366, 900], [1920, 1080]]) {
+            await student.setViewportSize({ width, height });
+            await open(student, '/');
+            await student.locator('footer').scrollIntoViewIfNeeded();
+            await student.waitForFunction(() => [...document.querySelectorAll('.marketing-picture img')].every(image => image.complete && image.naturalWidth > 0));
+            assert.equal(await student.locator('.marketing-picture').count(), 16);
+            assert.equal(await student.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, `Homepage overflow at ${width}`);
+            assert.ok((await student.locator('.illustrated-category').first().getAttribute('href')).includes('space_types'));
+            await student.evaluate(() => scrollTo(0, 0));
+            await screenshot(student, `09-homepage-${width}`);
+        }
+        const visitor = await pageFor();
+        await open(visitor, '/login');
+        await visitor.locator('footer').scrollIntoViewIfNeeded();
+        await visitor.waitForFunction(() => [...document.querySelectorAll('.marketing-picture img')].every(image => image.complete && image.naturalWidth > 0));
+        assert.equal(await visitor.locator('.marketing-picture img').count(), 1);
     });
     assert.deepEqual(diagnostics.pageErrors, []);
     assert.deepEqual(diagnostics.failedResponses, []);

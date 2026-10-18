@@ -1,0 +1,28 @@
+/* Shared finishing layer. Marketing illustrations never stand in for listing photos. */
+.marketing-picture { display:block; overflow:hidden; }
+.marketing-picture img { display:block; width:100%; height:auto; }
+.illustration-note { color:var(--muted, #64748b); font-size:.75rem; margin:.6rem 0 0; }
+.home-hero-illustration .marketing-picture { height:100%; }
+.home-hero-illustration .marketing-picture img { height:100%; object-fit:cover; }
+.illustrated-categories { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:1rem; }
+.illustrated-category { display:flex; flex-direction:column; gap:.8rem; padding:.7rem; border:1px solid #dce5e5; border-radius:16px; background:#fff; color:#172033; text-decoration:none; transition:box-shadow .15s; }
+.illustrated-category:hover { box-shadow:0 8px 24px #17203314; color:#087580; }
+.illustrated-category .marketing-picture { border-radius:10px; }
+.illustrated-category strong { padding:0 .25rem .25rem; }
+.city-discovery { display:flex; flex-wrap:wrap; gap:1rem; }
+.city-discovery a { display:flex; align-items:center; gap:1rem; flex:1 1 190px; border:1px solid #dce5e5; border-radius:14px; padding:1rem; color:#172033; text-decoration:none; background:#fff; }
+.city-discovery .marketing-picture { width:80px; flex:0 0 80px; border-radius:8px; }
+.city-discovery img { height:68px; object-fit:cover; }
+.marketing-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1.5rem; }
+.marketing-panel { display:flex; gap:1.25rem; align-items:center; padding:1.5rem; border:1px solid #dce5e5; border-radius:18px; background:#fff; }
+.marketing-panel .marketing-picture { flex:0 0 38%; border-radius:12px; }
+.marketing-panel h3 { font-size:1.2rem; }
+.marketing-panel p { font-size:.9rem; }
+.marketing-intro { display:flex; gap:2rem; align-items:center; padding:2rem; border-radius:20px; background:#edf5f3; }
+.marketing-intro > .marketing-picture { flex:0 0 34%; border-radius:14px; }
+.auth-story .marketing-picture { width:100%; max-width:365px; margin:1rem auto; border-radius:18px; }
+.auth-story .marketing-picture img { width:100%; height:auto; }
+.discovery-promo .marketing-picture { flex:0 0 130px; width:130px; border-radius:12px; }
+@media(max-width:991px) { .illustrated-categories { grid-template-columns:repeat(3,minmax(0,1fr)); } .marketing-grid { grid-template-columns:1fr; } }
+@media(max-width:575px) { .illustrated-categories { grid-template-columns:repeat(2,minmax(0,1fr)); gap:.65rem; } .marketing-panel { padding:1rem; gap:1rem; } .marketing-intro { flex-direction:column; padding:1.25rem; gap:1.25rem; align-items:stretch; } .marketing-intro > .marketing-picture { flex-basis:auto; max-width:320px; } }
+@media(prefers-reduced-motion:reduce) { .illustrated-category { transition:none; } }

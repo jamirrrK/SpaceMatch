@@ -21,7 +21,7 @@ foreach (['Study Room Alpha', 'Study Room Beta'] as $name) {
 $imagePath = 'property-images/'.$property->id.'/featured.png';
 $imageRoot = storage_path('app/private/property-media/'.dirname($imagePath));
 if (!is_dir($imageRoot)) { mkdir($imageRoot, 0700, true); }
-file_put_contents(storage_path('app/private/property-media/'.$imagePath), base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/3xkAAAAASUVORK5CYII=', true));
+copy(__DIR__.'/fixtures/demo-room.png', storage_path('app/private/property-media/'.$imagePath));
 App\Models\PropertyImage::query()->create([
     'property_id' => $property->id,
     'image_path' => $imagePath,

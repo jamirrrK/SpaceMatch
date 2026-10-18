@@ -50,7 +50,7 @@
                     </div>
                 @else
                     <div class="home-hero-visual home-hero-illustration">
-                        <img src="{{ asset('assets/images/space-placeholder.svg') }}" alt="Illustration of a welcoming rental space">
+                        <x-marketing-image name="homepage_hero_manila" alt="Illustration of a welcoming rental space" sizes="(min-width: 992px) 45vw, 90vw" :priority="true" />
                         <div class="hero-image-overlays" aria-hidden="true">
                             <span class="hero-image-badge">Room for what matters</span>
                         </div>
@@ -90,11 +90,27 @@
             <div><div class="eyebrow mb-2">Explore by category</div><h2 class="section-title mb-0">Find a rental type that fits.</h2></div>
             <a class="small-link" href="{{ route('properties.index') }}">Browse every listing <span aria-hidden="true">&#8594;</span></a>
         </div>
-        <nav class="category-rail" aria-label="Rental categories">
-            @foreach(config('property.types', []) as $value => $label)
-                <div><a class="rental-category" href="{{ route('properties.index', ['property_type' => $value]) }}"><span class="category-icon"><x-icon name="building" /></span><span>{{ $label }}</span><span class="rental-category-arrow" aria-hidden="true">&#8594;</span></a></div>
+        <nav class="illustrated-categories" aria-label="Rental categories">
+            @foreach(['bedspace' => 'Bedspace', 'dormitory' => 'Dormitory', 'apartment' => 'Apartment', 'private_room' => 'Private room', 'shared_room' => 'Shared room'] as $value => $label)
+                <a class="illustrated-category" href="{{ route('properties.index', ['space_types' => [$value]]) }}">
+                    <x-marketing-image :name="'category_'.$value" :alt="$label.' interior illustration'" sizes="(min-width: 992px) 18vw, 42vw" />
+                    <strong>{{ $label }} <span aria-hidden="true">&rarr;</span></strong>
+                </a>
             @endforeach
         </nav>
+        <p class="illustration-note">Illustrations for inspiration. Open a listing to see its owner's actual photos and availability.</p>
+    </div>
+</section>
+
+<section class="home-section" aria-labelledby="city-heading">
+    <div class="container site-width">
+        <div class="home-section-heading"><div><div class="eyebrow mb-2">Across the Philippines</div><h2 class="section-title" id="city-heading">Where would you like to begin?</h2></div></div>
+        <nav class="city-discovery" aria-label="Browse by city">
+            @foreach(['manila' => 'Manila', 'cebu' => 'Cebu City', 'davao' => 'Davao City', 'baguio' => 'Baguio City', 'iloilo' => 'Iloilo City'] as $key => $city)
+                <a href="{{ route('properties.index', ['location' => $city]) }}"><x-marketing-image :name="'city_'.$key" :alt="$city.' skyline illustration'" sizes="80px" /><strong>{{ $city }} <span aria-hidden="true">&rarr;</span></strong></a>
+            @endforeach
+        </nav>
+        <p class="illustration-note">Illustrative city scenes. Results depend on currently published, available spaces.</p>
     </div>
 </section>
 
@@ -114,6 +130,23 @@
     </div>
 </section>
 
+<section class="home-section" aria-labelledby="student-discovery-heading">
+    <div class="container site-width">
+        <div class="home-section-heading"><div><div class="eyebrow mb-2">Room for your next chapter</div><h2 class="section-title" id="student-discovery-heading">A search that fits your life.</h2></div></div>
+        <div class="marketing-grid">
+            <article class="marketing-panel">
+                <x-marketing-image name="student_friendly_banner" alt="Illustration of a student-friendly room" sizes="(min-width: 992px) 18vw, 35vw" />
+                <div><h3>Closer to campus</h3><p>Explore student-friendly spaces by budget, school and rental type. Campus distances and transport details are owner reported.</p><a class="small-link" href="{{ route('properties.index', ['student_friendly' => 1]) }}">Find student-friendly spaces &rarr;</a></div>
+            </article>
+            <article class="marketing-panel">
+                <x-marketing-image name="professionals_banner" alt="Illustration of a bright room for working and unwinding" sizes="(min-width: 992px) 18vw, 35vw" />
+                <div><h3>Make room for your routine</h3><p>Compare monthly rent, amenities and location before contacting an owner about a space.</p><a class="small-link" href="{{ route('properties.index') }}">Explore your options &rarr;</a></div>
+            </article>
+        </div>
+        <p class="illustration-note">Generated illustrations, not photographs of available rentals.</p>
+    </div>
+</section>
+
 <section class="home-section home-how-section" id="how-it-works">
     <div class="container site-width">
         <div class="home-section-intro"><div class="eyebrow mb-2">A straightforward search</div><h2 class="section-title">Your next move, made clearer.</h2><p class="text-muted-soft mb-0">Explore real listings and make your next move with the details in view.</p></div>
@@ -122,6 +155,18 @@
             <div class="col-md-4"><article class="home-step"><span class="home-step-number">02</span><h3>Compare the details</h3><p>Review photos, rental spaces, listed amenities, capacity, and availability on each property page.</p></article></div>
             <div class="col-md-4"><article class="home-step"><span class="home-step-number">03</span><h3>Manage your space</h3><p>Owners can organize property details, add spaces and photos, and publish listings when ready.</p></article></div>
         </div>
+    </div>
+</section>
+
+<section class="home-section" aria-labelledby="inspiration-heading">
+    <div class="container site-width">
+        <div class="marketing-intro">
+            <x-marketing-image name="featured_bedroom" alt="Illustration of a calm bedroom with natural light" sizes="(min-width: 992px) 30vw, 80vw" />
+            <div><div class="eyebrow mb-2">Find what feels right</div><h2 class="section-title" id="inspiration-heading">Look beyond the first impression.</h2><p>Check the actual listing photos, monthly price, house rules and included utilities. Ask questions and arrange a viewing before making a decision.</p><a class="small-link" href="{{ route('properties.index') }}">Compare available spaces &rarr;</a><p class="illustration-note">Bedroom illustration for inspiration; not a rental listing.</p></div>
+        </div>
+        @if($heroSpaces->isNotEmpty())
+            <div class="d-flex align-items-center gap-3 mt-4"><x-marketing-image name="homepage_hero_manila" alt="Illustrative Manila skyline" sizes="160px" style="max-width:160px;border-radius:12px" /><p class="illustration-note">A new city, a new chapter. Illustrative skyline.</p></div>
+        @endif
     </div>
 </section>
 
@@ -135,6 +180,15 @@ One place to begin.</h2><p class="text-muted-soft mb-0">SpaceMatch brings rental
                 <div class="col-md-6"><article class="home-benefit home-benefit-owner"><span class="home-benefit-mark" aria-hidden="true">02</span><h3>For property owners</h3><p>Create properties, manage rental spaces and photos, and publish listings for renters to discover.</p><a href="{{ auth()->check() && auth()->user()->hasRole('owner') ? route('owner.dashboard') : route('register') }}">{{ auth()->check() && auth()->user()->hasRole('owner') ? 'Open owner workspace' : 'Create an owner account' }} <span aria-hidden="true">&#8594;</span></a></article></div>
             </div></div>
         </div>
+    </div>
+</section>
+
+<section class="home-section" aria-label="Rental community and owner invitation">
+    <div class="container site-width">
+        <div class="marketing-grid">
+            <article class="marketing-panel"><x-marketing-image name="quality_rentals_banner" alt="Illustration of a welcoming family living space" sizes="(min-width: 992px) 18vw, 35vw" /><div><h3>Give your space a clear introduction</h3><p>Owners can share actual photos, prices, amenities and house rules in one place.</p><a class="small-link" href="{{ auth()->check() ? route('dashboard') : route('register') }}">{{ auth()->check() ? 'Open your workspace' : 'Get started as an owner' }} &rarr;</a></div></article>
+            <article class="marketing-panel"><x-marketing-image name="community_banner" alt="Illustration of shared community spaces" sizes="(min-width: 992px) 18vw, 35vw" /><div><h3>Start a conversation</h3><p>Use listing inquiries to ask about availability and expectations. Keep arrangements and personal information secure.</p><a class="small-link" href="{{ route('properties.index') }}">Browse and ask an owner &rarr;</a></div></article>
+        </div><p class="illustration-note">Generated illustrations. Listings and owner information should be reviewed individually.</p>
     </div>
 </section>
 

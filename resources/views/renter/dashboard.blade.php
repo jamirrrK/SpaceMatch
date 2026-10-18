@@ -60,7 +60,7 @@
     @endif
 
     <section class="dashboard-discovery mb-4">
-        <img src="{{ asset('assets/images/space-placeholder.svg') }}" width="130" height="110" alt="" loading="lazy">
+        <x-marketing-image name="next_home_promo" alt="Illustration of a welcoming home" sizes="130px" />
         <div>
             <div class="eyebrow mb-2">Room for your next chapter</div>
             <h2>New neighborhood. New possibilities.</h2>

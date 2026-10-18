@@ -6,12 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#172033">
     <title>@yield('title', 'SpaceMatch')</title>
-    <link rel="preload" href="{{ asset('assets/fonts/Manrope-variable.ttf') }}" as="font" type="font/ttf" crossorigin>
-    <link rel="stylesheet" href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/spacematch.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/spacematch-stage2.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/spacematch-tutorial.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/spacematch-redesign.css') }}">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <meta name="description" content="Find your space anywhere in the Philippines. Explore available rentals by location, monthly budget, and rental type with SpaceMatch.">
     @stack('styles')
 </head>
@@ -156,10 +151,6 @@
     </footer>
     <x-confirm-dialog />
     <x-tutorial-modal />
-    <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}" defer></script>
-    <script src="{{ asset('assets/js/spacematch.js') }}" defer></script>
-    <script src="{{ asset('assets/js/inquiry-messenger.js') }}" defer></script>
-    <script src="{{ asset('assets/js/spacematch-tutorial.js') }}" defer></script>
     @stack('scripts')
 </body>
 </html>

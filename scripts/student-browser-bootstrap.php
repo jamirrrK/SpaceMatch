@@ -9,8 +9,13 @@ if (!in_array(PHP_SAPI, ['cli', 'cli-server'], true) || !$root || !is_dir($root)
     throw new RuntimeException('Refusing browser harness outside its dedicated local fixture directory.');
 }
 $database = $root.'/database.sqlite';
+$localUrl = getenv('SPACEMATCH_STUDENT_BROWSER_URL') ?: 'http://127.0.0.1:8027';
+if (!preg_match('~^http://127\.0\.0\.1:([0-9]{4,5})$~D', $localUrl, $matches)
+    || (int) $matches[1] > 65535 || (int) $matches[1] < 1024) {
+    throw new RuntimeException('Only an unprivileged loopback preview URL is allowed.');
+}
 $environment = [
-    'APP_ENV' => 'testing', 'APP_DEBUG' => 'false', 'APP_URL' => 'http://127.0.0.1:8027',
+    'APP_ENV' => 'testing', 'APP_DEBUG' => 'false', 'APP_URL' => $localUrl,
     'APP_KEY' => getenv('SPACEMATCH_STUDENT_BROWSER_KEY'),
     'DB_CONNECTION' => 'sqlite', 'DB_DATABASE' => $database, 'DB_URL' => '',
     'APP_CONFIG_CACHE' => $root.'/bootstrap-cache/config.php', 'APP_ROUTES_CACHE' => $root.'/bootstrap-cache/routes.php',

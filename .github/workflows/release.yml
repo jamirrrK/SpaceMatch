@@ -55,6 +55,8 @@ jobs:
       - run: composer validate --strict --no-check-publish
       - run: composer install --no-interaction --prefer-dist
       - run: composer check-platform-reqs
+      - run: npm ci
+      - run: npm run build
       - name: Isolated Laravel tests
         env:
           APP_ENV: testing
@@ -65,8 +67,6 @@ jobs:
           cp .env.example .env
           php artisan key:generate
           php artisan test --compact
-      - run: npm ci
-      - run: npm run build
       - name: Package and verify exact commit
         run: |
           python3 scripts/deploy/package.py release
