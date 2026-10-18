@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Space extends Model
 {
@@ -19,11 +19,23 @@ class Space extends Model
         'capacity',
         'availability_status',
         'floor_area', 'floor_number', 'listing_status',
+        'bedrooms', 'bathrooms', 'available_from',
+        'deposit_amount', 'advance_months', 'house_rules', 'move_in_requirements', 'cancellation_policy',
     ];
 
     protected function casts(): array
     {
-        return ['price' => 'decimal:2', 'floor_area' => 'decimal:2', 'capacity' => 'integer', 'floor_number' => 'integer'];
+        return [
+            'price' => 'decimal:2',
+            'floor_area' => 'decimal:2',
+            'capacity' => 'integer',
+            'floor_number' => 'integer',
+            'bedrooms' => 'integer',
+            'bathrooms' => 'integer',
+            'available_from' => 'date',
+            'deposit_amount' => 'decimal:2',
+            'advance_months' => 'integer',
+        ];
     }
 
     public function amenities()
@@ -50,5 +62,10 @@ class Space extends Model
     public function bookings()
     {
         return $this->hasMany(Booking::class);
+    }
+
+    public function savedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'saved_spaces')->withTimestamps();
     }
 }

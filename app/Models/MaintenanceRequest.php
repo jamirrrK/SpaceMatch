@@ -12,8 +12,6 @@ class MaintenanceRequest extends Model
         'booking_id',
         'description',
         'status',
-        'owner_response',
-        'resolved_at',
     ];
 
     public function booking()
@@ -21,8 +19,8 @@ class MaintenanceRequest extends Model
         return $this->belongsTo(Booking::class);
     }
 
-    protected function casts(): array
+    public function statusHistory()
     {
-        return ['resolved_at' => 'datetime'];
+        return $this->hasMany(MaintenanceRequestStatusHistory::class)->oldest();
     }
 }

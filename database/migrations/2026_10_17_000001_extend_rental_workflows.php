@@ -20,13 +20,11 @@ return new class extends Migration
         }
         Schema::table('bookings', function (Blueprint $table) {
             $table->text('renter_message')->nullable();
-            $table->unsignedSmallInteger('occupants')->nullable();
             $table->decimal('agreed_amount', 12, 2)->nullable();
             $table->text('decision_reason')->nullable();
             $table->timestamp('decided_at')->nullable();
             $table->timestamp('confirmed_at')->nullable();
             $table->timestamp('completed_at')->nullable();
-            $table->index(['space_id', 'status', 'start_date', 'end_date'], 'bookings_space_dates_status_idx');
             $table->index(['renter_id', 'status']);
         });
 
@@ -54,9 +52,8 @@ return new class extends Migration
         });
         Schema::dropIfExists('booking_information_requests');
         Schema::table('bookings', function (Blueprint $table) {
-            $table->dropIndex('bookings_space_dates_status_idx');
             $table->dropIndex(['renter_id', 'status']);
-            $table->dropColumn(['renter_message', 'occupants', 'agreed_amount', 'decision_reason', 'decided_at', 'confirmed_at', 'completed_at']);
+            $table->dropColumn(['renter_message', 'agreed_amount', 'decision_reason', 'decided_at', 'confirmed_at', 'completed_at']);
         });
     }
 };

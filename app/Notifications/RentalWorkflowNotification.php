@@ -9,7 +9,11 @@ class RentalWorkflowNotification extends Notification
 {
     use Queueable;
 
-    public function __construct(private readonly string $message, private readonly string $url) {}
+    public function __construct(
+        public readonly string $title,
+        public readonly string $message,
+        public readonly string $url
+    ) {}
 
     public function via(object $notifiable): array
     {
@@ -18,6 +22,10 @@ class RentalWorkflowNotification extends Notification
 
     public function toArray(object $notifiable): array
     {
-        return ['message' => $this->message, 'url' => $this->url];
+        return [
+            'title' => $this->title,
+            'message' => $this->message,
+            'url' => $this->url,
+        ];
     }
 }

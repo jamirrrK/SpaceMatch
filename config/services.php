@@ -41,10 +41,10 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-        'sms_otp' => [
-            'driver' => env('SMS_OTP_DRIVER'),
-            'api_key' => env('SMS_OTP_API_KEY'),
-            'sender_id' => env('SMS_OTP_SENDER_ID'),
-        ],
+    'sms_otp' => [
+        'driver' => env('SMS_OTP_DRIVER'),
+        'api_key' => env('SMS_OTP_API_KEY'),
+        'sender_id' => env('SMS_OTP_SENDER_ID'),
+    ],
 
 ];

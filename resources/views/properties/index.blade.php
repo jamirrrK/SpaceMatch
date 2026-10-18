@@ -2,7 +2,7 @@
 @section('title', 'Explore rental spaces | SpaceMatch')
 @section('content')
 <section class="marketplace-hero"><div class="container"><div class="eyebrow mb-2">Discover your next chapter</div><h1 class="page-heading mb-2">A space that fits your life.</h1><p class="text-muted-soft mb-0">Explore available rentals by location, budget, and the little things that matter.</p></div></section>
-<div class="container py-4 py-lg-5"><div class="row g-4"><aside class="col-lg-3"><div class="filter-sticky"><x-filter-form :amenities="$amenities" :filters="$filters" /></div></aside><section class="col-lg-9" aria-label="Search results"><div class="d-flex justify-content-between align-items-center gap-2 mb-4"><h2 class="panel-title mb-0">{{ number_format($spaces->total()) }} {{ $spaces->total() === 1 ? 'space' : 'spaces' }} available</h2><span class="small text-muted-soft">Monthly rental prices</span></div>@php
+<div class="container py-4 py-lg-5"><div class="row g-4"><aside class="col-lg-3"><div class="filter-sticky"><x-filter-form :amenities="$amenities" :filters="$filters" /></div></aside><section class="col-lg-9" aria-label="Search results"><div class="d-flex justify-content-between align-items-center gap-2 mb-4"><h2 class="panel-title mb-0">{{ number_format($spaces->total()) }} {{ $spaces->total() === 1 ? 'space' : 'spaces' }} available</h2><div class="d-flex align-items-center gap-3"><span class="small text-muted-soft">Monthly rental prices</span><a class="small-link" href="{{ route('spaces.compare.index') }}">Compare spaces</a></div></div>@php
     $activeFilters = collect($filters)->except(['page', 'sort'])->filter(fn ($value) => is_array($value) ? count($value) > 0 : $value !== null && $value !== '');
 @endphp
         @if($activeFilters->isNotEmpty())<nav class="active-filters" aria-label="Active search filters">
@@ -13,6 +13,9 @@
                     'min_price' => 'From PHP '.number_format((float)$value),
                     'max_price' => 'Up to PHP '.number_format((float)$value),
                     'capacity' => $value.'+ people',
+                    'bedrooms' => $value.'+ bedrooms',
+                    'bathrooms' => $value.'+ bathrooms',
+                    'available_from' => 'Available by '.\Illuminate\Support\Carbon::parse($value)->format('M j, Y'),
                     'amenities' => count((array)$value).' amenities',
                     default => $value,
                 };

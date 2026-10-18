@@ -21,9 +21,12 @@ class ListingFilterRequest extends FormRequest
             'min_price' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'max_price' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99', Rule::when($this->filled('min_price'), 'gte:min_price')],
             'capacity' => ['nullable', 'integer', 'min:1', 'max:100000'],
+            'bedrooms' => ['nullable', 'integer', 'min:0', 'max:50'],
+            'bathrooms' => ['nullable', 'integer', 'min:0', 'max:50'],
+            'available_from' => ['nullable', 'date', 'after_or_equal:today'],
             'amenities' => ['nullable', 'array', 'max:50'],
             'amenities.*' => ['integer', 'distinct', Rule::exists('amenities', 'id')],
-            'sort' => ['nullable', Rule::in(['newest', 'price_asc', 'price_desc'])],
+            'sort' => ['nullable', Rule::in(['newest', 'price_asc', 'price_desc', 'updated', 'relevant'])],
             'page' => ['nullable', 'integer', 'min:1', 'max:1000000'],
         ];
     }

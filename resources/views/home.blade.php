@@ -35,7 +35,9 @@
                 @else
                     <div class="home-hero-visual home-hero-illustration">
                         <img src="{{ asset('assets/images/space-placeholder.svg') }}" alt="Illustration of a welcoming rental space">
-                        <span class="hero-image-label">Room for what matters</span>
+                        <div class="hero-image-overlays" aria-hidden="true">
+                            <span class="hero-image-badge">Room for what matters</span>
+                        </div>
                         <span class="home-hero-caption">
                             <span class="eyebrow">Explore at your pace</span>
                             <strong>Your next chapter starts with a space that feels right.</strong>
@@ -72,11 +74,11 @@
             <div><div class="eyebrow mb-2">Explore by category</div><h2 class="section-title mb-0">Find a rental type that fits.</h2></div>
             <a class="small-link" href="{{ route('properties.index') }}">Browse every listing <span aria-hidden="true">&#8594;</span></a>
         </div>
-        <div class="category-rail" aria-label="Rental categories">
+        <nav class="category-rail" aria-label="Rental categories">
             @foreach(config('property.types', []) as $value => $label)
                 <div><a class="rental-category" href="{{ route('properties.index', ['property_type' => $value]) }}"><span class="category-icon"><x-icon name="building" /></span><span>{{ $label }}</span><span class="rental-category-arrow" aria-hidden="true">&#8594;</span></a></div>
             @endforeach
-        </div>
+        </nav>
     </div>
 </section>
 

@@ -5,13 +5,39 @@
 @section('content')
     <div class="container py-5">
         <x-record-heading title="Customer reviews" description="Feedback connected to your rental activity." />
+        @if($eligibleBookings->isNotEmpty())
+            <section class="info-panel p-4 mb-4" aria-labelledby="write-review-title">
+                <h2 class="panel-title mb-3" id="write-review-title">Share your experience</h2>
+                <div class="row g-3">
+                    @foreach($eligibleBookings as $booking)
+                        <div class="col-lg-6">
+                            <form class="border rounded-3 p-3 h-100" method="POST" action="{{ route('reviews.store', $booking) }}">
+                                @csrf
+                                <h3 class="h6">{{ $booking->space->property->property_name }} · {{ $booking->space->space_name }}</h3>
+                                <label class="form-label" for="rating-{{ $booking->id }}">Rating</label>
+                                <select class="form-select mb-2" id="rating-{{ $booking->id }}" name="rating" required>
+                                    <option value="">Choose a rating</option>
+                                    @foreach([5, 4, 3, 2, 1] as $rating)
+                                        <option value="{{ $rating }}">{{ $rating }} / 5</option>
+                                    @endforeach
+                                </select>
+                                <label class="form-label" for="comment-{{ $booking->id }}">Review (optional)</label>
+                                <textarea class="form-control mb-3" id="comment-{{ $booking->id }}" name="comment" rows="3" maxlength="2000"></textarea>
+                                <button class="btn btn-primary-custom btn-sm" type="submit">Submit review</button>
+                            </form>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+        @endif
         <div class="row g-4">
             @forelse($reviews as $review)
                 <div class="col-lg-6">
                     <div class="info-panel p-4 h-100">
                         <div class="fw-bold">{{ $review->booking->renter->name }}</div>
+                        <div class="small text-muted-soft">{{ $review->booking->space->property->property_name }} · {{ $review->booking->space->space_name }}</div>
                         <div class="text-warning fw-semibold my-2">{{ $review->rating }}/5</div>
-                        <p class="text-muted-soft mb-0">{{ $review->comment }}</p>
+                        @if($review->comment)<p class="text-muted-soft mb-0">{{ $review->comment }}</p>@endif
                     </div>
                 </div>
             @empty
