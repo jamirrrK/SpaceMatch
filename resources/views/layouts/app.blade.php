@@ -80,6 +80,8 @@
                         @if(auth()->user()->hasRole('owner'))
                             <a class="sidebar-link {{ request()->routeIs('owner.dashboard') ? 'active' : '' }}" href="{{ route('owner.dashboard') }}"><x-icon name="grid" /><span>Overview</span></a>
                             <a class="sidebar-link {{ request()->routeIs('owner.requests.*') ? 'active' : '' }}" href="{{ route('owner.requests.index') }}"><x-icon name="calendar" /><span>Rental requests</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('owner.inquiries.*') ? 'active' : '' }}" href="{{ route('owner.inquiries.index') }}"><x-icon name="mail" /><span>Inquiries</span>@if($unreadInquiryCount > 0)<span class="badge text-bg-primary ms-auto">{{ $unreadInquiryCount }}</span>@endif</a>
+                            <a class="sidebar-link {{ request()->routeIs('owner.viewings.*') ? 'active' : '' }}" href="{{ route('owner.viewings.index') }}"><x-icon name="calendar" /><span>Viewing requests</span>@if($unreadViewingCount > 0)<span class="badge text-bg-primary ms-auto">{{ $unreadViewingCount }}</span>@endif</a>
                             <a class="sidebar-link {{ request()->routeIs('owner.properties.*') ? 'active' : '' }}" href="{{ route('owner.properties.index') }}"><x-icon name="building" /><span>My properties</span></a>
                             <a class="sidebar-link {{ request()->routeIs('owner.spaces.*') ? 'active' : '' }}" href="{{ route('owner.spaces.index') }}"><x-icon name="home" /><span>Rental spaces</span></a>
                             <a class="sidebar-link {{ request()->routeIs('bookings.index') ? 'active' : '' }}" href="{{ route('bookings.index') }}"><x-icon name="calendar" /><span>Bookings</span></a>
@@ -97,9 +99,12 @@
                             <a class="sidebar-link {{ request()->routeIs('admin.audit-logs.index') ? 'active' : '' }}" href="{{ route('admin.audit-logs.index') }}"><x-icon name="shield" /><span>Audit logs</span></a>
                         @else
                             <a class="sidebar-link {{ request()->routeIs('renter.dashboard') ? 'active' : '' }}" href="{{ route('renter.dashboard') }}"><x-icon name="grid" /><span>Overview</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('renter.inquiries.*') ? 'active' : '' }}" href="{{ route('renter.inquiries.index') }}"><x-icon name="mail" /><span>Inquiries</span>@if($unreadInquiryCount > 0)<span class="badge text-bg-primary ms-auto">{{ $unreadInquiryCount }}</span>@endif</a>
+                            <a class="sidebar-link {{ request()->routeIs('renter.viewings.*') ? 'active' : '' }}" href="{{ route('renter.viewings.index') }}"><x-icon name="calendar" /><span>Viewings</span>@if($unreadViewingCount > 0)<span class="badge text-bg-primary ms-auto">{{ $unreadViewingCount }}</span>@endif</a>
                             <a class="sidebar-link {{ request()->routeIs('properties.*', 'spaces.*') ? 'active' : '' }}" href="{{ route('properties.index') }}"><x-icon name="search" /><span>Browse properties</span></a>
-                            <a class="sidebar-link {{ request()->routeIs('renter.saved-properties.*') ? 'active' : '' }}" href="{{ route('renter.saved-properties.index') }}"><x-icon name="star" /><span>Saved properties</span></a>
-                            <a class="sidebar-link {{ request()->routeIs('renter.requests.*') ? 'active' : '' }}" href="{{ route('renter.requests.index') }}"><x-icon name="calendar" /><span>My rental requests</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('owner.requests.*') ? 'active' : '' }}" href="{{ route('owner.requests.index') }}"><x-icon name="calendar" /><span>Rental requests</span></a>
+                            <a class="sidebar-link {{ request()->routeIs('owner.inquiries.*') ? 'active' : '' }}" href="{{ route('owner.inquiries.index') }}"><x-icon name="mail" /><span>Inquiries</span>@if($unreadInquiryCount > 0)<span class="badge text-bg-primary ms-auto">{{ $unreadInquiryCount }}</span>@endif</a>
+                            <a class="sidebar-link {{ request()->routeIs('owner.viewings.*') ? 'active' : '' }}" href="{{ route('owner.viewings.index') }}"><x-icon name="calendar" /><span>Viewing requests</span>@if($unreadViewingCount > 0)<span class="badge text-bg-primary ms-auto">{{ $unreadViewingCount }}</span>@endif</a>
                         @endif
                         <div class="sidebar-group-label">Rental activity</div>
                         @unless(auth()->user()->hasRole('owner'))

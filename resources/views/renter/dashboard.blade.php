@@ -1,6 +1,14 @@
 @extends('layouts.app')
 @section('title', 'Renter dashboard | SpaceMatch')
 @section('content')
+@php
+    $stats = $stats ?? [];
+    $bookings = $bookings ?? ($recentBookings ?? collect());
+    $recentNotifications = $recentNotifications ?? collect();
+    $availableSpaces = $availableSpaces ?? collect();
+    $upcomingBooking = $upcomingBooking ?? null;
+@endphp
+
 <div class="dashboard-content py-4 py-lg-5">
     <header class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <div>
@@ -20,22 +28,27 @@
     </form>
 
     <div class="row g-3 mb-4">
-        @foreach(['active_bookings' => 'Active bookings', 'pending_requests' => 'Pending requests', 'completed_rentals' => 'Completed rentals', 'saved_properties' => 'Saved properties'] as $key => $label)
+        @foreach(['active_bookings' => 'Active bookings', 'pending_requests' => 'Pending requests', 'completed_rentals' => 'Completed rentals', 'saved_properties' => 'Saved properties', 'saved_spaces' => 'Saved spaces'] as $key => $label)
             <div class="col-6 col-lg-3"><x-stat-card :label="$label" :value="number_format($stats[$key] ?? 0)" /></div>
         @endforeach
         <div class="col-6 col-lg-3"><x-stat-card label="Outstanding balances" :value="'₱'.number_format($stats['outstanding_balances'] ?? 0, 2)" /></div>
         <div class="col-6 col-lg-3"><x-stat-card label="Unread updates" :value="number_format($stats['unread_notifications'] ?? 0)" /></div>
+        <div class="col-6 col-lg-3"><x-stat-card label="Open inquiries" :value="number_format($stats['open_inquiries'] ?? 0)" /></div>
     </div>
 
     <div class="d-flex flex-wrap gap-2 mb-4">
         <a class="btn btn-outline-dark" href="{{ route('renter.requests.index') }}">My rental requests</a>
         <a class="btn btn-outline-dark" href="{{ route('renter.saved-properties.index') }}">Saved properties</a>
+        <a class="btn btn-outline-dark" href="{{ route('renter.saved-spaces.index') }}">Saved spaces</a>
+        <a class="btn btn-outline-dark" href="{{ route('renter.inquiries.index') }}">Inquiries ({{ number_format($stats['open_inquiries'] ?? 0) }})</a>
+        <a class="btn btn-outline-dark" href="{{ route('renter.viewings.index') }}">Viewings</a>
+        <a class="btn btn-outline-dark" href="{{ route('renter.preferences.edit') }}">Housing preferences</a>
         <a class="btn btn-outline-dark" href="{{ route('bookings.index') }}">My bookings</a>
         <a class="btn btn-outline-dark" href="{{ route('payments.index') }}">Payment records</a>
         <a class="btn btn-outline-dark" href="{{ route('notifications.index') }}">Notifications</a>
     </div>
 
-    @if($upcomingBooking)
+    @if(!empty($upcomingBooking))
         <section class="panel p-4 mb-4" aria-labelledby="upcoming-move-title">
             <div class="eyebrow mb-2">Upcoming move-in</div>
             <h2 class="panel-title mb-1" id="upcoming-move-title">{{ $upcomingBooking->space?->property?->property_name ?? 'Property' }} · {{ $upcomingBooking->space?->space_name ?? 'Space' }}</h2>

@@ -30,6 +30,9 @@ Route::get('/properties/{property}', [PropertyController::class, 'show'])->name(
 Route::get('/spaces', [SpaceController::class, 'index'])->name('spaces.index');
 Route::get('/spaces/{space}', [SpaceController::class, 'show'])->name('spaces.show');
 Route::get('/property-images/{image}', [PropertyImageController::class, 'show'])->name('property-images.show');
+Route::get('/compare', [\App\Http\Controllers\SpaceComparisonController::class, 'index'])->name('spaces.compare.index');
+Route::post('/compare/{space}', [\App\Http\Controllers\SpaceComparisonController::class, 'store'])->name('spaces.compare.store');
+Route::delete('/compare/{space}', [\App\Http\Controllers\SpaceComparisonController::class, 'destroy'])->name('spaces.compare.destroy');
 
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -70,6 +73,16 @@ Route::middleware(['auth', 'role:admin', 'contact.verified'])->group(function ()
 
 Route::middleware(['auth', 'role:owner', 'contact.verified'])->group(function () {
     Route::get('/owner/dashboard', [OwnerDashboardController::class, 'index'])->name('owner.dashboard');
+    Route::get('/owner/inquiries', [\App\Http\Controllers\InquiryController::class, 'ownerIndex'])->name('owner.inquiries.index');
+    Route::get('/owner/inquiries/{inquiry}', [\App\Http\Controllers\InquiryController::class, 'showOwner'])->name('owner.inquiries.show');
+    Route::post('/owner/inquiries/{inquiry}/replies', [\App\Http\Controllers\InquiryController::class, 'reply'])->name('owner.inquiries.reply');
+    Route::patch('/owner/inquiries/{inquiry}/close', [\App\Http\Controllers\InquiryController::class, 'close'])->name('owner.inquiries.close');
+
+    Route::get('/owner/viewings', [\App\Http\Controllers\ViewingAppointmentController::class, 'ownerIndex'])->name('owner.viewings.index');
+    Route::get('/owner/viewings/{appointment}', [\App\Http\Controllers\ViewingAppointmentController::class, 'showOwner'])->name('owner.viewings.show');
+    Route::patch('/owner/viewings/{appointment}/accept', [\App\Http\Controllers\ViewingAppointmentController::class, 'accept'])->name('owner.viewings.accept');
+    Route::patch('/owner/viewings/{appointment}/decline', [\App\Http\Controllers\ViewingAppointmentController::class, 'decline'])->name('owner.viewings.decline');
+    Route::put('/owner/viewings/{appointment}/reschedule', [\App\Http\Controllers\ViewingAppointmentController::class, 'reschedule'])->name('owner.viewings.reschedule');
     Route::get('/owner/tenants', [TenantController::class, 'index'])->name('owner.tenants.index');
     Route::get('/owner/reports', [ReportController::class, 'index'])->name('owner.reports.index');
     Route::get('/owner/reports/collections.csv', [ReportController::class, 'export'])->name('owner.reports.export');
@@ -93,6 +106,23 @@ Route::middleware(['auth', 'role:owner', 'contact.verified'])->group(function ()
 
 Route::middleware(['auth', 'role:renter', 'contact.verified'])->group(function () {
     Route::get('/renter/dashboard', [RenterDashboardController::class, 'index'])->name('renter.dashboard');
+    Route::get('/renter/inquiries', [\App\Http\Controllers\InquiryController::class, 'renterIndex'])->name('renter.inquiries.index');
+    Route::post('/renter/spaces/{space}/inquiries', [\App\Http\Controllers\InquiryController::class, 'start'])->name('renter.inquiries.store');
+    Route::get('/renter/inquiries/{inquiry}', [\App\Http\Controllers\InquiryController::class, 'showRenter'])->name('renter.inquiries.show');
+    Route::post('/renter/inquiries/{inquiry}/replies', [\App\Http\Controllers\InquiryController::class, 'reply'])->name('renter.inquiries.reply');
+
+    Route::get('/renter/viewings', [\App\Http\Controllers\ViewingAppointmentController::class, 'renterIndex'])->name('renter.viewings.index');
+    Route::post('/renter/spaces/{space}/viewings', [\App\Http\Controllers\ViewingAppointmentController::class, 'request'])->name('renter.viewings.request');
+    Route::get('/renter/viewings/{appointment}', [\App\Http\Controllers\ViewingAppointmentController::class, 'showRenter'])->name('renter.viewings.show');
+    Route::patch('/renter/viewings/{appointment}/confirm', [\App\Http\Controllers\ViewingAppointmentController::class, 'confirmReschedule'])->name('renter.viewings.confirm');
+    Route::patch('/renter/viewings/{appointment}/cancel', [\App\Http\Controllers\ViewingAppointmentController::class, 'cancel'])->name('renter.viewings.cancel');
+
+    Route::get('/renter/preferences', [\App\Http\Controllers\Renter\PreferenceController::class, 'edit'])->name('renter.preferences.edit');
+    Route::put('/renter/preferences', [\App\Http\Controllers\Renter\PreferenceController::class, 'update'])->name('renter.preferences.update');
+
+    Route::get('/renter/saved-spaces', [\App\Http\Controllers\Renter\SavedSpaceController::class, 'index'])->name('renter.saved-spaces.index');
+    Route::post('/renter/saved-spaces/{space}', [\App\Http\Controllers\Renter\SavedSpaceController::class, 'store'])->name('renter.saved-spaces.store');
+    Route::delete('/renter/saved-spaces/{space}', [\App\Http\Controllers\Renter\SavedSpaceController::class, 'destroy'])->name('renter.saved-spaces.destroy');
     Route::get('/renter/saved-properties', [SavedPropertyController::class, 'index'])->name('renter.saved-properties.index');
     Route::post('/renter/saved-properties/{property}', [SavedPropertyController::class, 'store'])->name('renter.saved-properties.store');
     Route::delete('/renter/saved-properties/{property}', [SavedPropertyController::class, 'destroy'])->name('renter.saved-properties.destroy');

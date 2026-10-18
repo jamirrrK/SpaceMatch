@@ -22,7 +22,8 @@ return new class extends Migration
             });
         }
 
-        if (! Schema::hasColumns($historyTable, [
+        $existingColumns = array_map('strtolower', Schema::getColumnListing($historyTable));
+        $expectedColumns = array_map('strtolower', [
             'id',
             'maintenance_request_id',
             'actor_id',
@@ -31,8 +32,36 @@ return new class extends Migration
             'notes',
             'created_at',
             'updated_at',
-        ])) {
-            throw new \RuntimeException("The existing {$historyTable} table does not match the expected schema.");
+        ]);
+
+        $missingColumns = array_values(array_diff($expectedColumns, $existingColumns));
+
+        if ($missingColumns !== []) {
+            Schema::table($historyTable, function (Blueprint $table) use ($missingColumns) {
+                if (in_array('maintenance_request_id', $missingColumns, true)) {
+                    $table->unsignedBigInteger('maintenance_request_id')->nullable(false);
+                }
+
+                if (in_array('actor_id', $missingColumns, true)) {
+                    $table->unsignedBigInteger('actor_id')->nullable(false);
+                }
+
+                if (in_array('from_status', $missingColumns, true)) {
+                    $table->string('from_status', 40);
+                }
+
+                if (in_array('to_status', $missingColumns, true)) {
+                    $table->string('to_status', 40);
+                }
+
+                if (in_array('notes', $missingColumns, true)) {
+                    $table->text('notes')->nullable();
+                }
+
+                if (in_array('created_at', $missingColumns, true)) {
+                    $table->timestamps();
+                }
+            });
         }
 
         $foreignKeys = collect(Schema::getForeignKeys($historyTable));

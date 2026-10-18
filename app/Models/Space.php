@@ -63,4 +63,9 @@ class Space extends Model
     {
         return $this->hasMany(Booking::class);
     }
+
+    public function savedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'saved_spaces')->withTimestamps();
+    }
 }

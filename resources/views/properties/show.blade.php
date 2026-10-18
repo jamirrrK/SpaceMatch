@@ -105,8 +105,51 @@
                                     </details>
                                 @endif
 
+                                @if($space->availability_status === 'available')
+                                    <div id="inquiry-space-{{ $space->id }}" class="mt-4">
+                                        @auth
+                                            @if(auth()->user()->role === \App\Models\User::ROLE_RENTER)
+                                                @php($spaceIsSaved = $space->is_saved ?? false)
+                                                <div class="d-flex flex-wrap gap-2 mb-3">
+                                                    <form method="POST" action="{{ route($spaceIsSaved ? 'renter.saved-spaces.destroy' : 'renter.saved-spaces.store', $space) }}">
+                                                        @csrf
+                                                        @if($spaceIsSaved)@method('DELETE')@endif
+                                                        <button class="btn btn-outline-dark" type="submit">{{ $spaceIsSaved ? 'Remove saved space' : 'Save this space' }}</button>
+                                                    </form>
+                                                </div>
+                                                @if(!auth()->user()->requiresContactVerification())
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <form class="panel p-3" method="POST" action="{{ route('renter.inquiries.store', $space) }}">
+                                                                @csrf
+                                                                <h4 class="panel-title mb-3">Ask the owner about this space</h4>
+                                                                <label class="form-label" for="inquiry-message-{{ $space->id }}">Message</label>
+                                                                <textarea class="form-control" id="inquiry-message-{{ $space->id }}" name="message" rows="4" minlength="10" maxlength="4000" required>{{ old('message') }}</textarea>
+                                                                <button class="btn btn-outline-dark mt-3" type="submit">Send inquiry</button>
+                                                            </form>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <form class="panel p-3" method="POST" action="{{ route('renter.viewings.request', $space) }}">
+                                                                @csrf
+                                                                <h4 class="panel-title mb-3">Book a viewing</h4>
+                                                                <label class="form-label" for="requested-start-{{ $space->id }}">Preferred time</label>
+                                                                <input class="form-control" id="requested-start-{{ $space->id }}" type="datetime-local" name="requested_start_at" min="{{ now()->addMinute()->format('Y-m-d\TH:i') }}" value="{{ old('requested_start_at') }}" required>
+                                                                <button class="btn btn-primary-custom mt-3" type="submit">Request viewing</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <div class="alert alert-warning mt-4">Verify your account to inquire or schedule a viewing for this property.</div>
+                                                @endif
+                                            @endif
+                                        @else
+                                            <p class="small text-muted-soft mb-0">Questions about this space can be sent after sign in.</p>
+                                        @endauth
+                                    </div>
+                                @endif
+
                                 @auth
-                                    @if(auth()->user()->role === \App\Models\User::ROLE_RENTER && $space->availability_status === 'available')
+                                    @if(auth()->user()->role === \App\Models\User::ROLE_RENTER && $space->availability_status === 'available' && !auth()->user()->requiresContactVerification())
                                         <form class="panel p-3 mt-4" method="POST" action="{{ route('renter.requests.store', $space) }}">
                                             @csrf
                                             <h4 class="panel-title mb-3">Request this space</h4>

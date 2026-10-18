@@ -21,6 +21,9 @@ class PropertyController extends Controller
                 ->whereNull('space_id')->orWhereHas('space', fn (Builder $space) => $space->where('listing_status', 'published'))),
             'images', 'amenities',
         ]);
+        if ($request->user()?->hasRole('renter')) {
+            $query->withExists(['savedByUsers as is_saved' => fn (Builder $users) => $users->whereKey($request->user()->id)]);
+        }
 
         $searchTerms = array_values(array_filter([
             $request->input('q'),
@@ -114,6 +117,9 @@ class PropertyController extends Controller
                 ->whereNull('space_id')->orWhereHas('space', fn (Builder $space) => $space->where('listing_status', 'published'))),
             'spaces' => fn ($spaces) => $spaces
                 ->where('listing_status', 'published')
+                ->when(auth()->user()?->hasRole('renter'), fn ($spaces) => $spaces->withExists([
+                    'savedByUsers as is_saved' => fn (Builder $users) => $users->whereKey(auth()->id()),
+                ]))
                 ->with(['amenities', 'images'])
                 ->orderBy('price')->orderBy('id'),
         ]);
