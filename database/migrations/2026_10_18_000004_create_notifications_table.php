@@ -19,7 +19,11 @@ return new class extends Migration
                 $table->text('data');
                 $table->timestamp('read_at')->nullable();
                 $table->timestamps();
-                $table->index(['notifiable_type', 'notifiable_id', 'read_at']);
+                $table->index([
+                    'notifiable_type',
+                    'notifiable_id',
+                    'read_at',
+                ]);
             });
         }
     }
@@ -29,6 +33,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('notifications');
+        // Preserve the notifications table.
+        // It may have existed before this migration.
     }
 };
