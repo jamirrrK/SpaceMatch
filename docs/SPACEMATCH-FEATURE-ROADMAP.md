@@ -1,61 +1,37 @@
 # SpaceMatch Feature Roadmap
 
-## Current baseline
-The project already includes a broad and meaningful feature set for a Philippine rental marketplace, with real route definitions and domain models for:
-- authentication and OTP verification
-- renter and owner account flows
-- property and space discovery
-- saved properties and saved spaces
-- inquiry and viewing workflows
-- rental request processing
-- booking lifecycle and payment tracking
-- maintenance requests and reviews
-- notifications and user profile management
-- admin moderation and reporting
+## Current branch and delivery state
+- Branch: `feature/student-experience-platform-upgrade`, based on `origin/develop`.
+- This working tree contains uncommitted local changes. No commit, push, pull request, merge, local-MySQL migration, or production action was performed.
+- The previous student-renter workflow is already present in the branch base; this upgrade extends it rather than recreating it.
 
-## Priority order
-### Priority 1 — Stability and correctness
-1. Resolve migration/schema drift and preserve migration history
-2. Validate role-based access and contact verification flow
-3. Ensure every dashboard reads from real controller data contracts
-4. Confirm notifications and audit flows are consistent
+## Completed and locally verified in this upgrade
+- Participant-scoped inquiry conversations with searchable lists, accessible chat presentation, AJAX replies, polling, unread counts, and throttled messaging routes.
+- Homepage carousel sourced only from published, available listings, with accessible/reduced-motion-aware controls.
+- Renter payment-evidence submission, owner/admin review, rejection reasons, private evidence retrieval, transactional ledger updates, audit records, and PDF receipts.
+- Master Administrator role access management with restricted promotion/demotion routes, self-demotion and unverified-account protections, audit logging, and an Artisan provisioning command.
+- Renter-facing navigation links point to renter workflows rather than owner-only pages.
+- Browser-verified workflow from registration/OTP through rental completion and review moderation, plus responsive and keyboard checks.
 
-### Priority 2 — End-to-end workflows
-1. Renter → property discovery → inquiry → owner reply
-2. Renter → viewing request → owner decision → follow-up reschedule or confirmation
-3. Renter → rental request → owner review → booking → payment → tenant lifecycle
-4. Owner → maintenance and report tracking
+## Priority 1 — Safe integration and release preparation
+1. Review the uncommitted feature diff and migration against the actual intended production schema.
+2. Verify the production PHP version and DOM, mbstring, and zlib extensions required by the PDF dependency.
+3. Build and verify a production-compatible Composer dependency bundle; the existing code-only deploy process does not install or update `vendor`.
+4. Obtain an approved, fresh database/runtime backup and validate restoration in isolation.
+5. Review and approve the additive `payment_submissions` migration before any database change.
 
-### Priority 3 — UX polish
-1. Responsive dashboard layouts
-2. Empty states and validation messaging
-3. Philippine wallet and formatting standards
-4. More explicit mobile-first flows for search and booking
+## Priority 2 — Broader functional confidence
+1. Continue tests against the supported production database engine using a separate disposable database; do not use the existing local or production database for destructive test setup.
+2. Verify hosted OTP delivery and PDF generation only in an approved staging environment.
+3. Add PDF receipt download and additional owner/admin payment-evidence edge cases to browser coverage if the staging environment permits.
 
-### Priority 4 — Operational readiness
-1. Admin reporting and moderation workflow review
-2. Backup and rollback planning
-3. Deployment automation and environment verification
-4. Production smoke tests
+## Priority 3 — Operational readiness
+1. Confirm cPanel shell, PHP CLI/web parity, permissions, OPcache, maintenance behavior, storage paths, and quota.
+2. Establish exact release artifacts, dependency provisioning, backup checks, migration steps, smoke tests, and recovery procedures.
+3. Obtain explicit review/approval before committing, pushing, opening a pull request, merging, or deploying.
 
-## Recommended delivery sequence
-1. Finalize migration integrity and schema checks
-2. Validate all feature tests on the sqlite test database
-3. Run targeted local MySQL validation under controlled conditions
-4. Prepare deployment docs and production checklist
-5. Submit a merge-ready PR into `main` after approval
-
-## Key known working features
-- User registration and role selection
-- Contact verification and OTP challenge issuance
-- Saved spaces and saved properties
-- Rental requests and inquiry handling
-- Viewing appointments and activity tracking
-- Owner property/space management
-- Dashboard metrics for renter and owner
-
-## Remaining watch items
-- Admin panel completeness vs. owner/renter flows
-- Production environment configuration for OTP delivery
-- Deployment compatibility with cPanel and public path structure
-- Final consistency checks across notifications, audit events, and reporting
+## Remaining limitations
+- Browser coverage uses a fresh isolated SQLite database and synthetic OTP sink; it does not verify live email/SMS delivery or MySQL behavior.
+- Production hosting capabilities and dependency compatibility remain unverified.
+- The new additive migration was not run against the existing local MySQL database or production.
+- The payment flow records manually transferred funds and owner/admin review; no gateway integration exists.

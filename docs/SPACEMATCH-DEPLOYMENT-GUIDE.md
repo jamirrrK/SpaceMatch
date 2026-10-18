@@ -2,8 +2,15 @@
 
 No production connection, credential setup, push, merge or deployment was performed. This document supersedes the Phase 3 command sequence. The supplied workflow builds artifacts; it cannot activate production.
 
-## Architecture and default block
+## Current feature-branch release status
 
+The local branch is `feature/student-experience-platform-upgrade`, based on `origin/develop`, and contains uncommitted changes. Local validation passed (152 Laravel tests/1,204 assertions, 54 deployment tests with 2 expected Windows skips, frontend build, Composer validation, 122 routes, and 16 isolated browser scenarios). This is not production validation.
+
+This upgrade adds `database/migrations/2026_10_18_130000_create_payment_submissions_table.php` and Composer dependencies `barryvdh/laravel-dompdf` 3.1.2 / `dompdf/dompdf` 3.1.6. The migration was run only in isolated SQLite databases. It has not been applied to the existing local MySQL database or production.
+
+**Deployment is blocked.** The code-only controller described below deliberately excludes migrations and Composer files/vendor provisioning. Before any release, review and apply the additive migration through a separately approved database procedure, and establish a production-compatible verified Composer bundle for the exact PHP and loaded extension versions. Dompdf requires DOM, mbstring, and zlib; production support for these extensions and the dependency versions is unverified. The hosting environment, backups, and rollback rehearsal also remain unverified. No production action is authorized by this report.
+
+## Architecture and default block
 Reviewed develop → PR → protected main → Linux deployment tests → Laravel tests and frontend build → exact-commit artifact → manually dispatched, protected approval checkpoint → separately approved operator activation. A develop push never deploys. There is no SSH/SFTP transport job.
 
 `deploy.sh` is a thin wrapper around the tested Python controller. It requires the real POSIX account `tejzvrgp`, fixed production paths, explicit approval token, private deployment state and reviewed readiness records. It does not require server-side Composer, rsync, GNU realpath, systemd, sudo, Node, or a full VPS. It **does** require cPanel shell/Terminal, Bash, PHP CLI >=8.2, Python >=3.10 with TLS/gzip/tar/fcntl, HTTPS egress, sufficient quota and compatible web-server ownership. These capabilities remain unverified, and deployment is blocked until they are verified.

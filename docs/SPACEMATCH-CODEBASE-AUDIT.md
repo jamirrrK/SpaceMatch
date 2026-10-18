@@ -4,10 +4,10 @@
 This audit covers the current Laravel 12 app in `C:\xampp\htdocs\spacematch` and focuses on the actual implemented flows, route wiring, model contracts, migrations, and operational risks.
 
 ## Branch and repo state
-- Branch: `develop`
-- Working tree: clean at the time of inspection
-- Main git remote: `origin/develop`
-- Local app is already in a partially integrated state with merge-resolved dashboards and feature routes
+- Branch: `feature/student-experience-platform-upgrade`, tracking `origin/develop`
+- Working tree: contains the uncommitted local upgrade described in this report; no commit or push was made
+- Production and the existing local MySQL database were not modified
+- The new payment-submission migration was exercised only through the isolated SQLite test/browser databases
 
 ## Route structure
 The app exposes a structured role-based route tree in `routes/web.php`:
@@ -71,6 +71,10 @@ Admin routes are present for moderation and report oversight, but the app should
 3. A duplicate notifications table creation issue was also detected and repaired to avoid `table already exists` errors.
 4. The `saved_spaces` feature is implemented in both route and model layers.
 5. The app retains both legacy local feature logic and newer coworker feature logic, which is expected in this integration branch but should be validated against the real production contract.
+6. The upgrade adds participant-scoped inquiry polling and AJAX replies, a public-listing carousel, renter payment-proof submission and owner/admin review, PDF payment receipts, and restricted Master Administrator access.
+7. Payment evidence is kept on the private local disk and exposed only by an authorized download route. The payment workflow records manual transfers; it is not a payment gateway.
+8. The additional `payment_submissions` table is defined by a new additive migration. Dompdf adds Composer package/runtime requirements and is used for PDF receipts.
+9. Browser testing found and fixed two harness/UI issues: the script now asserts AJAX replies without waiting for navigation, and the carousel pause control no longer overlays the slide navigation controls.
 
 ## Risks and follow-up
 - Migration safety must remain strict in local MySQL and production; no destructive commands are allowed.
@@ -81,18 +85,23 @@ Admin routes are present for moderation and report oversight, but the app should
 ## Audit conclusion
 The project has a substantial, implemented feature set with real route wiring and domain logic. The most important current risk is not a missing product feature; it is schema/migration drift and ensuring every feature is validated against the live database contract before production deployment.
 
-## Phase 2 validation findings
-- `git status` confirmed the working tree is clean aside from the required audit documents and no production deployment was executed.
-- `php artisan test` passed successfully with 125 tests and 924 assertions.
-- `php artisan route:list` confirmed the admin, owner, renter, and verification route groups are registered in the expected Laravel role-based layout.
-- Migrations were reviewed for compatibility and the live database was checked against the key integration tables without destructive actions.
-- No destructive commands were run against the local development or production database.
+## Current upgrade validation findings
+- `php artisan test`: 152 tests passed, 1,204 assertions.
+- `python -m unittest discover -s scripts/deploy -p 'test_*.py' -v`: 54 tests passed, with 2 expected Windows-specific skips (`flock` and OS symlink creation).
+- `npm.cmd run build`: Vite production build and frontend sync passed.
+- `composer validate --no-check-publish`: passed.
+- `php artisan route:list`: passed; 122 routes registered.
+- The isolated Playwright workflow passed all 16 scenarios, including OTP registration, search/preferences, inquiry messaging, viewing, rental approval, move-in, payments/proof review, maintenance, rental completion, review moderation, Master Administrator access, carousel controls, and responsive/keyboard checks.
+- Browser diagnostics recorded no page errors, console errors, failed HTTP responses, or horizontal overflow at 375, 768, 1366, and 1920 px.
+- No migration was applied to the existing local MySQL database. No production command, push, commit, or deployment was performed.
 
 ## Migration compatibility summary
+Historical note: the following integration-table observations were recorded during the prior database audit. This feature upgrade did not repeat a schema inspection against the existing local MySQL database; its new migration was exercised only on isolated SQLite databases.
+
 - `maintenance_request_status_history` is now safe to run as an additive migration when the table exists; it no longer throws during idempotent schema checks.
 - `notifications` was confirmed to exist in the live database and the migration now protects against duplicate creation.
 - `saved_spaces`, `renter_preferences`, `inquiries`, `inquiry_activities`, `viewing_appointments`, and `viewing_activities` were validated for the expected table existence, foreign key relationship pattern, and migration ordering.
 - `rental_request_histories` was confirmed as a required pending migration and its table is not a duplicate of the rental request entity itself.
 
 ## Production safety status
-The project is currently ready for a controlled local and staging validation pass, but not for unattended production deployment. Production `.env`values, server secrets, and live database records remain protected and unchanged.
+The project is **not ready for production release**. This upgrade adds both a database migration and Composer dependencies; the hardened code-only deployment procedure deliberately excludes migration and Composer files/vendor provisioning. Production PHP/extensions, a compatible verified dependency bundle, backups, cPanel capabilities, and an approved additive migration plan remain unverified. Production `.env`, secrets, uploads, database records, and hosting were not accessed or changed.

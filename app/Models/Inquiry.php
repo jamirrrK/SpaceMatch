@@ -41,4 +41,9 @@ class Inquiry extends Model
     {
         return $this->hasMany(InquiryActivity::class)->orderBy('created_at')->orderBy('id');
     }
+
+    public function latestActivity()
+    {
+        return $this->hasOne(InquiryActivity::class)->latestOfMany('id');
+    }
 }

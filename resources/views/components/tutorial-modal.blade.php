@@ -43,7 +43,7 @@
                 <button type="button" class="tutorial-chapter" data-tutorial-select="2"><span>03</span>Your account</button>
                 @if(auth()->user()?->hasRole('owner'))
                     <button type="button" class="tutorial-chapter" data-tutorial-select="3"><span>04</span>Manage a listing</button>
-                @elseif(auth()->user()?->hasRole('admin'))
+                @elseif(auth()->user()?->isAdministrator())
                     <button type="button" class="tutorial-chapter" data-tutorial-select="3"><span>04</span>Review listings</button>
                 @endif
             </nav>
@@ -80,7 +80,7 @@
                         <p>Create a property, add its rental spaces and amenities, upload photos, and publish when the listing is ready. You can manage only properties owned by your account.</p>
                         <a class="tutorial-text-link" href="{{ route('owner.dashboard') }}">Open the owner dashboard <span aria-hidden="true">&rarr;</span></a>
                     </article>
-                @elseif(auth()->user()?->hasRole('admin'))
+                @elseif(auth()->user()?->isAdministrator())
                     <article class="tutorial-chapter-panel" data-tutorial-panel hidden>
                         <span class="tutorial-chapter-index">04 / ADMINISTRATION</span>
                         <h3>Review property listings</h3>

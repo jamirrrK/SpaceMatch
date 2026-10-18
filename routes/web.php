@@ -16,6 +16,7 @@ use App\Http\Controllers\Owner\ReportController;
 use App\Http\Controllers\Owner\TenantController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentReceiptController;
+use App\Http\Controllers\PaymentSubmissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\PropertyImageController;
@@ -70,22 +71,30 @@ Route::middleware(['auth', 'contact.verified'])->group(function () {
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 });
 
-Route::middleware(['auth', 'role:admin', 'contact.verified'])->group(function () {
+Route::middleware(['auth', 'role:admin,master_admin', 'contact.verified'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
     Route::get('/admin/properties', [App\Http\Controllers\Admin\PropertyController::class, 'index'])->name('admin.properties.index');
     Route::get('/admin/properties/{property}', [App\Http\Controllers\Admin\PropertyController::class, 'show'])->name('admin.properties.show');
     Route::patch('/admin/properties/{property}/status', [App\Http\Controllers\Admin\PropertyController::class, 'updateStatus'])->name('admin.properties.status');
     Route::get('/admin/bookings', [App\Http\Controllers\Admin\BookingController::class, 'index'])->name('admin.bookings.index');
+    Route::get('/admin/payment-submissions', [PaymentSubmissionController::class, 'index'])->name('admin.payments.submissions.index');
+    Route::patch('/admin/payment-submissions/{submission}', [PaymentSubmissionController::class, 'review'])->name('admin.payments.submissions.review');
     Route::patch('/admin/reviews/{review}/moderation', [ReviewController::class, 'moderate'])->name('admin.reviews.moderate');
     Route::get('/admin/audit-logs', [AuditLogController::class, 'index'])->name('admin.audit-logs.index');
+});
+
+Route::middleware(['auth', 'role:master_admin', 'contact.verified'])->group(function () {
+    Route::get('/admin/master-administrators', [App\Http\Controllers\Admin\MasterAdminController::class, 'index'])->name('admin.master-admins.index');
+    Route::patch('/admin/master-administrators/{user}', [App\Http\Controllers\Admin\MasterAdminController::class, 'updateRole'])->name('admin.master-admins.update');
 });
 
 Route::middleware(['auth', 'role:owner', 'contact.verified'])->group(function () {
     Route::get('/owner/dashboard', [OwnerDashboardController::class, 'index'])->name('owner.dashboard');
     Route::get('/owner/inquiries', [InquiryController::class, 'ownerIndex'])->name('owner.inquiries.index');
     Route::get('/owner/inquiries/{inquiry}', [InquiryController::class, 'showOwner'])->name('owner.inquiries.show');
-    Route::post('/owner/inquiries/{inquiry}/replies', [InquiryController::class, 'reply'])->name('owner.inquiries.reply');
+    Route::get('/owner/inquiries/{inquiry}/updates', [InquiryController::class, 'updates'])->name('owner.inquiries.updates');
+    Route::post('/owner/inquiries/{inquiry}/replies', [InquiryController::class, 'reply'])->middleware('throttle:30,1')->name('owner.inquiries.reply');
     Route::patch('/owner/inquiries/{inquiry}/close', [InquiryController::class, 'close'])->name('owner.inquiries.close');
 
     Route::get('/owner/viewings', [ViewingAppointmentController::class, 'ownerIndex'])->name('owner.viewings.index');
@@ -102,6 +111,8 @@ Route::middleware(['auth', 'role:owner', 'contact.verified'])->group(function ()
     Route::patch('/owner/bookings/{booking}/cancel', [BookingLifecycleController::class, 'cancel'])->name('owner.bookings.cancel');
     Route::patch('/owner/bookings/{booking}/terminate', [BookingLifecycleController::class, 'terminate'])->name('owner.bookings.terminate');
     Route::patch('/owner/payments/{payment}/confirm', [App\Http\Controllers\Owner\PaymentController::class, 'confirm'])->name('owner.payments.confirm');
+    Route::get('/owner/payment-submissions', [PaymentSubmissionController::class, 'index'])->name('owner.payments.submissions.index');
+    Route::patch('/owner/payment-submissions/{submission}', [PaymentSubmissionController::class, 'review'])->name('owner.payments.submissions.review');
     Route::patch('/owner/maintenance/{maintenanceRequest}', [MaintenanceRequestController::class, 'update'])->name('owner.maintenance.update');
     Route::resource('/owner/properties', App\Http\Controllers\Owner\PropertyController::class)->except('destroy')->names('owner.properties');
     Route::patch('/owner/properties/{property}/status', [App\Http\Controllers\Owner\PropertyController::class, 'status'])->name('owner.properties.status');
@@ -117,9 +128,10 @@ Route::middleware(['auth', 'role:owner', 'contact.verified'])->group(function ()
 Route::middleware(['auth', 'role:renter', 'contact.verified'])->group(function () {
     Route::get('/renter/dashboard', [RenterDashboardController::class, 'index'])->name('renter.dashboard');
     Route::get('/renter/inquiries', [InquiryController::class, 'renterIndex'])->name('renter.inquiries.index');
-    Route::post('/renter/spaces/{space}/inquiries', [InquiryController::class, 'start'])->name('renter.inquiries.store');
+    Route::post('/renter/spaces/{space}/inquiries', [InquiryController::class, 'start'])->middleware('throttle:10,1')->name('renter.inquiries.store');
     Route::get('/renter/inquiries/{inquiry}', [InquiryController::class, 'showRenter'])->name('renter.inquiries.show');
-    Route::post('/renter/inquiries/{inquiry}/replies', [InquiryController::class, 'reply'])->name('renter.inquiries.reply');
+    Route::get('/renter/inquiries/{inquiry}/updates', [InquiryController::class, 'updates'])->name('renter.inquiries.updates');
+    Route::post('/renter/inquiries/{inquiry}/replies', [InquiryController::class, 'reply'])->middleware('throttle:30,1')->name('renter.inquiries.reply');
 
     Route::get('/renter/viewings', [ViewingAppointmentController::class, 'renterIndex'])->name('renter.viewings.index');
     Route::post('/renter/spaces/{space}/viewings', [ViewingAppointmentController::class, 'request'])->name('renter.viewings.request');
@@ -141,6 +153,7 @@ Route::middleware(['auth', 'role:renter', 'contact.verified'])->group(function (
     Route::patch('/renter/requests/{rentalRequest}/response', [RentalRequestController::class, 'respond'])->name('renter.requests.respond');
     Route::patch('/renter/requests/{rentalRequest}/cancel', [RentalRequestController::class, 'cancel'])->name('renter.requests.cancel');
     Route::post('/maintenance', [MaintenanceRequestController::class, 'store'])->name('maintenance.store');
+    Route::post('/renter/payments/{payment}/submissions', [PaymentSubmissionController::class, 'store'])->middleware('throttle:10,1')->name('renter.payments.submissions.store');
     Route::post('/bookings/{booking}/review', [ReviewController::class, 'store'])->name('reviews.store');
     Route::patch('/renter/bookings/{booking}/cancel', [BookingLifecycleController::class, 'cancel'])->name('renter.bookings.cancel');
     Route::patch('/renter/bookings/{booking}/terminate', [BookingLifecycleController::class, 'terminate'])->name('renter.bookings.terminate');
@@ -151,6 +164,7 @@ Route::middleware(['auth', 'contact.verified'])->group(function () {
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::get('/payments/receipts/{transaction}', [PaymentReceiptController::class, 'show'])->name('payments.receipts.show');
+    Route::get('/payment-submissions/{submission}/evidence', [PaymentSubmissionController::class, 'evidence'])->name('payments.submissions.evidence');
     Route::get('/maintenance/{maintenanceRequest}/evidence', [MaintenanceRequestController::class, 'evidence'])->name('maintenance.evidence');
     Route::get('/maintenance', [MaintenanceRequestController::class, 'index'])->name('maintenance.index');
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');

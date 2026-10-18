@@ -243,9 +243,9 @@ class RenterTransactionsTest extends TestCase
         ]);
         $transaction = PaymentTransaction::query()->firstOrFail();
         $this->assertSame((float) $space->price, (float) $transaction->amount);
-        $this->actingAs($renter)->get(route('payments.receipts.show', $transaction))
-            ->assertOk()->assertHeader('content-disposition', 'attachment; filename="'.$transaction->receipt_number.'.html"')
-            ->assertSee($transaction->receipt_number);
+        $receipt = $this->actingAs($renter)->get(route('payments.receipts.show', $transaction))
+            ->assertOk()->assertDownload($transaction->receipt_number.'.pdf');
+        $this->assertSame('%PDF', substr($receipt->getContent(), 0, 4));
         $this->assertDatabaseHas('notifications', [
             'notifiable_type' => User::class,
             'notifiable_id' => $renter->id,
@@ -345,8 +345,14 @@ class RenterTransactionsTest extends TestCase
         $this->assertSame(2, PaymentTransaction::query()->where('payment_id', $payment->id)
             ->whereNotNull('receipt_number')->count());
 
+        $receipt = PaymentTransaction::query()->where('payment_id', $payment->id)->firstOrFail();
+        $pdf = $this->actingAs($renter)->get(route('payments.receipts.show', $receipt))
+            ->assertOk()
+            ->assertDownload($receipt->receipt_number.'.pdf');
+        $this->assertSame('%PDF', substr($pdf->getContent(), 0, 4));
+
         $otherRenter = User::factory()->create(['role' => User::ROLE_RENTER]);
-        $this->actingAs($otherRenter)->get(route('payments.receipts.show', PaymentTransaction::query()->firstOrFail()))
+        $this->actingAs($otherRenter)->get(route('payments.receipts.show', $receipt))
             ->assertNotFound();
     }
 

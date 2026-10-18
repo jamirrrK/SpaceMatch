@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Inquiry;
+use App\Models\InquiryActivity;
 use App\Models\Space;
 use App\Models\User;
 use App\Notifications\InquiryActivityNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -78,7 +80,47 @@ class InquiryController extends Controller
         return $this->showFor($request->user(), $inquiry, User::ROLE_OWNER);
     }
 
-    public function reply(Request $request, Inquiry $inquiry): RedirectResponse
+    public function updates(Request $request, Inquiry $inquiry): JsonResponse
+    {
+        $user = $request->user();
+        $this->authorizeParticipant($user, $inquiry);
+        $data = $request->validate(['after_id' => ['nullable', 'integer', 'min:0']]);
+        $activities = InquiryActivity::query()
+            ->where('inquiry_id', $inquiry->id)
+            ->where('id', '>', $data['after_id'] ?? 0)
+            ->with('user:id,name')
+            ->oldest('id')
+            ->limit(100)
+            ->get();
+
+        $inquiry->activities()
+            ->whereIn('id', $activities->pluck('id'))
+            ->whereNull('read_at')
+            ->whereNotNull('user_id')
+            ->where('user_id', '!=', $user->id)
+            ->update(['read_at' => now()]);
+        $this->markInquiryNotificationsRead($user, $inquiry);
+
+        return response()->json([
+            'activities' => $activities->map(fn (InquiryActivity $activity): array => [
+                'id' => $activity->id,
+                'type' => $activity->activity_type,
+                'body' => $activity->body,
+                'from_status' => $activity->from_status,
+                'to_status' => $activity->to_status,
+                'user_id' => $activity->user_id,
+                'user_name' => $activity->user?->name ?? 'SpaceMatch',
+                'created_at' => $activity->created_at?->toIso8601String(),
+                'created_at_label' => $activity->created_at?->format('M j, Y g:i A'),
+            ])->values(),
+            'unread_inquiries' => $user->unreadNotifications()
+                ->where('type', InquiryActivityNotification::class)->count(),
+            'unread_notifications' => $user->unreadNotifications()->count(),
+            'status' => $inquiry->fresh()->status,
+        ])->header('Cache-Control', 'no-store, private');
+    }
+
+    public function reply(Request $request, Inquiry $inquiry): RedirectResponse|JsonResponse
     {
         $user = $request->user();
         $this->authorizeParticipant($user, $inquiry);
@@ -86,7 +128,7 @@ class InquiryController extends Controller
             'message' => ['required', 'string', 'min:1', 'max:4000'],
         ]);
 
-        DB::transaction(function () use ($user, $inquiry, $data): void {
+        $sent = DB::transaction(function () use ($user, $inquiry, $data): bool {
             $locked = Inquiry::query()->whereKey($inquiry->id)->lockForUpdate()->firstOrFail();
             $this->authorizeParticipant($user, $locked);
 
@@ -96,7 +138,7 @@ class InquiryController extends Controller
 
             if ($locked->activities()->where('user_id', $user->id)->where('body', $data['message'])
                 ->where('created_at', '>=', now()->subMinute())->exists()) {
-                return;
+                return false;
             }
             $locked->activities()->create([
                 'user_id' => $user->id,
@@ -106,7 +148,13 @@ class InquiryController extends Controller
 
             $recipient = $user->id === $locked->owner_id ? $locked->renter : $locked->owner;
             $recipient->notify(new InquiryActivityNotification($locked->load('space'), 'New reply to your inquiry'));
+
+            return true;
         });
+
+        if ($request->expectsJson()) {
+            return response()->json(['sent' => $sent], $sent ? 201 : 200);
+        }
 
         return back()->with('status', 'Your reply was sent.');
     }
@@ -143,7 +191,7 @@ class InquiryController extends Controller
         $ownerSide = $role === User::ROLE_OWNER;
         $inquiries = Inquiry::query()
             ->where($ownerSide ? 'owner_id' : 'renter_id', $user->id)
-            ->with(['space.property', 'renter', 'owner'])
+            ->with(['space.property', 'space.images', 'renter', 'owner', 'latestActivity'])
             ->withCount(['activities as unread_activities_count' => fn ($activities) => $activities
                 ->whereNull('read_at')->where('user_id', '!=', $user->id)])
             ->latest('updated_at')
@@ -157,22 +205,35 @@ class InquiryController extends Controller
     {
         abort_unless($user->hasRole($role), 403);
         $inquiry = Inquiry::query()->visibleTo($user)
-            ->with(['space.property', 'renter', 'owner', 'activities.user'])
+            ->with(['space.property', 'renter', 'owner'])
             ->whereKey($inquiry->id)
             ->firstOrFail();
+
+        $inquiry->setRelation('activities', $inquiry->activities()
+            ->with('user:id,name')
+            ->reorder('id', 'desc')
+            ->limit(50)
+            ->get()
+            ->reverse()
+            ->values());
 
         $inquiry->activities()
             ->whereNull('read_at')
             ->whereNotNull('user_id')
             ->where('user_id', '!=', $user->id)
             ->update(['read_at' => now()]);
+        $this->markInquiryNotificationsRead($user, $inquiry);
+
+        return view('inquiries.show', compact('inquiry'));
+    }
+
+    private function markInquiryNotificationsRead(User $user, Inquiry $inquiry): void
+    {
         $user->unreadNotifications()
             ->where('type', InquiryActivityNotification::class)
             ->get()
             ->filter(fn ($notification) => (int) ($notification->data['inquiry_id'] ?? 0) === $inquiry->id)
             ->each->markAsRead();
-
-        return view('inquiries.show', compact('inquiry'));
     }
 
     private function authorizeParticipant(User $user, Inquiry $inquiry): void

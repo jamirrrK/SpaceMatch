@@ -103,6 +103,52 @@ document.addEventListener('DOMContentLoaded', () => {
             button.closest('[data-gallery]').querySelectorAll('[data-gallery-target]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
         });
     });
+
+    document.querySelectorAll('[data-home-carousel]').forEach(carousel => {
+        const slides = Array.from(carousel.querySelectorAll('[data-carousel-slide]'));
+        const previous = carousel.querySelector('[data-carousel-previous]');
+        const next = carousel.querySelector('[data-carousel-next]');
+        const pause = carousel.querySelector('[data-carousel-pause]');
+        const announcement = carousel.querySelector('[data-carousel-announcement]');
+        if (slides.length < 2) return;
+
+        let active = slides.findIndex(slide => slide.classList.contains('is-active'));
+        let paused = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let hovered = false;
+        const render = (index, announce = false) => {
+            active = (index + slides.length) % slides.length;
+            slides.forEach((slide, position) => {
+                const selected = position === active;
+                slide.hidden = !selected;
+                slide.tabIndex = selected ? 0 : -1;
+                slide.setAttribute('aria-hidden', String(!selected));
+                slide.classList.toggle('is-active', selected);
+            });
+            if (announce && announcement) announcement.textContent = `Featured listing ${active + 1} of ${slides.length}.`;
+        };
+        const updatePauseButton = () => {
+            if (!pause) return;
+            pause.textContent = paused ? 'Resume slides' : 'Pause slides';
+            pause.setAttribute('aria-pressed', String(paused));
+        };
+        previous?.addEventListener('click', () => render(active - 1, true));
+        next?.addEventListener('click', () => render(active + 1, true));
+        pause?.addEventListener('click', () => {
+            paused = !paused;
+            updatePauseButton();
+        });
+        carousel.addEventListener('pointerenter', () => { hovered = true; });
+        carousel.addEventListener('pointerleave', () => { hovered = false; });
+        carousel.addEventListener('focusin', () => {
+            paused = true;
+            updatePauseButton();
+        });
+        updatePauseButton();
+        window.setInterval(() => {
+            if (!paused && !hovered && !document.hidden) render(active + 1);
+        }, 6000);
+    });
+
     const dialog = document.getElementById('confirmation-dialog');
     let pendingForm = null;
     document.querySelectorAll('form[data-confirm]').forEach(form => {
