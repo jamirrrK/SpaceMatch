@@ -6,7 +6,6 @@ use App\Models\Property;
 use App\Models\PropertyImage;
 use App\Services\PropertyImageService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class PropertyImageController extends Controller
 {
@@ -17,11 +16,11 @@ class PropertyImageController extends Controller
             abort_unless(Property::publiclyListed()->whereKey($image->property_id)->exists(), 404);
             abort_if($image->space_id && $image->space?->listing_status !== 'published', 404);
         }
-        $disk = Storage::disk('property_images');
-        $path = $service->safePath($image);
-        abort_unless($disk->exists($path), 404);
+        $file = $service->readableFile($image);
+        abort_unless($file, 404);
 
-        return response()->file($disk->path($path), [
+        return response()->file($file['path'], [
+            'Content-Type' => $file['mime'],
             'X-Content-Type-Options' => 'nosniff',
             'Cache-Control' => 'private, no-store',
         ]);

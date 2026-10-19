@@ -26,3 +26,12 @@ Thumbs.db
 /storage/npm-cache/
 
 /public/database.sqlite
+/release/
+/release-*.tar.gz
+/release-*.tar.gz.sha256
+
+/scripts/deploy/__pycache__/
+
+# Local source pack and reproducible browser-review artifacts; optimized assets are tracked.
+/SpaceMatch_Images/
+/docs/final-product-browser/

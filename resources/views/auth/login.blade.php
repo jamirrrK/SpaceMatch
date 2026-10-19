@@ -1,8 +1,9 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Login | SpaceMatch')
 
 @section('content')
+<div class="container pt-3 text-center"><a href="{{ route('student.register') }}">New student? Create a student renter account</a></div>
 <div class="container auth-page py-5">
     <div class="row justify-content-center">
         <x-auth-story />

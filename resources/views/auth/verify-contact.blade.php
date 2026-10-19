@@ -23,19 +23,22 @@
                 <form method="POST" action="{{ route('verification.verify') }}" class="mt-4">
                     @csrf
                     <label for="otp-code" class="form-label">6-digit code</label>
-                    <input id="otp-code" class="form-control otp-code-input @error('code') is-invalid @enderror" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" minlength="6" required autofocus data-otp-input aria-describedby="otp-expiry-note">
-                    @error('code')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    <input id="otp-code" class="form-control otp-code-input @error('code') is-invalid @enderror" type="text" name="code" value="{{ old('code') }}" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" minlength="6" required autofocus data-otp-input aria-describedby="otp-expiry-note">
+                    @error('code')<div class="invalid-feedback" role="alert">{{ $message }}</div>@enderror
                     <p class="form-text mt-2" id="otp-expiry-note" data-otp-expires-at="{{ $expiresAt?->timestamp ?? '' }}" aria-live="polite">@if($challengeSent)Your code expires in 5 minutes.@elseRequest a code when the resend option becomes available.@endif</p>
-                    <button class="btn btn-primary-custom btn-lg w-100 mt-3" type="submit">Verify code</button>
+                    <button class="btn btn-primary-custom btn-lg w-100 mt-3" type="submit" data-otp-submit>Verify code</button>
                 </form>
 
                 <div class="otp-resend-row mt-4">
                     <span class="small text-muted-soft">Didn't receive a code?</span>
                     <form method="POST" action="{{ route('verification.resend') }}">
                         @csrf
-                        <button class="btn btn-outline-dark btn-sm" type="submit" data-otp-resend-at="{{ $sentAt?->timestamp ?? '' }}">Resend code</button>
+                        <button class="btn btn-outline-dark btn-sm" type="submit" data-otp-submit data-otp-resend-at="{{ $sentAt?->timestamp ?? '' }}" @disabled(! ($channel === 'sms' ? $smsAvailable : $emailAvailable))>Resend code</button>
                     </form>
                 </div>
+                @unless($channel === 'sms' ? $smsAvailable : $emailAvailable)
+                    <p class="small text-danger mt-3 mb-0" role="alert">Code delivery is currently unavailable. Please try again later.</p>
+                @endunless
 
                 <p class="small text-muted-soft mt-4 mb-0">You can browse public listings while verification is pending.</p>
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-3">

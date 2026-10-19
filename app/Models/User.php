@@ -15,6 +15,8 @@ class User extends Authenticatable
 
     public const ROLE_ADMIN = 'admin';
 
+    public const ROLE_MASTER_ADMIN = 'master_admin';
+
     public const ROLE_OWNER = 'owner';
 
     public const ROLE_RENTER = 'renter';
@@ -24,7 +26,10 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+    protected $attributes = ['is_student' => false];
+
     protected $fillable = [
+        'is_student',
         'name',
         'email',
         'role',
@@ -33,6 +38,7 @@ class User extends Authenticatable
         'phone_verified_at',
         'verification_required_at',
         'verification_method',
+        'password_change_required',
     ];
 
     /**
@@ -54,9 +60,11 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'is_student' => 'boolean',
             'email_verified_at' => 'datetime',
             'phone_verified_at' => 'datetime',
             'verification_required_at' => 'datetime',
+            'password_change_required' => 'boolean',
             'password' => 'hashed',
         ];
     }
@@ -67,6 +75,11 @@ class User extends Authenticatable
     public function hasRole(string $role): bool
     {
         return $this->role === $role;
+    }
+
+    public function isAdministrator(): bool
+    {
+        return in_array($this->role, [self::ROLE_ADMIN, self::ROLE_MASTER_ADMIN], true);
     }
 
     /**

@@ -1,59 +1,67 @@
 @extends('layouts.app')
-@section('title', 'Inquiry conversation | SpaceMatch')
+@section('title', 'Conversation | SpaceMatch')
 @section('content')
-<div class="container py-4 py-lg-5">
-    <a class="small-link d-inline-block mb-3" href="{{ route(auth()->user()->hasRole('owner') ? 'owner.inquiries.index' : 'renter.inquiries.index') }}">&larr; Back to inquiries</a>
-    <section class="panel p-4 mb-4">
-        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
-            <div>
+@php
+    $ownerSide = auth()->user()->hasRole('owner');
+    $routePrefix = $ownerSide ? 'owner' : 'renter';
+    $latestActivityId = (int) $inquiry->activities->max('id');
+@endphp
+<div class="inquiry-workspace">
+    <a class="small-link d-inline-block mb-3" href="{{ route($routePrefix.'.inquiries.index') }}">&larr; Back to messages</a>
+    <section class="panel inquiry-conversation"
+        data-inquiry-messenger
+        data-updates-url="{{ route($routePrefix.'.inquiries.updates', $inquiry) }}"
+        data-current-user-id="{{ auth()->id() }}"
+        data-after-id="{{ $latestActivityId }}"
+        data-unread-count="{{ $unreadInquiryCount ?? 0 }}">
+        <header class="inquiry-conversation-header">
+            <div class="min-w-0">
                 <div class="eyebrow mb-1">{{ $inquiry->space?->property?->property_name ?? 'Property unavailable' }}</div>
-                <h1 class="page-heading mb-2">{{ $inquiry->space?->space_name ?? 'Space unavailable' }}</h1>
-                <p class="small text-muted-soft mb-2">
-                    {{ auth()->user()->hasRole('owner') ? 'Student: '.($inquiry->renter?->name ?? 'Account unavailable') : 'Property owner: '.($inquiry->owner?->name ?? 'Account unavailable') }}
-                </p>
-                <span class="badge {{ $inquiry->status === 'open' ? 'text-bg-primary' : 'text-bg-secondary' }}">{{ ucfirst($inquiry->status) }}</span>
+                <h1 class="panel-title mb-1">{{ $inquiry->space?->space_name ?? 'Space unavailable' }}</h1>
+                <p class="small text-muted-soft mb-2">{{ $ownerSide ? 'Renter: '.($inquiry->renter?->name ?? 'Account unavailable') : 'Owner: '.($inquiry->owner?->name ?? 'Account unavailable') }}</p>
+                <span class="badge {{ $inquiry->status === 'open' ? 'text-bg-primary' : 'text-bg-secondary' }}" data-inquiry-status>{{ ucfirst($inquiry->status) }}</span>
             </div>
-            @if(auth()->user()->hasRole('owner') && $inquiry->status === 'open')
-                <form method="POST" action="{{ route('owner.inquiries.close', $inquiry) }}" data-confirm="Close this inquiry? No further replies can be sent.">
+            @if($ownerSide && $inquiry->status === 'open')
+                <form method="POST" action="{{ route('owner.inquiries.close', $inquiry) }}" data-confirm="Close this conversation? Neither participant will be able to send more messages.">
                     @csrf
                     @method('PATCH')
-                    <button class="btn btn-outline-dark" type="submit">Close inquiry</button>
+                    <button class="btn btn-outline-dark" type="submit">Close conversation</button>
                 </form>
             @endif
-        </div>
-    </section>
+        </header>
 
-    <section class="panel p-4 mb-4" aria-labelledby="inquiry-history-heading">
-        <h2 class="panel-title mb-4" id="inquiry-history-heading">Conversation history</h2>
-        <ol class="list-unstyled d-grid gap-3 mb-0">
+        <ol class="inquiry-message-list" aria-label="Conversation messages" aria-live="polite" aria-relevant="additions text" data-inquiry-messages>
             @forelse($inquiry->activities as $activity)
-                <li class="border rounded-3 p-3">
-                    @if($activity->activity_type === 'status_changed')
-                        <div class="small fw-semibold">{{ $activity->user?->name ?? 'SpaceMatch' }} updated the inquiry</div>
-                        <p class="small text-muted-soft mb-1">Status changed from {{ $activity->from_status }} to {{ $activity->to_status }}.</p>
-                    @else
-                        <div class="small fw-semibold">{{ $activity->user?->name ?? 'Account unavailable' }}</div>
-                        <p class="mb-1" style="white-space: pre-wrap">{{ $activity->body }}</p>
-                    @endif
-                    <time class="small text-muted-soft" datetime="{{ $activity->created_at->toIso8601String() }}">{{ $activity->created_at->format('M j, Y g:i A') }}</time>
+                <li class="inquiry-message {{ $activity->user_id === auth()->id() ? 'is-own' : '' }}" data-activity-id="{{ $activity->id }}">
+                    <div class="inquiry-message-bubble">
+                        @if($activity->activity_type === 'status_changed')
+                            <p class="mb-1">{{ $activity->user?->name ?? 'SpaceMatch' }} updated the inquiry status to {{ $activity->to_status }}.</p>
+                        @else
+                            <div class="inquiry-message-author">{{ $activity->user?->name ?? 'SpaceMatch' }}</div>
+                            <p class="mb-1" style="white-space: pre-wrap">{{ $activity->body }}</p>
+                        @endif
+                        <time class="small" datetime="{{ $activity->created_at->toIso8601String() }}">{{ $activity->created_at->format('M j, Y g:i A') }}</time>
+                    </div>
                 </li>
             @empty
-                <li class="small text-muted-soft">No conversation activity.</li>
+                <li class="small text-muted-soft" data-inquiry-empty>No conversation activity.</li>
             @endforelse
         </ol>
+        <p class="visually-hidden" role="status" aria-live="polite" data-inquiry-live-status></p>
+        @if($inquiry->status === 'open')
+            <form class="inquiry-reply-form" method="POST" action="{{ route($routePrefix.'.inquiries.reply', $inquiry) }}" data-inquiry-reply-form>
+                @csrf
+                <label class="form-label fw-semibold" for="inquiry-reply">Write a message</label>
+                <div class="d-flex flex-column flex-sm-row gap-2 align-items-stretch">
+                    <textarea class="form-control" id="inquiry-reply" name="message" rows="2" maxlength="4000" required aria-describedby="inquiry-message-help">{{ old('message') }}</textarea>
+                    <button class="btn btn-primary-custom align-self-sm-end" type="submit">Send message</button>
+                </div>
+                <div class="form-text" id="inquiry-message-help">Only you and the other conversation participant can see these messages.</div>
+            </form>
+        @else
+            <div class="alert alert-secondary mb-0" role="status">This conversation is closed. Browse available spaces if you need help finding another rental.</div>
+            <a class="btn btn-outline-dark mt-3" href="{{ route('properties.index') }}">Browse rentals</a>
+        @endif
     </section>
-
-    @if($inquiry->status === 'open')
-        <form class="panel p-4" method="POST" action="{{ route(auth()->user()->hasRole('owner') ? 'owner.inquiries.reply' : 'renter.inquiries.reply', $inquiry) }}">
-            @csrf
-            <label class="form-label" for="inquiry-reply">Write a reply</label>
-            <textarea class="form-control" id="inquiry-reply" name="message" rows="4" maxlength="4000" required>{{ old('message') }}</textarea>
-            <div class="form-text">Keep personal contact and sensitive account information out of public listings. This message is visible only to you and the other conversation participant.</div>
-            <button class="btn btn-primary-custom mt-3" type="submit">Send reply</button>
-        </form>
-    @else
-        <div class="alert alert-secondary" role="status">This inquiry is closed and can no longer receive replies. Browse other spaces if you still need help finding a rental.</div>
-        <a class="btn btn-outline-dark" href="{{ route('properties.index') }}">Browse rentals</a>
-    @endif
 </div>
 @endsection

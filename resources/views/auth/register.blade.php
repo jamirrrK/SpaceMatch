@@ -1,9 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Register | SpaceMatch')
+@section('title', ($studentMode ?? false) ? 'Student registration | SpaceMatch' : 'Register | SpaceMatch')
 
 @section('content')
 @php
+    $registrationMode = $registrationMode ?? 'renter';
+    $registrationRoute = $registrationMode === 'owner' ? 'owner.register' : ($registrationMode === 'student' ? 'student.register' : 'renter.register');
     $emailEnabled = in_array('email', $verificationChannels ?? [], true);
     $smsEnabled = in_array('sms', $verificationChannels ?? [], true);
     $selectedMethod = old('verification_method', $emailEnabled ? 'email' : ($smsEnabled ? 'sms' : ''));
@@ -15,11 +17,11 @@
             <div class="card auth-card p-4 p-lg-5">
                 <div class="text-center mb-4">
                     <div class="brand-mark mx-auto mb-3">S</div>
-                    <h1 class="fw-bold mb-1">Create your account</h1>
-                    <p class="text-muted-soft mb-0">Join SpaceMatch as a renter or property owner</p>
+                    <h1 class="fw-bold mb-1">{{ $registrationMode === 'student' ? 'Find your student home' : ($registrationMode === 'owner' ? 'Register as a Property Owner' : 'Register as a Renter') }}</h1>
+                    <p class="text-muted-soft mb-0">{{ ($studentMode ?? false) ? 'School, budget, and your next chapter?all in one place.' : 'Join SpaceMatch as a renter or property owner' }}</p>
                 </div>
 
-                <form method="POST" action="{{ route('register') }}">
+                <form method="POST" action="{{ route($registrationRoute) }}">
                     @csrf
                     <div class="row g-3">
                         <div class="col-12">
@@ -66,36 +68,27 @@
                             <div class="input-group"><input id="password_confirmation" type="password" autocomplete="new-password" name="password_confirmation" class="form-control form-control-lg" required><button class="btn btn-outline-dark" type="button" data-toggle-password="password_confirmation" aria-label="Show password confirmation" aria-pressed="false">Show</button></div>
                         </div>
 
-                        <div class="col-12">
-                            <label class="form-label">Account type</label>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="card account-choice h-100 border p-3 d-flex align-items-center gap-3 {{ old('account_type') === 'renter' ? 'border-primary border-2' : '' }}">
-                                        <input class="form-check-input mt-0" type="radio" name="account_type" value="renter" {{ old('account_type') === 'renter' ? 'checked' : '' }}>
-                                        <div>
-                                            <div class="fw-semibold">I'm looking for a space</div>
-                                            <small class="text-muted-soft">Register as a Renter</small>
-                                        </div>
-                                    </label>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="card account-choice h-100 border p-3 d-flex align-items-center gap-3 {{ old('account_type') === 'owner' ? 'border-primary border-2' : '' }}">
-                                        <input class="form-check-input mt-0" type="radio" name="account_type" value="owner" {{ old('account_type') === 'owner' ? 'checked' : '' }}>
-                                        <div>
-                                            <div class="fw-semibold">I want to list my space</div>
-                                            <small class="text-muted-soft">Register as a Property Owner</small>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
+                        <input type="hidden" name="account_type" value="{{ $registrationMode === 'owner' ? 'owner' : 'renter' }}">
+                        @if($studentMode ?? false)
+                            @include('renter.preferences.student-registration-fields')
+                            <div class="col-md-6"><label class="form-label" for="budget_min">Minimum monthly budget (optional)</label><input class="form-control" type="number" min="0" max="9999999999" name="budget_min" id="budget_min" value="{{ old('budget_min') }}"></div>
+                            <div class="col-md-6"><label class="form-label" for="budget_max">Maximum monthly budget (optional)</label><input class="form-control" type="number" min="0" max="9999999999" name="budget_max" id="budget_max" value="{{ old('budget_max') }}"></div>
+                        @else
+                            <div class="col-12"><label class="form-label" for="preferred_location">{{ $registrationMode === 'owner' ? 'Preferred operating location' : 'Preferred location (optional)' }}</label><input class="form-control" name="preferred_location" id="preferred_location" maxlength="150" value="{{ old('preferred_location') }}"></div>
+                        @endif
+                        @if($registrationMode === 'owner')
+                            <div class="col-md-6"><label class="form-label" for="owner_type">Owner type</label><select class="form-select" id="owner_type" name="owner_type" required><option value="individual" @selected(old('owner_type') === 'individual')>Individual</option><option value="organization" @selected(old('owner_type') === 'organization')>Organization</option></select></div>
+                            <div class="col-md-6"><label class="form-label" for="organization_name">Business / organization name</label><input class="form-control" name="organization_name" id="organization_name" maxlength="180" value="{{ old('organization_name') }}"><p class="form-text">Required for organizations. No identity document is requested.</p></div>
+                        @endif
                         <div class="col-12">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="terms" id="terms" value="1" {{ old('terms') ? 'checked' : '' }}>
-                                <label class="form-check-label" for="terms">I accept the SpaceMatch terms and privacy notice</label>
+                                <input class="form-check-input" type="checkbox" name="terms" id="terms" value="1" required {{ old('terms') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="terms">I agree to the <a href="{{ route('terms') }}" target="_blank" rel="noopener">Terms of Service</a> ({{ config('marketplace.terms_version') }}).</label>
                             </div>
                         </div>
+                        <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" name="privacy_acknowledgment" id="privacy_acknowledgment" value="1" required @checked(old('privacy_acknowledgment'))><label class="form-check-label" for="privacy_acknowledgment">I acknowledge the <a href="{{ route('privacy') }}" target="_blank" rel="noopener">Privacy Notice</a>.</label></div></div>
+                        <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" name="adult_confirmation" id="adult_confirmation" value="1" required @checked(old('adult_confirmation'))><label class="form-check-label" for="adult_confirmation">I confirm I am 18 or older. Accounts for minors are not supported.</label></div></div>
+                        <div class="col-12"><p class="small text-muted-soft">Terms and Privacy are review drafts. No marketing consent is requested or enabled.</p><a href="{{ route('register') }}" data-registration-choice>Choose a different account type</a></div>
                     </div>
 
                     <button type="submit" class="btn btn-primary-custom btn-lg w-100 rounded-3 mt-4" @disabled(! $emailEnabled && ! $smsEnabled)>Create account</button>

@@ -18,6 +18,7 @@ class RentalRequest extends Model
     public const STATUS_MORE_INFORMATION = 'more_information_requested';
 
     protected $fillable = [
+        'terms_snapshot', 'terms_accepted_at',
         'renter_id',
         'space_id',
         'move_in_date',
@@ -34,6 +35,7 @@ class RentalRequest extends Model
     protected function casts(): array
     {
         return [
+            'terms_snapshot' => 'array', 'terms_accepted_at' => 'datetime',
             'move_in_date' => 'date',
             'responded_at' => 'datetime',
         ];
@@ -42,7 +44,7 @@ class RentalRequest extends Model
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
         return match ($user->role) {
-            User::ROLE_ADMIN => $query,
+            User::ROLE_ADMIN, User::ROLE_MASTER_ADMIN => $query,
             User::ROLE_OWNER => $query->whereHas('space.property', fn (Builder $property) => $property->where('owner_id', $user->id)),
             User::ROLE_RENTER => $query->where('renter_id', $user->id),
             default => $query->whereRaw('1 = 0'),

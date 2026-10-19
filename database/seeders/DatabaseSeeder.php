@@ -14,10 +14,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (! app()->environment('local')) {
-            return;
-        }
-
-        $this->call(DevelopmentSampleSeeder::class);
+        // Public databases are never populated with fictional rental records.
     }
 }

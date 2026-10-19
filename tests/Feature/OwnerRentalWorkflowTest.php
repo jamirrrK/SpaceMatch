@@ -9,6 +9,7 @@ use App\Models\Property;
 use App\Models\Space;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class OwnerRentalWorkflowTest extends TestCase
@@ -54,6 +55,7 @@ class OwnerRentalWorkflowTest extends TestCase
         $this->assertSame('pending', $booking->fresh()->status);
         $this->assertSame('Two adults.', $question->fresh()->response);
         $this->actingAs($owner)->get(route('owner.rentals.index'))->assertOk()->assertSee('Two adults.');
+        $this->actingAs($renter)->get(route('owner.rentals.index'))->assertForbidden();
     }
 
     public function test_rejection_overlap_prevention_and_owner_data_scope(): void
@@ -70,27 +72,30 @@ class OwnerRentalWorkflowTest extends TestCase
         $this->assertSame('rejected', $request->fresh()->status);
         $secondOwner = User::factory()->create(['role' => User::ROLE_OWNER]);
         $this->actingAs($secondOwner)->post(route('owner.bookings.decision', $request), ['decision' => 'approve'])->assertNotFound();
-        $this->actingAs($secondOwner)->get(route('owner.reports'))->assertOk()->assertSee('0.00');
+        $this->actingAs($secondOwner)->get(route('owner.rental-reports.index'))->assertOk()->assertSee('0.00');
     }
 
     public function test_owner_can_resolve_maintenance_record_payments_and_view_paid_only_reports(): void
     {
         [$owner, $renter, $space] = $this->listing();
-        $booking = $this->booking($renter, $space, ['status' => 'confirmed']);
+        $booking = $this->booking($renter, $space, ['status' => 'active']);
         $payment = Payment::create(['booking_id' => $booking->id, 'amount' => '1800.00', 'payment_status' => 'pending']);
         $maintenance = MaintenanceRequest::create(['booking_id' => $booking->id, 'description' => 'The kitchen tap is leaking.', 'status' => 'open']);
 
         $this->actingAs($renter)->post(route('maintenance.store'), ['booking_id' => $booking->id, 'description' => 'The bedroom light stopped working.'])
             ->assertRedirect()->assertSessionHasNoErrors();
         $this->actingAs($owner)->patch(route('owner.maintenance.update', $maintenance), [
+            'status' => 'in_progress',
+        ])->assertRedirect()->assertSessionHasNoErrors();
+        $this->patch(route('owner.maintenance.update', $maintenance), [
             'status' => 'resolved', 'owner_response' => 'Replaced the tap washer.',
         ])->assertRedirect()->assertSessionHasNoErrors();
         $this->assertNotNull($maintenance->fresh()->resolved_at);
         $this->actingAs($owner)->patch(route('owner.payments.update', $payment), [
-            'payment_status' => 'paid', 'payment_method' => 'bank transfer', 'payment_date' => now()->toDateString(),
+            'payment_status' => 'paid', 'payment_method' => 'bank_transfer', 'payment_date' => now()->toDateString(),
         ])->assertRedirect()->assertSessionHasNoErrors();
 
-        $this->actingAs($owner)->get(route('owner.reports'))->assertOk()->assertSee('1,800.00');
+        $this->actingAs($owner)->get(route('owner.rental-reports.index'))->assertOk()->assertSee('1,800.00');
         $this->assertSame('paid', $payment->fresh()->payment_status);
     }
 
@@ -110,6 +115,31 @@ class OwnerRentalWorkflowTest extends TestCase
         $this->patch(route('owner.bookings.complete', $booking))->assertRedirect()->assertSessionHasNoErrors();
         $this->assertSame('completed', $booking->fresh()->status);
         $this->assertNotNull($booking->fresh()->completed_at);
+    }
+
+    public function test_student_renters_cannot_bypass_student_rental_terms_with_direct_booking(): void
+    {
+        [, , $space] = $this->listing();
+        $student = User::factory()->create(['role' => User::ROLE_RENTER, 'is_student' => true]);
+
+        $this->actingAs($student)->post(route('bookings.store'), [
+            'space_id' => $space->id,
+            'start_date' => now()->addDays(5)->toDateString(),
+            'end_date' => now()->addDays(36)->toDateString(),
+            'occupants' => 1,
+        ])->assertSessionHasErrors('booking');
+
+        $this->assertDatabaseCount('bookings', 0);
+    }
+
+    public function test_owner_rentals_page_reports_pending_schema_instead_of_a_server_error(): void
+    {
+        $owner = User::factory()->create(['role' => User::ROLE_OWNER]);
+        Schema::dropIfExists('booking_information_requests');
+
+        $this->actingAs($owner)->get(route('owner.rentals.index'))
+            ->assertStatus(503)
+            ->assertSee('2026_10_17_000001_extend_rental_workflows');
     }
 
     private function listing(): array

@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Owner;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingInformationRequest;
+use App\Models\BookingStatusHistory;
 use App\Models\MaintenanceRequest;
 use App\Models\Payment;
 use App\Models\Space;
 use App\Notifications\RentalWorkflowNotification;
+use App\Services\RentalWorkflowSchema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -23,49 +25,100 @@ class RentalController extends Controller
 
     public function decide(Request $request, Booking $booking)
     {
-        $this->authorizeBooking($request, $booking);
+        app(RentalWorkflowSchema::class)->ensureAvailable();
         $data = $request->validate([
             'decision' => ['required', Rule::in(['reject', 'more_details', 'approve'])],
             'reason' => ['nullable', 'string', 'max:2000'],
         ]);
-        if ($booking->status !== 'pending') {
-            throw ValidationException::withMessages(['decision' => 'Only pending rental requests can receive a decision.']);
-        }
         if ($data['decision'] === 'more_details' && blank($data['reason'] ?? null)) {
             throw ValidationException::withMessages(['reason' => 'Enter the information you need from the renter.']);
         }
 
-        if ($data['decision'] === 'more_details') {
-            BookingInformationRequest::create(['booking_id' => $booking->id, 'owner_id' => $request->user()->id, 'question' => $data['reason']]);
-            $booking->update(['status' => 'awaiting_renter_information', 'decided_at' => now()]);
-            $message = 'The owner requested additional information for your rental request.';
-        } elseif ($data['decision'] === 'reject') {
-            $booking->update(['status' => 'rejected', 'decision_reason' => $data['reason'] ?? null, 'decided_at' => now()]);
-            $message = 'Your rental request was declined.'.(filled($data['reason'] ?? null) ? ' Reason: '.$data['reason'] : '');
-        } else {
-            DB::transaction(function () use ($booking) {
-                $space = Space::whereKey($booking->space_id)->lockForUpdate()->firstOrFail();
-                $overlap = Booking::where('space_id', $space->id)->whereIn('status', ['confirmed', 'active'])
-                    ->where('start_date', '<', $booking->end_date)->where('end_date', '>', $booking->start_date)
-                    ->lockForUpdate()->exists();
+        [$booking, $message] = DB::transaction(function () use ($request, $booking, $data): array {
+            $lockedBooking = $this->ownedBookings($request)
+                ->whereKey($booking->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($lockedBooking->status !== 'pending') {
+                throw ValidationException::withMessages(['decision' => 'Only pending rental requests can receive a decision.']);
+            }
+
+            if ($data['decision'] === 'more_details') {
+                BookingInformationRequest::create([
+                    'booking_id' => $lockedBooking->id,
+                    'owner_id' => $request->user()->id,
+                    'question' => $data['reason'],
+                ]);
+                $lockedBooking->update(['status' => 'awaiting_renter_information', 'decided_at' => now()]);
+                $historyNotes = $data['reason'];
+                $message = 'The owner requested additional information for your rental request.';
+            } elseif ($data['decision'] === 'reject') {
+                $lockedBooking->update([
+                    'status' => 'rejected',
+                    'decision_reason' => $data['reason'] ?? null,
+                    'decided_at' => now(),
+                ]);
+                $historyNotes = $data['reason'] ?? null;
+                $message = 'Your rental request was declined.'.(filled($data['reason'] ?? null) ? ' Reason: '.$data['reason'] : '');
+            } else {
+                $space = Space::query()->whereKey($lockedBooking->space_id)->lockForUpdate()->firstOrFail();
+                if (! Space::publiclyListed()->whereKey($space->id)->exists()) {
+                    throw ValidationException::withMessages(['decision' => 'This space is no longer published and available.']);
+                }
+
+                if ($space->available_from && $lockedBooking->start_date->lt($space->available_from)) {
+                    throw ValidationException::withMessages(['decision' => 'This space is not available by the requested start date.']);
+                }
+
+                $overlap = Booking::query()
+                    ->where('space_id', $space->id)
+                    ->whereIn('status', ['confirmed', 'active'])
+                    ->whereDate('start_date', '<=', $lockedBooking->end_date)
+                    ->whereDate('end_date', '>=', $lockedBooking->start_date)
+                    ->lockForUpdate()
+                    ->exists();
+
                 if ($overlap) {
                     throw ValidationException::withMessages(['decision' => 'Those dates overlap a confirmed rental.']);
                 }
-                $booking->update(['status' => 'confirmed', 'decided_at' => now(), 'confirmed_at' => now()]);
-                Payment::firstOrCreate(['booking_id' => $booking->id], [
-                    'amount' => $booking->agreed_amount ?? $space->price,
+
+                $lockedBooking->update([
+                    'status' => 'confirmed',
+                    'decided_at' => now(),
+                    'confirmed_at' => now(),
+                ]);
+                $historyNotes = 'Owner approved the rental request.';
+                Payment::firstOrCreate(['booking_id' => $lockedBooking->id], [
+                    'amount' => $lockedBooking->agreed_amount ?? $space->price,
                     'payment_status' => 'pending',
                 ]);
-            });
-            $message = 'Your rental request was approved and the booking is confirmed.';
-        }
-        $booking->renter->notify(new RentalWorkflowNotification($message, route('bookings.index')));
+                $message = 'Your rental request was approved and the booking is confirmed.';
+            }
+
+            BookingStatusHistory::query()->create([
+                'booking_id' => $lockedBooking->id,
+                'actor_id' => $request->user()->id,
+                'from_status' => 'pending',
+                'to_status' => $lockedBooking->status,
+                'notes' => $historyNotes,
+            ]);
+
+            return [$lockedBooking->load('renter'), $message];
+        });
+
+        $booking->renter->notify(new RentalWorkflowNotification(
+            'Rental request updated',
+            $message,
+            route('bookings.index'),
+        ));
 
         return back()->with('status', 'Rental request updated and the renter has been notified.');
     }
 
     public function index(Request $request)
     {
+        app(RentalWorkflowSchema::class)->ensureAvailable();
         $bookings = $this->ownedBookings($request)->with(['renter', 'space.property', 'informationRequests'])
             ->latest()->paginate(15);
 
@@ -74,60 +127,66 @@ class RentalController extends Controller
 
     public function complete(Request $request, Booking $booking)
     {
-        $this->authorizeBooking($request, $booking);
-        if (! in_array($booking->status, ['confirmed', 'active'], true) || $booking->end_date->copy()->endOfDay()->isFuture()) {
-            throw ValidationException::withMessages(['rental' => 'A rental can be completed only after its end date.']);
-        }
-        $booking->update(['status' => 'completed', 'completed_at' => now()]);
-        $booking->renter->notify(new RentalWorkflowNotification('Your rental has been marked complete.', route('bookings.index')));
+        app(RentalWorkflowSchema::class)->ensureAvailable();
+        $booking = DB::transaction(function () use ($request, $booking): Booking {
+            $ownedBooking = $this->ownedBookings($request)->whereKey($booking->id)->lockForUpdate()->firstOrFail();
+            if (! in_array($ownedBooking->status, ['confirmed', 'active'], true) || $ownedBooking->end_date->copy()->endOfDay()->isFuture()) {
+                throw ValidationException::withMessages(['rental' => 'A rental can be completed only after its end date.']);
+            }
+            $previousStatus = $ownedBooking->status;
+            $ownedBooking->update(['status' => 'completed', 'completed_at' => now()]);
+            BookingStatusHistory::query()->create([
+                'booking_id' => $ownedBooking->id,
+                'actor_id' => $request->user()->id,
+                'from_status' => $previousStatus,
+                'to_status' => 'completed',
+                'notes' => 'Rental completed by the property owner.',
+            ]);
+
+            return $ownedBooking->load('renter');
+        });
+
+        $booking->renter->notify(new RentalWorkflowNotification(
+            'Rental completed',
+            'Your rental has been marked complete.',
+            route('bookings.index'),
+        ));
 
         return back()->with('status', 'Rental completed. Its history and payment records have been kept.');
     }
 
     public function activate(Request $request, Booking $booking)
     {
-        $this->authorizeBooking($request, $booking);
-        $today = now()->toDateString();
-        if ($booking->status !== 'confirmed' || $booking->start_date->toDateString() > $today || $booking->end_date->toDateString() < $today) {
-            throw ValidationException::withMessages(['rental' => 'A rental can be activated only during its confirmed rental period.']);
-        }
-        $booking->update(['status' => 'active']);
+        app(RentalWorkflowSchema::class)->ensureAvailable();
+        DB::transaction(function () use ($request, $booking): void {
+            $ownedBooking = $this->ownedBookings($request)->whereKey($booking->id)->lockForUpdate()->firstOrFail();
+            $today = now()->toDateString();
+            if ($ownedBooking->status !== 'confirmed' || $ownedBooking->start_date->toDateString() > $today || $ownedBooking->end_date->toDateString() < $today) {
+                throw ValidationException::withMessages(['rental' => 'A rental can be activated only during its confirmed rental period.']);
+            }
+            $ownedBooking->update(['status' => 'active']);
+            BookingStatusHistory::query()->create([
+                'booking_id' => $ownedBooking->id,
+                'actor_id' => $request->user()->id,
+                'from_status' => 'confirmed',
+                'to_status' => 'active',
+                'notes' => 'Rental activated by the property owner.',
+            ]);
+        });
 
         return back()->with('status', 'Rental is now active and available in your active rentals list.');
     }
 
     public function recordPayment(Request $request, Payment $payment)
     {
-        abort_unless($request->user()->hasRole('owner'), 403);
-        $payment->load('booking.space.property');
-        abort_unless((int) $payment->booking->space->property->owner_id === (int) $request->user()->id, 404);
-        $data = $request->validate([
-            'payment_status' => ['required', Rule::in(['pending', 'paid'])],
-            'payment_method' => ['nullable', 'string', 'max:60'],
-            'payment_date' => ['nullable', 'date', 'required_if:payment_status,paid'],
-        ]);
-        $payment->update([
-            'payment_status' => $data['payment_status'],
-            'payment_method' => $data['payment_method'] ?? null,
-            'payment_date' => $data['payment_status'] === 'paid' ? ($data['payment_date'] ?? now()) : null,
-        ]);
-
-        return back()->with('status', 'Payment record updated. Only records marked paid are counted as income.');
+        return app(PaymentController::class)->update($request, $payment);
     }
 
     public function updateMaintenance(Request $request, MaintenanceRequest $maintenanceRequest)
     {
         abort_unless($request->user()->hasRole('owner'), 403);
-        $maintenanceRequest->load('booking.space.property', 'booking.renter');
-        abort_unless((int) $maintenanceRequest->booking->space->property->owner_id === (int) $request->user()->id, 404);
-        $data = $request->validate([
-            'status' => ['required', Rule::in(['open', 'in_progress', 'resolved'])],
-            'owner_response' => ['nullable', 'string', 'max:3000'],
-        ]);
-        $maintenanceRequest->update($data + ['resolved_at' => $data['status'] === 'resolved' ? now() : null]);
-        $maintenanceRequest->booking->renter->notify(new RentalWorkflowNotification('Maintenance request status: '.str_replace('_', ' ', $data['status']).'.', route('maintenance.index')));
 
-        return back()->with('status', 'Maintenance request updated and the renter has been notified.');
+        return app(\App\Http\Controllers\MaintenanceRequestController::class)->update($request, $maintenanceRequest);
     }
 
     public function reports(Request $request)
@@ -138,7 +197,7 @@ class RentalController extends Controller
             'date_from' => ['nullable', 'date'],
             'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
             'status' => ['nullable', Rule::in(['pending', 'awaiting_renter_information', 'confirmed', 'active', 'completed', 'rejected'])],
-            'payment_status' => ['nullable', Rule::in(['pending', 'paid'])],
+            'payment_status' => ['nullable', Rule::in(['pending', 'partially_paid', 'paid'])],
         ]);
         $bookings = $this->ownedBookings($request)
             ->when($filters['property_id'] ?? null, fn ($q, $id) => $q->whereHas('space', fn ($space) => $space->where('property_id', $id)))
@@ -156,13 +215,13 @@ class RentalController extends Controller
             'requests' => (clone $bookings)->count(),
             'approved' => (clone $bookings)->whereIn('status', ['confirmed', 'active', 'completed'])->count(),
             'rejected' => (clone $bookings)->where('status', 'rejected')->count(),
-            'active' => (clone $bookings)->whereIn('status', ['confirmed', 'active'])->count(),
+            'active' => (clone $bookings)->where('status', 'active')->count(),
             'completed' => (clone $bookings)->where('status', 'completed')->count(),
             'maintenance' => MaintenanceRequest::whereHas('booking.space.property', fn ($q) => $q->where('owner_id', $owner->id))->count(),
-            'income' => (clone $payments)->where('payment_status', 'paid')->sum('amount'),
-            'outstanding' => (clone $payments)->where('payment_status', 'pending')->sum('amount'),
+            'income' => (clone $payments)->sum('paid_amount'),
+            'outstanding' => (clone $payments)->whereRaw('amount > paid_amount')->sum(DB::raw('amount - paid_amount')),
         ];
-        $incomeByProperty = Payment::selectRaw('properties.id as property_id, properties.property_name, SUM(CASE WHEN payments.payment_status = ? THEN payments.amount ELSE 0 END) as paid_income', ['paid'])
+        $incomeByProperty = Payment::selectRaw('properties.id as property_id, properties.property_name, SUM(payments.paid_amount) as paid_income')
             ->join('bookings', 'bookings.id', '=', 'payments.booking_id')->join('spaces', 'spaces.id', '=', 'bookings.space_id')
             ->join('properties', 'properties.id', '=', 'spaces.property_id')->where('properties.owner_id', $owner->id)
             ->when($filters['property_id'] ?? null, fn ($q, $id) => $q->where('properties.id', $id))
@@ -176,7 +235,7 @@ class RentalController extends Controller
         $monthlyIncome = Payment::selectRaw("{$monthExpression} as month, SUM(payments.amount) as paid_total")
             ->join('bookings', 'bookings.id', '=', 'payments.booking_id')->join('spaces', 'spaces.id', '=', 'bookings.space_id')
             ->join('properties', 'properties.id', '=', 'spaces.property_id')->where('properties.owner_id', $owner->id)
-            ->where('payments.payment_status', 'paid')
+            ->where('payments.paid_amount', '>', 0)
             ->when($filters['property_id'] ?? null, fn ($q, $id) => $q->where('properties.id', $id))
             ->when($filters['date_from'] ?? null, fn ($q, $date) => $q->whereDate('payments.payment_date', '>=', $date))
             ->when($filters['date_to'] ?? null, fn ($q, $date) => $q->whereDate('payments.payment_date', '<=', $date))

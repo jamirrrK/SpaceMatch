@@ -27,7 +27,8 @@ class DevelopmentSampleSeederTest extends TestCase
         $this->assertDatabaseCount('payments', 1);
         $this->assertSame(0, User::query()->where('role', User::ROLE_ADMIN)->count());
 
-        $this->assertTrue(Property::query()->first()->spaces()->first()->publiclyListed()->exists());
+        $this->assertTrue(Property::query()->first()->is_synthetic);
+        $this->assertFalse(Property::query()->first()->spaces()->first()->publiclyListed()->exists());
         $this->assertSame('pending', Booking::query()->first()->status);
         $this->assertSame('pending', Payment::query()->first()->payment_status);
         $this->assertSame('published', Space::query()->first()->listing_status);

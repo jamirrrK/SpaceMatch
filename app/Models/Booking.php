@@ -12,6 +12,10 @@ class Booking extends Model
         return [
             'start_date' => 'date',
             'end_date' => 'date',
+            'agreed_amount' => 'decimal:2',
+            'decided_at' => 'datetime',
+            'confirmed_at' => 'datetime',
+            'completed_at' => 'datetime',
             'ended_early_at' => 'datetime',
         ];
     }
@@ -19,7 +23,7 @@ class Booking extends Model
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
         return match ($user->role) {
-            User::ROLE_ADMIN => $query,
+            User::ROLE_ADMIN, User::ROLE_MASTER_ADMIN => $query,
             User::ROLE_OWNER => $query->whereHas('space.property', fn (Builder $property) => $property
                 ->where('owner_id', $user->id)),
             User::ROLE_RENTER => $query->where('renter_id', $user->id),
@@ -35,6 +39,12 @@ class Booking extends Model
         'monthly_rent',
         'deposit_amount',
         'advance_months',
+        'renter_message',
+        'agreed_amount',
+        'decision_reason',
+        'decided_at',
+        'confirmed_at',
+        'completed_at',
         'start_date',
         'end_date',
         'status',
@@ -63,6 +73,11 @@ class Booking extends Model
     public function rentalRequest()
     {
         return $this->hasOne(RentalRequest::class);
+    }
+
+    public function informationRequests()
+    {
+        return $this->hasMany(BookingInformationRequest::class)->oldest();
     }
 
     public function statusHistory()

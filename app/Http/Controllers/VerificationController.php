@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Exceptions\OtpDeliveryFailed;
 use App\Exceptions\OtpDeliveryUnavailable;
 use App\Models\OtpVerification;
+use App\Models\User;
 use App\Services\OtpVerificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -27,13 +29,18 @@ class VerificationController extends Controller
         $channel = $challenge?->verification_type ?? $user->verification_method ?? 'email';
         $destination = $challenge?->destination_encrypted
             ?? ($channel === 'sms' ? $user->phone_number : $user->email);
+        $cooldownChallenge = $challenge ?? OtpVerification::query()
+            ->where('user_id', $user->id)
+            ->when($purpose, fn ($query) => $query->where('purpose', $purpose))
+            ->latest('id')
+            ->first();
 
         return view('auth.verify-contact', [
             'channel' => $channel,
             'destination' => $verification->maskDestination($channel, (string) $destination),
             'challengeSent' => $challenge !== null,
             'expiresAt' => $challenge?->expires_at,
-            'sentAt' => $challenge?->sent_at,
+            'sentAt' => $cooldownChallenge?->sent_at,
             'emailAvailable' => $verification->emailAvailable(),
             'smsAvailable' => $verification->smsAvailable(),
         ]);
@@ -108,7 +115,14 @@ class VerificationController extends Controller
 
         try {
             $verification->issue($user, $channel, $purpose, (string) $destination);
-        } catch (OtpDeliveryUnavailable|OtpDeliveryFailed) {
+        } catch (OtpDeliveryUnavailable|OtpDeliveryFailed $exception) {
+            if ($exception instanceof OtpDeliveryUnavailable) {
+                Log::warning('OTP resend delivery unavailable', [
+                    'channel' => $channel,
+                    'purpose' => $purpose,
+                ]);
+            }
+
             return back()->withErrors(['code' => 'We could not send a new code. Please try again later.']);
         }
 
@@ -121,7 +135,7 @@ class VerificationController extends Controller
     private function dashboardFor(string $role): string
     {
         return match ($role) {
-            'admin' => route('admin.dashboard'),
+            User::ROLE_ADMIN, User::ROLE_MASTER_ADMIN => route('admin.dashboard'),
             'owner' => route('owner.dashboard'),
             'renter' => route('renter.dashboard'),
             default => route('dashboard'),

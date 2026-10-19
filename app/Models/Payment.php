@@ -44,6 +44,11 @@ class Payment extends Model
         return $this->hasMany(PaymentTransaction::class);
     }
 
+    public function submissions()
+    {
+        return $this->hasMany(PaymentSubmission::class);
+    }
+
     public function getOutstandingBalanceAttribute(): float
     {
         if ($this->payment_status === 'cancelled') {

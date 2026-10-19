@@ -21,7 +21,7 @@ class DashboardController extends Controller
     {
         $ownerId = $request->user()->id;
 
-        $properties = Property::where('owner_id', $ownerId);
+        $properties = Property::withReviewSummary()->where('owner_id', $ownerId);
 
         $spaces = Space::whereHas(
             'property',

@@ -45,7 +45,7 @@ class AuthFlowTest extends TestCase
             'password' => 'secret123',
             'password_confirmation' => 'secret123',
             'account_type' => 'admin',
-            'terms' => '1',
+            'terms' => '1', 'privacy_acknowledgment' => '1', 'adult_confirmation' => '1',
         ]);
 
         $response->assertSessionHasErrors('account_type');

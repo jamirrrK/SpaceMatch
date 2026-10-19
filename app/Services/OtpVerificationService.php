@@ -7,10 +7,8 @@ use App\Exceptions\OtpDeliveryUnavailable;
 use App\Mail\VerificationCodeMail;
 use App\Models\OtpVerification;
 use App\Models\User;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
@@ -21,16 +19,12 @@ class OtpVerificationService
 
     public function emailAvailable(): bool
     {
-        if (app()->environment('testing') && (bool) config('otp.testing_email_delivery', false)) {
-            return true;
-        }
-
         if (! (bool) config('otp.email.enabled', false)) {
             return false;
         }
 
-        if (strtolower((string) config('otp.email.driver', 'mail')) === 'emailjs') {
-            return $this->emailJsIsConfigured();
+        if (app()->environment('testing') && (bool) config('otp.testing_email_delivery', false)) {
+            return true;
         }
 
         $mailer = (string) config('mail.default');
@@ -107,23 +101,20 @@ class OtpVerificationService
 
         try {
             if ($channel === 'email') {
-                $driver = strtolower((string) config('otp.email.driver', 'mail'));
-                $useTestMailDelivery = app()->environment('testing')
-                    && (bool) config('otp.testing_email_delivery', false);
-
-                if ($driver === 'emailjs' && ! $useTestMailDelivery) {
-                    $this->sendEmailJsOtp($destination, $code);
-                } else {
-                    Mail::to($destination)->send(new VerificationCodeMail($code, $purpose));
-                }
+                Mail::to($destination)->send(new VerificationCodeMail($code, $purpose));
             } else {
                 $this->smsSender->send(
                     $destination,
                     "SpaceMatch: Your verification code is {$code}. Valid for 5 minutes. Do not share this code.",
                 );
             }
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
             $challenge->forceFill(['consumed_at' => now()])->save();
+            Log::warning('OTP delivery failed', [
+                'channel' => $channel,
+                'purpose' => $purpose,
+                'failure_type' => class_basename($exception),
+            ]);
             throw new OtpDeliveryFailed('We could not send a verification code. Please try again.');
         }
 
@@ -249,127 +240,60 @@ class OtpVerificationService
         return hash_hmac('sha256', $channel.'|'.$normalized, (string) config('app.key'));
     }
 
-    private function emailJsIsConfigured(): bool
-    {
-        return filled(config('services.emailjs.service_id'))
-            && filled(config('services.emailjs.template_id'))
-            && filled(config('services.emailjs.public_key'))
-            && filled(config('services.emailjs.private_key'));
-    }
-
-    private function sendEmailJsOtp(string $destination, string $code): void
-    {
-        $requestedAt = now()->toIso8601String();
-        $payload = [
-            'service_id' => (string) config('services.emailjs.service_id'),
-            'template_id' => (string) config('services.emailjs.template_id'),
-            'user_id' => (string) config('services.emailjs.public_key'),
-            'template_params' => [
-                'otp_code' => $code,
-                'to_email' => $destination,
-            ],
-        ];
-
-        $payload['accessToken'] = (string) config('services.emailjs.private_key');
-
-        try {
-            $response = Http::acceptJson()
-                ->asJson()
-                ->connectTimeout(5)
-                ->timeout(10)
-                ->post('https://api.emailjs.com/api/v1.0/email/send', $payload);
-        } catch (ConnectionException $exception) {
-            $message = strtolower($exception->getMessage());
-            $category = str_contains($message, 'timeout')
-                || str_contains($message, 'timed out')
-                || str_contains($message, 'error 28')
-                    ? 'timeout'
-                    : 'network_error';
-
-            $this->logEmailJsFailure(null, $category, $requestedAt);
-
-            throw new OtpDeliveryFailed('We could not send a verification code. Please try again.');
-        } catch (Throwable) {
-            $this->logEmailJsFailure(null, 'transport_error', $requestedAt);
-
-            throw new OtpDeliveryFailed('We could not send a verification code. Please try again.');
-        }
-
-        if (! $response->successful()) {
-            $status = $response->status();
-            $category = $this->emailJsFailureCategory($status, $response->body());
-
-            $this->logEmailJsFailure($status, $category, $requestedAt, $response->header('x-request-id')
-                ?? $response->header('x-correlation-id'));
-
-            throw new OtpDeliveryFailed('We could not send a verification code. Please try again.');
-        }
-    }
-
-    private function emailJsFailureCategory(int $status, string $providerResponse): string
-    {
-        if (in_array($status, [401, 403], true)) {
-            $response = mb_strtolower($providerResponse);
-
-            return match (true) {
-                preg_match('/private.?key|access.?token|token (?:is )?(?:invalid|rejected|disabled)/', $response) === 1 => 'private_key_rejected',
-                preg_match('/origin|referer|domain|ip address|allow.?list/', $response) === 1 => 'origin_or_ip_restricted',
-                preg_match('/public.?key|user[_ ]id/', $response) === 1 => 'public_key_rejected',
-                preg_match('/account.{0,30}(?:suspend|restrict|disable|not allowed)/', $response) === 1 => 'account_restricted',
-                preg_match('/service[_ ]id|template[_ ]id|service.{0,20}(?:invalid|not found)|template.{0,20}(?:invalid|not found)/', $response) === 1 => 'service_or_template_rejected',
-                default => 'authentication_failed',
-            };
-        }
-
-        return match (true) {
-            $status === 400 => 'bad_request',
-            $status === 429 => 'rate_limited',
-            $status >= 500 => 'provider_error',
-            default => 'http_rejected',
-        };
-    }
-
-    private function logEmailJsFailure(?int $status, string $category, string $requestedAt, ?string $correlationId = null): void
-    {
-        Log::warning('EmailJS OTP delivery failed', [
-            'provider' => 'emailjs',
-            'http_status' => $status,
-            'category' => $category,
-            'request_timestamp' => $requestedAt,
-            'correlation_id' => is_string($correlationId)
-                && preg_match('/^[A-Za-z0-9._:-]{1,128}$/D', $correlationId) === 1
-                    ? $correlationId
-                    : null,
-        ]);
-    }
-
     private function smtpIsConfigured(string $mailer): bool
     {
-        $host = strtolower(trim((string) config("mail.mailers.{$mailer}.host")));
-        $from = strtolower(trim((string) config('mail.from.address')));
+        $settings = config("mail.mailers.{$mailer}", []);
+        if (! is_array($settings) || ($settings['transport'] ?? null) !== 'smtp') {
+            return false;
+        }
 
-        if ($host === 'smtp-relay.brevo.com') {
+        $configuredHost = strtolower(trim((string) ($settings['host'] ?? '')));
+        if ($configuredHost === 'smtp-relay.brevo.com') {
             return app(BrevoSmtpReadiness::class)->ready($mailer);
         }
 
-        // Gmail must never advertise registration with incomplete credentials
-        // or a transport that permits falling back to plaintext SMTP.
-        if ($host === 'smtp.gmail.com') {
-            $username = strtolower(trim((string) config("mail.mailers.{$mailer}.username")));
-            $password = (string) config("mail.mailers.{$mailer}.password");
-
-            return filter_var($from, FILTER_VALIDATE_EMAIL) !== false
-                && $username === $from
-                && preg_match('/^[A-Za-z0-9]{16}$/D', $password) === 1
-                && (int) config("mail.mailers.{$mailer}.port") === 587
-                && config("mail.mailers.{$mailer}.scheme") === 'smtp'
-                && (bool) config("mail.mailers.{$mailer}.auto_tls")
-                && (bool) config("mail.mailers.{$mailer}.require_tls")
-                && blank(config("mail.mailers.{$mailer}.url"));
+        $url = trim((string) ($settings['url'] ?? ''));
+        $urlParts = $url === '' ? null : parse_url($url);
+        if ($url !== '' && (! is_array($urlParts) || ! in_array(strtolower((string) ($urlParts['scheme'] ?? '')), ['smtp', 'smtps'], true))) {
+            return false;
         }
 
-        return $host !== ''
-            && $from !== ''
-            && $from !== 'hello@example.com';
+        $scheme = strtolower((string) ($urlParts['scheme'] ?? $settings['scheme'] ?? ''));
+        $host = strtolower(trim((string) ($urlParts['host'] ?? $settings['host'] ?? '')));
+        $from = strtolower(trim((string) config('mail.from.address')));
+        $port = filter_var(
+            $urlParts['port'] ?? $settings['port'] ?? ($scheme === 'smtps' ? 465 : ($url !== '' ? 25 : null)),
+            FILTER_VALIDATE_INT,
+        );
+        $username = trim((string) (isset($urlParts['user'])
+            ? rawurldecode($urlParts['user'])
+            : ($settings['username'] ?? '')));
+        $password = (string) (isset($urlParts['pass'])
+            ? rawurldecode($urlParts['pass'])
+            : ($settings['password'] ?? ''));
+        $passwordPresent = trim($password) !== '';
+
+        if ($host === ''
+            || filter_var($from, FILTER_VALIDATE_EMAIL) === false
+            || $port === false
+            || $port < 1
+            || $port > 65535
+            || (($username === '') !== (! $passwordPresent))) {
+            return false;
+        }
+
+        if ($host === 'smtp.gmail.com') {
+            $secure = ($scheme === 'smtps' && $port === 465)
+                || (in_array($scheme, ['', 'smtp'], true)
+                    && $port === 587
+                    && ($url !== '' || (bool) ($settings['auto_tls'] ?? false) || (bool) ($settings['require_tls'] ?? false)));
+
+            return $username !== ''
+                && $passwordPresent
+                && in_array($port, [465, 587], true)
+                && $secure;
+        }
+
+        return true;
     }
 }

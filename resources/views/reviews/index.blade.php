@@ -36,7 +36,11 @@
                     <div class="info-panel p-4 h-100">
                         <div class="fw-bold">{{ $review->booking->renter->name }}</div>
                         <div class="small text-muted-soft">{{ $review->booking->space->property->property_name }} · {{ $review->booking->space->space_name }}</div>
-                        <div class="text-warning fw-semibold my-2">{{ $review->rating }}/5</div>
+                        <x-rating :average="$review->rating" :count="1" /><p class="small text-muted-soft">{{ $review->created_at->format('M j, Y') }}</p>@if(auth()->user()->isAdministrator())<p>{{ $review->reports_count }} review reports</p>@endif
+                        @if($review->hidden_at)<p class="small text-danger">Hidden from public listings after moderation.</p>@endif
+                        @if(auth()->user()->isAdministrator())
+                        <form method="POST" action="{{ route('admin.reviews.moderate', $review) }}" class="my-3">@csrf @method('PATCH')<input type="hidden" name="hidden" value="{{ $review->hidden_at ? 0 : 1 }}"><label class="form-label" for="reason-{{ $review->id }}">Moderation reason</label><input class="form-control mb-2" id="reason-{{ $review->id }}" name="reason" minlength="5" maxlength="500" required><button class="btn btn-outline-dark btn-sm">{{ $review->hidden_at ? 'Restore public review' : 'Hide public review' }}</button></form>
+                        @endif
                         @if($review->comment)<p class="text-muted-soft mb-0">{{ $review->comment }}</p>@endif
                     </div>
                 </div>

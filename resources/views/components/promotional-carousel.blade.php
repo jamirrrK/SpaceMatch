@@ -1,0 +1,11 @@
+<div class="home-hero-visual home-hero-carousel" data-home-carousel role="region" aria-roledescription="carousel" aria-label="SpaceMatch promotional illustrations">
+    @foreach(['homepage_hero_manila' => ['A new city. A fresh start.', 'Explore available rentals across the Philippines.'], 'featured_bedroom' => ['Make room for your next chapter.', 'Compare genuine listings when owners publish them.'], 'student_friendly_banner' => ['Find a place for student life.', 'Explore school, budget and student-friendly filters.']] as $image => [$heading, $description])
+        <a class="home-hero-feature home-carousel-slide {{ $loop->first ? 'is-active' : '' }}" href="{{ route('properties.index', $image === 'student_friendly_banner' ? ['student_friendly' => 1] : []) }}" data-carousel-slide aria-label="{{ $heading }}" aria-hidden="{{ $loop->first ? 'false' : 'true' }}" @unless($loop->first) hidden tabindex="-1" @endunless>
+            <x-marketing-image :name="$image" :alt="'Promotional illustration: '.$heading" :priority="$loop->first" sizes="(min-width: 992px) 45vw, 90vw" />
+            <span class="hero-image-label">Illustrative image</span><span class="home-hero-caption"><span class="eyebrow">Explore at your pace</span><strong>{{ $heading }}</strong><span>{{ $description }}</span><span>Promotional artwork, not a rental listing.</span></span>
+        </a>
+    @endforeach
+    <div class="home-carousel-controls" role="group" aria-label="Promotional slide controls"><button class="home-carousel-control" type="button" data-carousel-previous aria-label="Previous slide">&larr;</button><button class="home-carousel-control" type="button" data-carousel-next aria-label="Next slide">&rarr;</button><button type="button" class="home-carousel-pause" data-carousel-pause aria-pressed="false">Pause slides</button></div>
+    <div class="home-carousel-pagination" role="group" aria-label="Choose promotional slide">@for($index=0;$index<3;$index++)<button type="button" data-carousel-indicator="{{ $index }}" aria-label="Show promotional slide {{ $index+1 }}" aria-current="{{ $index===0 ? 'true' : 'false' }}"><span class="visually-hidden">{{ $index+1 }}</span></button>@endfor</div>
+    <p class="visually-hidden" aria-live="polite" data-carousel-announcement></p>
+</div>
