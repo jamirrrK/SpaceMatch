@@ -9,6 +9,7 @@ use App\Notifications\RentalWorkflowNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -92,8 +93,13 @@ class MaintenanceRequestController extends Controller
     {
         $data = $request->validate([
             'status' => ['required', Rule::in(['in_progress', 'resolved', 'closed'])],
-            'notes' => ['nullable', 'required_if:status,resolved', 'string', 'max:2000'],
+            'notes' => ['nullable', 'string', 'max:2000'],
+            'owner_response' => ['nullable', 'string', 'max:3000'],
         ]);
+
+        if ($data['status'] === 'resolved' && blank($data['notes'] ?? $data['owner_response'] ?? null)) {
+            throw ValidationException::withMessages(['notes' => 'Add a short note describing how the issue was resolved.']);
+        }
 
         $maintenanceRequest = DB::transaction(function () use ($request, $maintenanceRequest, $data): MaintenanceRequest {
             $ownedRequest = MaintenanceRequest::query()
@@ -113,13 +119,20 @@ class MaintenanceRequestController extends Controller
             }
 
             $previousStatus = $ownedRequest->status;
-            $ownedRequest->update(['status' => $data['status']]);
+            $changes = ['status' => $data['status']];
+            if (Schema::hasColumn('maintenance_requests', 'owner_response')) {
+                $changes['owner_response'] = $data['owner_response'] ?? $data['notes'] ?? $ownedRequest->owner_response;
+            }
+            if (Schema::hasColumn('maintenance_requests', 'resolved_at') && $data['status'] === 'resolved') {
+                $changes['resolved_at'] = now();
+            }
+            $ownedRequest->update($changes);
             MaintenanceRequestStatusHistory::query()->create([
                 'maintenance_request_id' => $ownedRequest->id,
                 'actor_id' => $request->user()->id,
                 'from_status' => $previousStatus,
                 'to_status' => $data['status'],
-                'notes' => $data['notes'] ?? null,
+                'notes' => $data['notes'] ?? $data['owner_response'] ?? null,
             ]);
 
             return $ownedRequest->load('booking.renter', 'statusHistory');

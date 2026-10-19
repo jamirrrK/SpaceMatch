@@ -13,7 +13,14 @@ class MaintenanceRequest extends Model
         'booking_id',
         'description',
         'status',
+        'owner_response',
+        'resolved_at',
     ];
+
+    protected function casts(): array
+    {
+        return ['resolved_at' => 'datetime'];
+    }
 
     public function booking()
     {

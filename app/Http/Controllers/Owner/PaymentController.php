@@ -15,6 +15,21 @@ use Illuminate\Validation\ValidationException;
 
 class PaymentController extends Controller
 {
+    public function update(Request $request, Payment $payment): RedirectResponse
+    {
+        $data = $request->validate([
+            'payment_status' => ['required', Rule::in(['paid'])],
+            'payment_method' => ['required', Rule::in(['cash', 'bank_transfer', 'gcash', 'maya', 'other'])],
+            'payment_date' => ['required', 'date', 'before_or_equal:today'],
+        ]);
+
+        return $this->confirm($request->merge([
+            'payment_date' => $data['payment_date'],
+            'payment_method' => $data['payment_method'],
+            'amount' => $payment->outstanding_balance,
+        ]), $payment);
+    }
+
     public function confirm(Request $request, Payment $payment): RedirectResponse
     {
         $data = $request->validate([

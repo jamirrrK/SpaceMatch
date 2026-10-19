@@ -14,6 +14,7 @@ use App\Http\Controllers\MaintenanceRequestController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Owner\DashboardController as OwnerDashboardController;
 use App\Http\Controllers\Owner\ReportController;
+use App\Http\Controllers\Owner\RentalController as OwnerRentalController;
 use App\Http\Controllers\Owner\TenantController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentReceiptController;
@@ -102,6 +103,10 @@ Route::middleware(['auth', 'role:master_admin', 'contact.verified', 'admin.passw
 
 Route::middleware(['auth', 'role:owner', 'contact.verified'])->group(function () {
     Route::get('/owner/dashboard', [OwnerDashboardController::class, 'index'])->name('owner.dashboard');
+    Route::get('/owner/rentals', [OwnerRentalController::class, 'index'])->name('owner.rentals.index');
+    Route::post('/owner/bookings/{booking}/decision', [OwnerRentalController::class, 'decide'])->name('owner.bookings.decision');
+    Route::patch('/owner/bookings/{booking}/activate', [OwnerRentalController::class, 'activate'])->name('owner.bookings.activate');
+    Route::patch('/owner/bookings/{booking}/complete', [OwnerRentalController::class, 'complete'])->name('owner.bookings.complete');
     Route::get('/owner/inquiries', [InquiryController::class, 'ownerIndex'])->name('owner.inquiries.index');
     Route::get('/owner/inquiries/{inquiry}', [InquiryController::class, 'showOwner'])->name('owner.inquiries.show');
     Route::get('/owner/inquiries/{inquiry}/updates', [InquiryController::class, 'updates'])->name('owner.inquiries.updates');
@@ -116,12 +121,14 @@ Route::middleware(['auth', 'role:owner', 'contact.verified'])->group(function ()
     Route::get('/owner/tenants', [TenantController::class, 'index'])->name('owner.tenants.index');
     Route::get('/owner/reports', [ReportController::class, 'index'])->name('owner.reports.index');
     Route::get('/owner/reports/collections.csv', [ReportController::class, 'export'])->name('owner.reports.export');
+    Route::get('/owner/rental-reports', [OwnerRentalController::class, 'reports'])->name('owner.rental-reports.index');
     Route::get('/owner/rental-requests', [App\Http\Controllers\Owner\RentalRequestController::class, 'index'])->name('owner.requests.index');
     Route::patch('/owner/rental-requests/{rentalRequest}', [App\Http\Controllers\Owner\RentalRequestController::class, 'update'])->name('owner.requests.update');
     Route::patch('/owner/bookings/{booking}/status', [App\Http\Controllers\Owner\BookingController::class, 'update'])->name('owner.bookings.update');
     Route::patch('/owner/bookings/{booking}/cancel', [BookingLifecycleController::class, 'cancel'])->name('owner.bookings.cancel');
     Route::patch('/owner/bookings/{booking}/terminate', [BookingLifecycleController::class, 'terminate'])->name('owner.bookings.terminate');
     Route::patch('/owner/payments/{payment}/confirm', [App\Http\Controllers\Owner\PaymentController::class, 'confirm'])->name('owner.payments.confirm');
+    Route::patch('/owner/payments/{payment}', [App\Http\Controllers\Owner\PaymentController::class, 'update'])->name('owner.payments.update');
     Route::get('/owner/payment-submissions', [PaymentSubmissionController::class, 'index'])->name('owner.payments.submissions.index');
     Route::patch('/owner/payment-submissions/{submission}', [PaymentSubmissionController::class, 'review'])->name('owner.payments.submissions.review');
     Route::patch('/owner/maintenance/{maintenanceRequest}', [MaintenanceRequestController::class, 'update'])->name('owner.maintenance.update');
@@ -163,6 +170,8 @@ Route::middleware(['auth', 'role:renter', 'contact.verified'])->group(function (
     Route::post('/renter/requests/{space}', [RentalRequestController::class, 'store'])->name('renter.requests.store');
     Route::patch('/renter/requests/{rentalRequest}/response', [RentalRequestController::class, 'respond'])->name('renter.requests.respond');
     Route::patch('/renter/requests/{rentalRequest}/cancel', [RentalRequestController::class, 'cancel'])->name('renter.requests.cancel');
+    Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+    Route::post('/booking-information/{informationRequest}/respond', [BookingController::class, 'respondToInformationRequest'])->name('booking-information.respond');
     Route::post('/maintenance', [MaintenanceRequestController::class, 'store'])->name('maintenance.store');
     Route::post('/renter/payments/{payment}/submissions', [PaymentSubmissionController::class, 'store'])->middleware('throttle:10,1')->name('renter.payments.submissions.store');
     Route::post('/bookings/{booking}/review', [ReviewController::class, 'store'])->name('reviews.store');
